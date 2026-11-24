@@ -42,17 +42,47 @@ export default function ProductPage() {
   const { data: product, isLoading } = useProduct(id);
   const { data: allDynamicProducts, isLoading: isProductsLoading } = useProducts();
 
-  const stockQty = typeof product?.stockQuantity === 'number'
-    ? product.stockQuantity
-    : (product?.stockStatus === 'outofstock' ? 0 : 25);
-  const isOutOfStock = product?.stockStatus === 'outofstock' || stockQty <= 0;
-  const isLowStock = !isOutOfStock && stockQty <= 5;
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const [quantity, setQuantity] = useState(1);
+
+  // Dynamic stock calculation based on selected size/variant
+  const currentStock = (() => {
+    if (!product) return 0;
+
+    if (product.variantStocks && Object.keys(product.variantStocks).length > 0) {
+      // 1. Try matching any selected option value (e.g. "S", "M", "L")
+      for (const val of Object.values(selectedOptions)) {
+        if (val && product.variantStocks[val] !== undefined) {
+          return Number(product.variantStocks[val]);
+        }
+      }
+      // 2. Try combined string e.g. "Black / M"
+      const combined = Object.values(selectedOptions).join(' / ');
+      if (product.variantStocks[combined] !== undefined) {
+        return Number(product.variantStocks[combined]);
+      }
+    }
+
+    return typeof product.stockQuantity === 'number'
+      ? product.stockQuantity
+      : (product.stockStatus === 'outofstock' ? 0 : 25);
+  })();
+
+  const isOutOfStock = product?.stockStatus === 'outofstock' || currentStock <= 0;
+  const isLowStock = !isOutOfStock && currentStock <= 5;
+
+  // Clamp quantity when stock changes
+  useEffect(() => {
+    if (currentStock <= 0) {
+      setQuantity(1);
+    } else if (quantity > currentStock) {
+      setQuantity(currentStock);
+    }
+  }, [currentStock, quantity]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [id]);
-
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
   useEffect(() => {
@@ -212,16 +242,16 @@ export default function ProductPage() {
     setIsAdding(true);
     setTimeout(() => {
       const variationString = Object.values(selectedOptions).join(' / ');
-      addToCart(product, variationString || undefined, 1);
+      addToCart(product, variationString || undefined, quantity);
       setIsAdding(false);
       setIsCartOpen(true);
-    }, 600);
+    }, 400);
   };
 
   const handleBuyNow = () => {
     if (!product || isOutOfStock) return;
     const variationString = Object.values(selectedOptions).join(' / ');
-    addToCart(product, variationString || undefined, 1);
+    addToCart(product, variationString || undefined, quantity);
     router.push("/checkout");
   };
 
@@ -517,19 +547,32 @@ export default function ProductPage() {
                     const colorValue = termData?.value || termData?.meta_value;
                     const isColor = (attr as any).type === 'color' && colorValue;
                     const isSelected = selectedOptions[attr.slug] === opt;
+                    const optStock = product?.variantStocks?.[opt];
+                    const isOptOutOfStock = optStock !== undefined && optStock <= 0;
                     
                     return (
                       <div key={opt} className="relative group">
                         <button
                           onClick={() => setSelectedOptions({ ...selectedOptions, [attr.slug]: opt })}
-                          className={`transition-colors flex items-center justify-center font-medium ${
+                          className={`transition-all relative flex items-center justify-center font-medium ${
                             isColor 
                               ? `h-9 w-9 rounded-full shadow-sm ring-offset-background ring-offset-2 ${isSelected ? 'ring-2 ring-gold' : 'ring-1 ring-border hover:ring-gold/60'}`
-                              : `h-11 min-w-[3rem] px-4 rounded-lg border text-sm ${isSelected ? "border-gold bg-gold text-background" : "border-border bg-card hover:border-gold/60 text-foreground"}`
+                              : `h-11 min-w-[3rem] px-4 rounded-lg border text-sm ${
+                                  isSelected 
+                                    ? "border-gold bg-gold text-background font-semibold" 
+                                    : isOptOutOfStock
+                                    ? "border-border/40 bg-card/40 text-muted-foreground/50 line-through hover:border-border/60"
+                                    : "border-border bg-card hover:border-gold/60 text-foreground"
+                                }`
                           }`}
                           style={isColor ? { backgroundColor: colorValue } : {}}
                         >
                           {!isColor && opt}
+                          {isOptOutOfStock && !isColor && (
+                            <span className="absolute -top-1.5 -right-1.5 text-[9px] px-1 rounded bg-red-500/20 text-red-400 border border-red-500/30 no-underline font-mono">
+                              0
+                            </span>
+                          )}
                         </button>
                         {isColor && (
                           <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/90 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
@@ -544,23 +587,73 @@ export default function ProductPage() {
               </div>
             ))}
 
-            {/* Stock Display */}
-            <div className="mb-5 inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-lg bg-card/70 border border-border/80 backdrop-blur-sm w-fit">
-              <span className={`h-2 w-2 rounded-full ${
-                isOutOfStock ? "bg-red-500" : isLowStock ? "bg-amber-400 animate-pulse" : "bg-emerald-500 animate-pulse"
-              }`} />
-              <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
-                Stock:
-              </span>
-              <span className={`font-mono text-xs font-bold px-2 py-0.5 rounded-md border ${
-                isOutOfStock 
-                  ? "bg-red-500/10 text-red-400 border-red-500/20" 
-                  : isLowStock 
-                  ? "bg-amber-500/10 text-amber-400 border-amber-500/20" 
-                  : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-              }`}>
-                {isOutOfStock ? "0" : stockQty}
-              </span>
+            {/* Quantity Selector & Stock Display Row */}
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6">
+              {/* Quantity Controls */}
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                  Qty:
+                </span>
+                <div className="inline-flex items-center rounded-lg border border-border bg-card overflow-hidden h-10 shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                    disabled={quantity <= 1 || isOutOfStock}
+                    className="w-10 h-full flex items-center justify-center text-foreground hover:bg-white/10 hover:text-gold active:bg-white/20 transition disabled:opacity-30 disabled:cursor-not-allowed select-none font-bold text-base"
+                    aria-label="Decrease quantity"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    min={1}
+                    max={Math.max(1, currentStock)}
+                    value={isOutOfStock ? 0 : quantity}
+                    onChange={(e) => {
+                      if (isOutOfStock) return;
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setQuantity(Math.max(1, Math.min(val, currentStock > 0 ? currentStock : 1)));
+                      }
+                    }}
+                    disabled={isOutOfStock}
+                    className="w-12 h-full text-center bg-transparent text-sm font-semibold text-cream focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((prev) => Math.min(currentStock > 0 ? currentStock : 999, prev + 1))}
+                    disabled={quantity >= currentStock || isOutOfStock}
+                    className="w-10 h-full flex items-center justify-center text-foreground hover:bg-white/10 hover:text-gold active:bg-white/20 transition disabled:opacity-30 disabled:cursor-not-allowed select-none font-bold text-base"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Stock Display Badge */}
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-lg bg-card/70 border border-border/80 backdrop-blur-sm h-10">
+                <span className={`h-2 w-2 rounded-full ${
+                  isOutOfStock ? "bg-red-500" : isLowStock ? "bg-amber-400 animate-pulse" : "bg-emerald-500 animate-pulse"
+                }`} />
+                <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                  Stock:
+                </span>
+                <span className={`font-mono text-xs font-bold px-2 py-0.5 rounded-md border ${
+                  isOutOfStock 
+                    ? "bg-red-500/10 text-red-400 border-red-500/20" 
+                    : isLowStock 
+                    ? "bg-amber-500/10 text-amber-400 border-amber-500/20" 
+                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                }`}>
+                  {isOutOfStock ? "0" : currentStock}
+                </span>
+                {currentStock > 0 && (
+                  <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                    available
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Actions */}
@@ -576,14 +669,14 @@ export default function ProductPage() {
                   ) : (
                     <ShoppingBag className="h-4 w-4 shrink-0" />
                   )}
-                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                  {isOutOfStock ? 'Out of Stock' : quantity > 1 ? `Add to Cart (${quantity})` : 'Add to Cart'}
                 </button>
                 <button
                   onClick={handleBuyNow}
                   disabled={isOutOfStock}
                   className="flex-1 h-12 px-2 sm:px-4 rounded-lg bg-gold text-background flex items-center justify-center gap-1.5 sm:gap-2 font-semibold text-xs sm:text-sm transition-transform active:scale-[0.98] hover:opacity-90 shadow-luxe whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Buy It Now
+                  {isOutOfStock ? 'Out of Stock' : quantity > 1 ? `Buy It Now (${quantity})` : 'Buy It Now'}
                 </button>
                 <button className="h-12 w-12 rounded-lg border border-border bg-card flex items-center justify-center text-foreground hover:text-gold hover:border-gold/50 transition shrink-0">
                   <Heart className="h-5 w-5 shrink-0" />
@@ -854,7 +947,7 @@ export default function ProductPage() {
         <div className="flex items-center justify-between px-2 pb-1.5 text-[11px]">
           <span className="text-muted-foreground font-medium">Stock:</span>
           <span className={`font-semibold font-mono ${isOutOfStock ? "text-red-400" : isLowStock ? "text-amber-400" : "text-emerald-400"}`}>
-            {isOutOfStock ? "0" : stockQty}
+            {isOutOfStock ? "0" : currentStock}
           </span>
         </div>
         <div className="flex gap-2.5">
@@ -868,7 +961,7 @@ export default function ProductPage() {
             className="flex-1 h-10 rounded-lg bg-white text-black flex items-center justify-center gap-1.5 font-semibold text-xs transition-transform active:scale-[0.98] shadow-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
-            {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+            {isOutOfStock ? 'Out of Stock' : quantity > 1 ? `Add to Cart (${quantity})` : 'Add to Cart'}
           </button>
           <button
             onClick={() => {
@@ -927,7 +1020,7 @@ export default function ProductPage() {
                 <p className="text-gold font-semibold">৳{(product.price ?? 0).toLocaleString()}</p>
                 <span className="text-muted-foreground text-xs">•</span>
                 <p className={`text-xs font-semibold ${isOutOfStock ? 'text-red-400' : isLowStock ? 'text-amber-400' : 'text-emerald-400'}`}>
-                  Stock: {isOutOfStock ? "0" : stockQty}
+                  Stock: {isOutOfStock ? "0" : currentStock}
                 </p>
               </div>
             </div>
@@ -947,19 +1040,32 @@ export default function ProductPage() {
                     const termData = (attr as any).termsData?.find((t: any) => t.name === opt);
                     const isColor = (attr as any).type === 'color' && termData?.meta_value;
                     const isSelected = selectedOptions[attr.slug] === opt;
+                    const optStock = product?.variantStocks?.[opt];
+                    const isOptOutOfStock = optStock !== undefined && optStock <= 0;
                     
                     return (
                       <div key={opt} className="relative group">
                         <button
                           onClick={() => setSelectedOptions({ ...selectedOptions, [attr.slug]: opt })}
-                          className={`transition-colors flex items-center justify-center font-medium ${
+                          className={`transition-all relative flex items-center justify-center font-medium ${
                             isColor 
                               ? `h-8 w-8 rounded-full shadow-sm ring-offset-card ring-offset-2 ${isSelected ? 'ring-2 ring-gold' : 'ring-1 ring-border hover:ring-gold/60'}`
-                              : `h-10 min-w-[2.5rem] px-3 rounded-lg border text-xs ${isSelected ? "border-gold bg-gold text-background" : "border-border bg-secondary text-foreground"}`
+                              : `h-10 min-w-[2.5rem] px-3 rounded-lg border text-xs ${
+                                  isSelected 
+                                    ? "border-gold bg-gold text-background font-semibold" 
+                                    : isOptOutOfStock
+                                    ? "border-border/40 bg-secondary/40 text-muted-foreground/50 line-through hover:border-border/60"
+                                    : "border-border bg-secondary text-foreground"
+                                }`
                           }`}
                           style={isColor ? { backgroundColor: termData.meta_value } : {}}
                         >
                           {!isColor && opt}
+                          {isOptOutOfStock && !isColor && (
+                            <span className="absolute -top-1.5 -right-1.5 text-[9px] px-1 rounded bg-red-500/20 text-red-400 border border-red-500/30 no-underline font-mono">
+                              0
+                            </span>
+                          )}
                         </button>
                         {isColor && (
                           <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/90 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
@@ -973,6 +1079,36 @@ export default function ProductPage() {
                 </div>
               </div>
             ))}
+
+            {/* Quantity Selector in Mobile Drawer */}
+            <div className="flex items-center justify-between py-3 border-t border-border mb-2">
+              <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                Quantity:
+              </span>
+              <div className="inline-flex items-center rounded-lg border border-border bg-card overflow-hidden h-9 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  disabled={quantity <= 1 || isOutOfStock}
+                  className="w-9 h-full flex items-center justify-center text-foreground hover:bg-white/10 active:bg-white/20 transition disabled:opacity-30 disabled:cursor-not-allowed select-none font-bold text-base"
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+                <span className="w-10 text-center text-xs font-bold text-cream">
+                  {isOutOfStock ? 0 : quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((prev) => Math.min(currentStock > 0 ? currentStock : 999, prev + 1))}
+                  disabled={quantity >= currentStock || isOutOfStock}
+                  className="w-9 h-full flex items-center justify-center text-foreground hover:bg-white/10 active:bg-white/20 transition disabled:opacity-30 disabled:cursor-not-allowed select-none font-bold text-base"
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-3 mt-2">
@@ -995,10 +1131,10 @@ export default function ProductPage() {
                   ) : (
                     <ShoppingBag className="h-4 w-4 shrink-0" />
                   )}
-                  {isOutOfStock ? 'Out of Stock' : `Add to Cart - ৳${(product.price ?? 0).toLocaleString()}`}
+                  {isOutOfStock ? 'Out of Stock' : `Add to Cart (${quantity}) - ৳${((product.price ?? 0) * quantity).toLocaleString()}`}
                 </>
               ) : (
-                <>{isOutOfStock ? 'Out of Stock' : `Buy It Now - ৳${(product.price ?? 0).toLocaleString()}`}</>
+                <>{isOutOfStock ? 'Out of Stock' : `Buy It Now (${quantity}) - ৳${((product.price ?? 0) * quantity).toLocaleString()}`}</>
               )}
             </button>
           </div>

@@ -15,6 +15,7 @@ export interface IProduct extends Document {
   gallery?: string[];
   globalAttributes?: any[];
   productAttributes?: any[];
+  variantStocks?: Record<string, number>;
   status: 'published' | 'draft';
   createdAt: Date;
   updatedAt: Date;
@@ -36,6 +37,7 @@ const ProductSchema: Schema = new Schema(
     gallery: [{ type: String }],
     globalAttributes: [{ type: Schema.Types.Mixed }],
     productAttributes: [{ type: Schema.Types.Mixed }],
+    variantStocks: { type: Schema.Types.Mixed, default: {} },
     status: { type: String, enum: ['published', 'draft'], default: 'published' },
   },
   { timestamps: true }

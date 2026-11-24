@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { 
       name, description, regularPrice, salePrice, sku, stockQuantity, 
-      category, parentCategory, subCategory, image, gallery, globalAttributes, productAttributes, status 
+      category, parentCategory, subCategory, image, gallery, globalAttributes, productAttributes, variantStocks, status 
     } = body;
 
     if (!name || regularPrice === undefined) {
@@ -69,6 +69,7 @@ export async function POST(req: Request) {
       gallery,
       globalAttributes,
       productAttributes,
+      variantStocks: variantStocks || {},
       status: status || 'published'
     });
 

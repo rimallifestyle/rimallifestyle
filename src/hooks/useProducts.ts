@@ -35,6 +35,7 @@ export function useProducts() {
           bgSize: "cover",
           stockQuantity: stockQty,
           stockStatus: stockQty > 0 ? "instock" : "outofstock",
+          variantStocks: item.variantStocks || {},
           attributes: item.productAttributes || []
         };
       }) as Product[];

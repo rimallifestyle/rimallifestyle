@@ -39,7 +39,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const body = await req.json();
     const { 
       name, description, regularPrice, salePrice, sku, stockQuantity, 
-      category, parentCategory, subCategory, image, gallery, globalAttributes, productAttributes, status 
+      category, parentCategory, subCategory, image, gallery, globalAttributes, productAttributes, variantStocks, status 
     } = body;
 
     let slug;
@@ -68,6 +68,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         gallery,
         globalAttributes,
         productAttributes,
+        ...(variantStocks !== undefined && { variantStocks }),
         status
       },
       { new: true }

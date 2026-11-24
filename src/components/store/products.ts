@@ -37,6 +37,7 @@ export type Product = {
   gallery?: string[];
   stockStatus?: "instock" | "outofstock";
   stockQuantity?: number;
+  variantStocks?: Record<string, number>;
 };
 
 const P = {

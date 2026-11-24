@@ -32,6 +32,7 @@ export default function AddProductPage() {
   // Attributes State
   const [globalAttributes, setGlobalAttributes] = useState<any[]>([])
   const [productAttributes, setProductAttributes] = useState<{id?: number, name: string, slug: string, type?: string, options: string[], allTerms?: any[]}[]>([])
+  const [variantStocks, setVariantStocks] = useState<Record<string, number>>({})
   
   // Image State
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -147,6 +148,10 @@ export default function AddProductPage() {
               setProductAttributes(product.productAttributes)
             } else if (product.attributes && Array.isArray(product.attributes)) {
               setProductAttributes(product.attributes) // Fallback for old data
+            }
+
+            if (product.variantStocks && typeof product.variantStocks === 'object') {
+              setVariantStocks(product.variantStocks)
             }
           }
         }
@@ -307,6 +312,7 @@ export default function AddProductPage() {
         gallery: galleryUrls.length > 0 ? galleryUrls : undefined,
         productAttributes,
         globalAttributes,
+        variantStocks,
         status
       }
 
@@ -501,7 +507,14 @@ export default function AddProductPage() {
                     <span className="text-sm font-medium text-white">{attr.name}</span>
                     <button 
                       type="button"
-                      onClick={() => setProductAttributes(productAttributes.filter(a => a.slug !== attr.slug))}
+                      onClick={() => {
+                        setVariantStocks(prev => {
+                          const copy = { ...prev };
+                          attr.options.forEach(opt => delete copy[opt]);
+                          return copy;
+                        });
+                        setProductAttributes(productAttributes.filter(a => a.slug !== attr.slug));
+                      }}
                       className="text-red-400 hover:text-red-300 text-xs"
                     >
                       Remove
@@ -531,6 +544,11 @@ export default function AddProductPage() {
                                   updatedAttr.options.push(term.name);
                                 } else {
                                   updatedAttr.options = updatedAttr.options.filter(o => o !== term.name);
+                                  setVariantStocks(prev => {
+                                    const copy = { ...prev };
+                                    delete copy[term.name];
+                                    return copy;
+                                  });
                                 }
                                 
                                 newAttrs[index] = updatedAttr;
@@ -548,11 +566,73 @@ export default function AddProductPage() {
                       <span className="text-sm text-white/40">No terms configured for this attribute yet. Go to Attributes menu to add them.</span>
                     )}
                   </div>
+
+                  {/* Stock Quantity for each selected option */}
+                  {attr.options && attr.options.length > 0 && (
+                    <div className="mt-4 pt-3.5 border-t border-white/10">
+                      <div className="flex items-center justify-between mb-2.5">
+                        <span className="text-xs font-medium text-white/80">
+                          Set Stock for {attr.name}:
+                        </span>
+                        <span className="text-[11px] text-white/40">
+                          Qty = 0 marks it Out of Stock
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                        {attr.options.map((opt) => (
+                          <div key={opt} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-black/40 border border-white/10">
+                            <span className="text-xs font-semibold text-white/90 truncate max-w-[65px]">{opt}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] text-white/40">Qty:</span>
+                              <input
+                                type="number"
+                                min="0"
+                                placeholder="0"
+                                value={variantStocks[opt] !== undefined ? variantStocks[opt] : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value === '' ? '' : parseInt(e.target.value, 10);
+                                  setVariantStocks(prev => {
+                                    const updated = { ...prev };
+                                    if (val === '') {
+                                      delete updated[opt];
+                                    } else {
+                                      updated[opt] = isNaN(val as number) ? 0 : Math.max(0, val as number);
+                                    }
+                                    return updated;
+                                  });
+                                }}
+                                className="w-16 h-7 px-2 text-right rounded bg-white/10 border border-white/15 text-xs text-white focus:outline-none focus:border-white/30"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
               {productAttributes.length === 0 && (
                 <div className="text-sm text-white/40 text-center py-4 border border-dashed border-white/10 rounded-xl">
                   No attributes added yet. Select one from the dropdown above.
+                </div>
+              )}
+
+              {Object.keys(variantStocks).length > 0 && (
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-wrap items-center justify-between gap-3">
+                  <div className="text-xs text-white/70">
+                    Total stock across variations: <span className="font-bold text-white text-sm ml-1">{Object.values(variantStocks).reduce((a, b) => a + (Number(b) || 0), 0)}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const sum = Object.values(variantStocks).reduce((a, b) => a + (Number(b) || 0), 0);
+                      setStockQuantity(sum.toString());
+                      toast.success(`Updated Total Stock to ${sum}`);
+                    }}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-[#C52A35]/30 hover:bg-[#C52A35]/50 border border-[#C52A35]/50 text-white font-medium transition flex items-center gap-1.5"
+                  >
+                    <span>Sync to Total Stock</span>
+                  </button>
                 </div>
               )}
             </div>

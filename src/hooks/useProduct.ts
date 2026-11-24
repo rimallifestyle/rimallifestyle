@@ -33,7 +33,8 @@ export function useProduct(slugOrId: string) {
             bgSize: "cover",
             attributes: item.productAttributes || [],
             stockQuantity: stockQty,
-            stockStatus: stockQty > 0 ? "instock" : "outofstock"
+            stockStatus: stockQty > 0 ? "instock" : "outofstock",
+            variantStocks: item.variantStocks || {}
           } as Product;
         }
       }
