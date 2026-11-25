@@ -12,12 +12,14 @@ import { useEffect } from 'react'
 import { LoginScreen } from '../auth/LoginScreen'
 import { LayoutDashboard, ArrowLeft } from 'lucide-react'
 import { useSession } from 'next-auth/react'
+import { useAdminTheme } from '@/context/AdminThemeContext'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { isLight } = useAdminTheme()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [isSwitchingToStorefront, setIsSwitchingToStorefront] = useState(false)
@@ -72,7 +74,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex overflow-hidden">
+    <div className={`min-h-screen flex overflow-hidden admin-smooth-transition ${isLight ? 'admin-light bg-[#f6f7fb] text-slate-900' : 'bg-background text-foreground'}`}>
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
@@ -89,7 +91,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden relative w-full">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden relative w-full admin-smooth-transition">
         {/* Subtle background glow effect behind content */}
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#7A1111]/20 blur-[120px] pointer-events-none" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#550000]/30 blur-[120px] pointer-events-none" />

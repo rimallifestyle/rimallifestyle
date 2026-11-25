@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import { useUserSync } from "@/context/UserSync"
 import { useAdminNotifications } from "@/hooks/useAdminNotifications"
+import { ThemeToggle } from "./ThemeToggle"
 
 export function Header({ 
   onMenuClick, 
@@ -62,6 +63,9 @@ export function Header({
           May 16 - May 22, 2025
           <ChevronDown className="w-4 h-4 opacity-70" />
         </button>
+
+        {/* Animated Theme Switcher (Dark / Light) */}
+        <ThemeToggle />
 
         {/* Notifications */}
         <button 

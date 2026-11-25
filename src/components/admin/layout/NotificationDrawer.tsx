@@ -19,6 +19,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import { useAdminNotifications, AdminNotification } from "@/hooks/useAdminNotifications";
+import { useAdminTheme } from "@/context/AdminThemeContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -31,6 +32,7 @@ type TabType = "all" | "unread" | "order" | "stock" | "customer";
 
 export function NotificationDrawer({ isOpen, onClose }: NotificationDrawerProps) {
   const router = useRouter();
+  const { isLight } = useAdminTheme();
   const { 
     notifications, 
     unreadCount, 
@@ -166,7 +168,11 @@ export function NotificationDrawer({ isOpen, onClose }: NotificationDrawerProps)
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 240 }}
-            className="relative z-10 w-full sm:w-[440px] md:w-[480px] h-full bg-[#0a0202]/95 backdrop-blur-2xl border-l border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.85)] flex flex-col text-white overflow-hidden"
+            className={`relative z-10 w-full sm:w-[440px] md:w-[480px] h-full ${
+              isLight
+                ? "bg-[#fafafa]/98 border-l border-black/10 shadow-[0_0_50px_rgba(0,0,0,0.15)] text-slate-900"
+                : "bg-[#0a0202]/95 border-l border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.85)] text-white"
+            } backdrop-blur-2xl flex flex-col overflow-hidden admin-smooth-transition`}
           >
             {/* Top decorative gradient glow line */}
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#C52A35] to-transparent" />

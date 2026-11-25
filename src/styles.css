@@ -229,3 +229,225 @@ html, body {
 .glow-effect {
   box-shadow: 0 0 20px rgba(85, 0, 0, 0.3);
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Admin Dashboard Light Mode Support & Smooth Switching
+   ══════════════════════════════════════════════════════════════════ */
+
+.admin-smooth-transition,
+.admin-smooth-transition *,
+.admin-smooth-transition *::before,
+.admin-smooth-transition *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 350ms;
+}
+
+.admin-light {
+  --admin-bg: #f6f7fb;
+  background-color: #f6f7fb !important;
+  color: #0f172a !important;
+}
+
+/* Glow Blobs in Light Mode */
+.admin-light .bg-\[\#7A1111\]\/20 {
+  background-color: rgba(197, 42, 53, 0.04) !important;
+}
+.admin-light .bg-\[\#550000\]\/30 {
+  background-color: rgba(122, 17, 17, 0.03) !important;
+}
+
+/* Glass Card */
+.admin-light .glass-card {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(0, 0, 0, 0.07) !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.admin-light .glass-card:hover {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.07) !important;
+}
+
+/* Glass Button */
+.admin-light .glass-button {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #1e293b !important;
+}
+.admin-light .glass-button:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #0f172a !important;
+}
+
+/* Sidebar */
+.admin-light aside {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-right-color: rgba(0, 0, 0, 0.07) !important;
+  backdrop-filter: blur(25px) !important;
+}
+.admin-light aside .text-white {
+  color: #0f172a !important;
+}
+.admin-light aside .text-white\/70 {
+  color: #475569 !important;
+}
+.admin-light aside .text-white\/50 {
+  color: #64748b !important;
+}
+.admin-light aside .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+.admin-light aside .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+.admin-light aside .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Header */
+.admin-light header {
+  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+}
+.admin-light header input {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+}
+.admin-light header input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Text Hierarchy */
+.admin-light .text-white {
+  color: #0f172a !important;
+}
+.admin-light .text-white\/90 {
+  color: #1e293b !important;
+}
+.admin-light .text-white\/80 {
+  color: #334155 !important;
+}
+.admin-light .text-white\/70 {
+  color: #475569 !important;
+}
+.admin-light .text-white\/60 {
+  color: #64748b !important;
+}
+.admin-light .text-white\/50 {
+  color: #64748b !important;
+}
+.admin-light .text-white\/40 {
+  color: #94a3b8 !important;
+}
+.admin-light .text-white\/30 {
+  color: #cbd5e1 !important;
+}
+.admin-light .text-white\/20 {
+  color: #e2e8f0 !important;
+}
+.admin-light .text-white\/10 {
+  color: #f1f5f9 !important;
+}
+
+/* Keep Crisp White Text on Buttons & Badges */
+.admin-light [class*="bg-\[\#C52A35\]"],
+.admin-light [class*="bg-\[\#7A1111\]"],
+.admin-light [class*="bg-\[\#550000\]"],
+.admin-light [class*="from-\[\#7A1111\]"],
+.admin-light [class*="from-\[\#C52A35\]"],
+.admin-light .bg-emerald-500,
+.admin-light .bg-rose-500,
+.admin-light .bg-green-500,
+.admin-light button[type="submit"]:not(.glass-button) {
+  color: #ffffff !important;
+}
+.admin-light [class*="bg-\[\#C52A35\]"] *,
+.admin-light [class*="from-\[\#7A1111\]"] *,
+.admin-light [class*="from-\[\#C52A35\]"] * {
+  color: #ffffff !important;
+}
+
+/* Borders and Dividers */
+.admin-light .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+.admin-light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+.admin-light .border-white\/15 {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+.admin-light .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+.admin-light .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+.admin-light .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+.admin-light .bg-white\/20 {
+  background-color: rgba(0, 0, 0, 0.09) !important;
+}
+
+/* Inputs, Selects, Textareas */
+.admin-light input:not([type="checkbox"]):not([type="radio"]),
+.admin-light select,
+.admin-light textarea {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+}
+.admin-light input:focus,
+.admin-light select:focus,
+.admin-light textarea:focus {
+  background-color: #ffffff !important;
+  border-color: #C52A35 !important;
+  box-shadow: 0 0 0 1px rgba(197, 42, 53, 0.3) !important;
+}
+.admin-light select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Text Gradients */
+.admin-light .text-gradient {
+  background-image: linear-gradient(to right, #0f172a, #475569) !important;
+}
+
+/* Table */
+.admin-light table th {
+  color: #64748b !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+.admin-light table td {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+  color: #1e293b !important;
+}
+.admin-light table tr:hover td {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Skeleton pulse */
+.admin-light .animate-pulse {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Notification Drawer in Light Mode */
+.admin-light .z-\[100\] > div:last-child {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-left-color: rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+}
+
+/* Custom Scrollbar in Light Mode */
+.admin-light .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+.admin-light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(197, 42, 53, 0.5) !important;
+}
