@@ -15,7 +15,6 @@ import {
   Settings, 
   Check, 
   Package, 
-  Sparkles,
   ExternalLink
 } from "lucide-react";
 import { useAdminNotifications, AdminNotification } from "@/hooks/useAdminNotifications";
@@ -168,7 +167,7 @@ export function NotificationDrawer({ isOpen, onClose }: NotificationDrawerProps)
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 240 }}
-            className={`relative z-10 w-full sm:w-[440px] md:w-[480px] h-full ${
+            className={`relative z-10 w-full sm:w-[380px] md:w-[400px] h-full ${
               isLight
                 ? "bg-[#fafafa]/98 border-l border-black/10 shadow-[0_0_50px_rgba(0,0,0,0.15)] text-slate-900"
                 : "bg-[#0a0202]/95 border-l border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.85)] text-white"
@@ -301,8 +300,8 @@ export function NotificationDrawer({ isOpen, onClose }: NotificationDrawerProps)
                 </div>
               ) : filteredNotifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-72 text-center px-6">
-                  <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/30 mb-3 shadow-[0_0_20px_rgba(255,255,255,0.02)]">
-                    <Sparkles className="w-6 h-6 text-white/40" />
+                  <div className="w-14 h-14 rounded-2xl bg-[#C52A35]/10 border border-[#C52A35]/20 flex items-center justify-center text-[#C52A35] mb-3 shadow-[0_0_20px_rgba(197,42,53,0.1)]">
+                    <Bell className="w-6 h-6" />
                   </div>
                   <h3 className="text-sm font-semibold text-white/80 mb-1">
                     {activeTab === "unread" ? "No unread notifications" : "No notifications found"}

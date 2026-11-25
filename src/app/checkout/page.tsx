@@ -657,7 +657,7 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-gold/30 selection:text-cream">
       <Header />
 
-      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <main className="flex-1 w-full max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8 md:py-12">
         <Link href="/cart"
           className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-gold uppercase tracking-widest mb-8 transition-colors"
         >

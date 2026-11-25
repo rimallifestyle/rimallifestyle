@@ -60,3 +60,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const isAdmin = await checkAdmin();
+    if (!isAdmin) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
+    const resolvedParams = await params;
+    const order = await Order.findByIdAndDelete(resolvedParams.id);
+    if (!order) return NextResponse.json({ message: "Order not found" }, { status: 404 });
+
+    return NextResponse.json({ message: "Order deleted successfully" });
+  } catch (error: any) {
+    console.error("Error deleting order:", error);
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+  }
+}

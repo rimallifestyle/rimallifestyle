@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sun, Moon, Sparkles } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import { useAdminTheme } from "@/context/AdminThemeContext";
 
 export function ThemeToggle() {
@@ -39,7 +39,7 @@ export function ThemeToggle() {
             !isLight ? "opacity-40" : "opacity-0"
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+          <Moon className="w-3 h-3 text-amber-200" />
         </span>
       </div>
 

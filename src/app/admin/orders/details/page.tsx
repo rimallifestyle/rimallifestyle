@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Printer, ShoppingBag, Truck, CreditCard, User, MapPin, Phone, Mail, Clock, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Printer, ShoppingBag, Truck, CreditCard, User, MapPin, Phone, Mail, Clock, CheckCircle2, Trash2 } from 'lucide-react'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
@@ -20,6 +20,8 @@ function OrderDetailsContent() {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState('')
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
 
@@ -69,6 +71,27 @@ function OrderDetailsContent() {
     }
   }
 
+  const handleDeleteOrder = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        toast.success("Order deleted successfully!");
+        router.push('/admin/orders');
+      } else {
+        toast.error("Failed to delete order.");
+      }
+    } catch (err) {
+      console.error("Error deleting order:", err);
+      toast.error("An error occurred while deleting the order.");
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
   if (isLoading || !order) {
     return (
       <div className="flex flex-col gap-6 pt-4 pb-6">
@@ -87,7 +110,7 @@ function OrderDetailsContent() {
   }
 
   return (
-    <div className="flex flex-col gap-6 pt-4 pb-6 font-sans max-w-6xl mx-auto">
+    <div className="flex flex-col gap-6 pt-4 pb-6 font-sans w-full">
       
       {/* Header */}
       <ScrollReveal>
@@ -95,7 +118,7 @@ function OrderDetailsContent() {
           <div className="space-y-3">
             <button 
               onClick={() => router.push('/admin/orders')}
-              className="flex items-center gap-2 text-sm font-medium text-white/50 hover:text-white transition-colors group"
+              className="flex items-center gap-2 text-sm font-medium text-white/50 hover:text-white transition-colors group cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               Back to Orders
@@ -121,20 +144,63 @@ function OrderDetailsContent() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white/5 text-sm font-medium text-white hover:bg-white/10 border border-white/10 transition-all">
+          <div className="flex items-center gap-3 flex-wrap">
+            <button className="flex items-center justify-center gap-2 h-10 px-5 rounded-full bg-white/5 text-sm font-medium text-white hover:bg-white/10 border border-white/10 transition-all cursor-pointer">
               <Printer className="w-4 h-4" />
-              Print Invoice
+              <span className="hidden sm:inline">Print Invoice</span>
             </button>
             <button 
               onClick={() => setIsStatusModalOpen(true)}
-              className="flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-gradient-to-r from-[#7A1111] to-[#550000] text-sm font-medium text-white hover:shadow-[0_0_20px_rgba(122,17,17,0.4)] transition-all"
+              className="flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-gradient-to-r from-[#7A1111] to-[#550000] text-sm font-medium text-white hover:shadow-[0_0_20px_rgba(122,17,17,0.4)] transition-all cursor-pointer"
             >
               Update Status
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="flex items-center justify-center gap-2 h-10 px-4 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 text-sm font-medium transition-all cursor-pointer"
+              title="Delete Order"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Delete Order</span>
             </button>
           </div>
         </div>
       </ScrollReveal>
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="glass-card bg-[#0e0303]/95 border border-red-500/30 rounded-3xl w-full max-w-sm p-6 shadow-2xl relative animate-in zoom-in-95 duration-300">
+            <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 mb-4 mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold text-white text-center mb-2">Delete Order?</h3>
+            <p className="text-sm text-white/60 text-center mb-6">
+              Are you sure you want to permanently delete order <span className="text-white font-mono font-semibold">{order.orderId}</span>? This action cannot be undone.
+            </p>
+            
+            <div className="flex gap-3 pt-2">
+              <button 
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                disabled={isDeleting}
+                className="flex-1 py-3 rounded-full border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-all text-sm font-medium cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button 
+                type="button"
+                onClick={handleDeleteOrder}
+                disabled={isDeleting}
+                className="flex-1 py-3 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all text-sm font-medium disabled:opacity-50 cursor-pointer"
+              >
+                {isDeleting ? 'Deleting...' : 'Yes, Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Status Update Modal */}
       {isStatusModalOpen && (

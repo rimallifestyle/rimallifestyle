@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShoppingCart, Search, Filter, MoreHorizontal, Eye, Download, CreditCard, Banknote, Clock, CheckCircle2, AlertCircle, XCircle } from 'lucide-react'
+import { ShoppingCart, Search, Filter, MoreHorizontal, Eye, Download, CreditCard, Banknote, Clock, CheckCircle2, AlertCircle, XCircle, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { KpiCard } from '@/components/admin/dashboard/KpiCard'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
@@ -31,6 +32,23 @@ export default function OrdersPage() {
     }
     loadOrders()
   }, [])
+
+  const handleDeleteOrder = async (orderId: string, displayId: string) => {
+    if (!window.confirm(`Are you sure you want to delete order ${displayId}?`)) return;
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setOrders((prev) => prev.filter((o) => o._id !== orderId));
+        toast.success(`Order ${displayId} deleted successfully!`);
+      } else {
+        toast.error("Failed to delete order.");
+      }
+    } catch {
+      toast.error("An error occurred while deleting the order.");
+    }
+  };
 
   const getStatusConfig = (status: string) => {
     const s = status?.toLowerCase() || '';
@@ -199,12 +217,27 @@ export default function OrdersPage() {
                       </td>
                       <td className="py-4 pr-4 rounded-r-2xl bg-transparent group-hover:bg-white/5 transition-colors border-b border-white/5 group-hover:border-transparent">
                         <div className="flex items-center justify-end gap-2">
-                          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors text-xs font-medium border border-white/10">
+                          <button 
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/admin/orders/details?id=${order._id}`);
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors text-xs font-medium border border-white/10"
+                          >
                             <Eye className="w-3.5 h-3.5" />
                             View
                           </button>
-                          <button className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors">
-                            <MoreHorizontal className="w-4 h-4" />
+                          <button 
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteOrder(order._id, order.orderId);
+                            }}
+                            className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors border border-red-500/20"
+                            title="Delete order"
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
