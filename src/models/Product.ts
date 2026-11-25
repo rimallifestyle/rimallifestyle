@@ -3,7 +3,9 @@ import mongoose, { Document, Model, Schema } from 'mongoose';
 export interface IProduct extends Document {
   name: string;
   slug: string;
+  shortDescription?: string;
   description?: string;
+  customTabs?: { id?: string; title: string; content: string }[];
   regularPrice: number;
   salePrice?: number;
   sku?: string;
@@ -25,7 +27,13 @@ const ProductSchema: Schema = new Schema(
   {
     name: { type: String, required: true },
     slug: { type: String, unique: true, sparse: true },
+    shortDescription: { type: String },
     description: { type: String },
+    customTabs: [{
+      id: { type: String },
+      title: { type: String },
+      content: { type: String }
+    }],
     regularPrice: { type: Number, required: true },
     salePrice: { type: Number },
     sku: { type: String },

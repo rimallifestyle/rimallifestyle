@@ -32,7 +32,9 @@ export type Product = {
   image?: string;
   rating?: number;
   reviews?: number;
+  shortDescription?: string;
   description?: string;
+  customTabs?: { id?: string; title: string; content: string }[];
   attributes?: ProductAttribute[];
   gallery?: string[];
   stockStatus?: "instock" | "outofstock";

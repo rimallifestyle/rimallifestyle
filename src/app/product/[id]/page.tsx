@@ -28,6 +28,9 @@ import {
   Image as ImageIcon,
   Video,
   Package,
+  FileText,
+  Layers,
+  Sparkles,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useUserSync } from "@/context/UserSync";
@@ -176,7 +179,7 @@ export default function ProductPage() {
     }
   }, [product]);
 
-  const [activeTab, setActiveTab] = useState("details");
+  const [activeTab, setActiveTab] = useState<string>("description");
   const [isAdding, setIsAdding] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [drawerAction, setDrawerAction] = useState<"cart" | "buy">("cart");
@@ -412,71 +415,207 @@ export default function ProductPage() {
 
         {/* Top Section: Gallery + Info */}
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 mb-20 items-start">
-          {/* Left: Gallery */}
-          <div className="w-full lg:w-[46%] xl:w-[44%] flex flex-col-reverse md:flex-row gap-4 lg:sticky lg:top-24">
-            {/* Thumbnails */}
-            {allImages.length > 1 && (
-              <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto no-scrollbar md:w-20 lg:w-24 shrink-0">
-                {allImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImage(img)}
-                    className={`relative w-20 md:w-full aspect-square rounded-xl overflow-hidden shrink-0 transition-all ${
-                      selectedImage === img ? 'ring-2 ring-gold border-transparent' : 'border border-border hover:border-gold/50 opacity-70 hover:opacity-100'
-                    }`}
-                  >
-                    <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* Left: Gallery & Product Tabs */}
+          <div className="w-full lg:w-[46%] xl:w-[44%] flex flex-col gap-6 lg:sticky lg:top-24">
+            <div className="flex flex-col-reverse md:flex-row gap-4">
+              {/* Thumbnails */}
+              {allImages.length > 1 && (
+                <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto no-scrollbar md:w-20 lg:w-24 shrink-0">
+                  {allImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImage(img)}
+                      className={`relative w-20 md:w-full aspect-square rounded-xl overflow-hidden shrink-0 transition-all ${
+                        selectedImage === img ? 'ring-2 ring-gold border-transparent' : 'border border-border hover:border-gold/50 opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
 
-            {/* Main Image with Interactive Cursor Hover Zoom & Lightbox Trigger */}
-            <div
-              className="relative flex-1 aspect-[4/5] rounded-2xl overflow-hidden bg-card/60 border border-border/40 select-none cursor-zoom-in group shadow-md"
-              onMouseMove={handleMouseMove}
-              onMouseEnter={() => setIsZoomed(true)}
-              onMouseLeave={() => setIsZoomed(false)}
-              onClick={() => openLightbox()}
-            >
+              {/* Main Image with Interactive Cursor Hover Zoom & Lightbox Trigger */}
               <div
-                className="absolute inset-0 w-full h-full bg-center bg-contain bg-no-repeat pointer-events-none will-change-transform"
-                style={{
-                  backgroundImage: `url(${selectedImage})`,
-                  backgroundSize: product.bgSize || "contain",
-                  backgroundPosition: product.bgPos || "center",
-                  transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
-                  transform: isZoomed ? "scale(2.2)" : "scale(1)",
-                  transition: isZoomed
-                    ? "transform 0.1s cubic-bezier(0.2, 0, 0.2, 1)"
-                    : "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform-origin 0.4s ease-out",
-                }}
-              />
-
-              {/* Subtle hover zoom hint badge */}
-              <div
-                className={`absolute top-4 left-4 z-10 transition-opacity duration-300 pointer-events-none ${
-                  isZoomed ? "opacity-0" : "opacity-100"
-                }`}
+                className="relative flex-1 aspect-[4/5] rounded-2xl overflow-hidden bg-card/60 border border-border/40 select-none cursor-zoom-in group shadow-md"
+                onMouseMove={handleMouseMove}
+                onMouseEnter={() => setIsZoomed(true)}
+                onMouseLeave={() => setIsZoomed(false)}
+                onClick={() => openLightbox()}
               >
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-md text-[11px] font-medium text-cream border border-border/70 shadow-sm">
-                  <Search className="h-3.5 w-3.5 text-gold" />
-                  <span>Hover to zoom</span>
-                </span>
+                <div
+                  className="absolute inset-0 w-full h-full bg-center bg-contain bg-no-repeat pointer-events-none will-change-transform"
+                  style={{
+                    backgroundImage: `url(${selectedImage})`,
+                    backgroundSize: product.bgSize || "contain",
+                    backgroundPosition: product.bgPos || "center",
+                    transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
+                    transform: isZoomed ? "scale(2.2)" : "scale(1)",
+                    transition: isZoomed
+                      ? "transform 0.1s cubic-bezier(0.2, 0, 0.2, 1)"
+                      : "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform-origin 0.4s ease-out",
+                  }}
+                />
+
+                {/* Subtle hover zoom hint badge */}
+                <div
+                  className={`absolute top-4 left-4 z-10 transition-opacity duration-300 pointer-events-none ${
+                    isZoomed ? "opacity-0" : "opacity-100"
+                  }`}
+                >
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-md text-[11px] font-medium text-cream border border-border/70 shadow-sm">
+                    <Search className="h-3.5 w-3.5 text-gold" />
+                    <span>Hover to zoom</span>
+                  </span>
+                </div>
+
+                {/* Zoom Icon Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openLightbox();
+                  }}
+                  aria-label="Expand image"
+                  title="Click to view full screen"
+                  className="absolute bottom-5 right-5 sm:bottom-6 sm:right-6 h-11 w-11 sm:h-12 sm:w-12 bg-background/85 hover:bg-gold hover:text-background backdrop-blur-md rounded-full flex items-center justify-center text-foreground transition-all duration-300 shadow-luxe hover:scale-110 active:scale-95 z-20 group/btn"
+                >
+                  <Search className="h-5 w-5 transition-transform duration-300 group-hover/btn:scale-110" />
+                </button>
+              </div>
+            </div>
+
+            {/* Extensible Product Tabs under Image (Description & Extra Tabs) */}
+            <div className="bg-card/40 border border-border/70 rounded-2xl overflow-hidden shadow-sm">
+              {/* Tab Navigation */}
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar p-2 bg-secondary/30 border-b border-border/60">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('description')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                    activeTab === 'description'
+                      ? "bg-gold text-background shadow-sm"
+                      : "text-foreground/70 hover:text-foreground hover:bg-white/5"
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Description</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('details')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                    activeTab === 'details'
+                      ? "bg-gold text-background shadow-sm"
+                      : "text-foreground/70 hover:text-foreground hover:bg-white/5"
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Details &amp; Specs</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('shipping')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                    activeTab === 'shipping'
+                      ? "bg-gold text-background shadow-sm"
+                      : "text-foreground/70 hover:text-foreground hover:bg-white/5"
+                  }`}
+                >
+                  <Truck className="w-3.5 h-3.5" />
+                  <span>Shipping &amp; Policy</span>
+                </button>
+
+                {/* Dynamic Custom Tabs */}
+                {product.customTabs?.map((ct: any, idx: number) => {
+                  const tabKey = `custom_${idx}`;
+                  return (
+                    <button
+                      key={tabKey}
+                      type="button"
+                      onClick={() => setActiveTab(tabKey)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                        activeTab === tabKey
+                          ? "bg-gold text-background shadow-sm"
+                          : "text-foreground/70 hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>{ct.title || `Tab ${idx + 1}`}</span>
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Zoom Icon Button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openLightbox();
-                }}
-                aria-label="Expand image"
-                title="Click to view full screen"
-                className="absolute bottom-5 right-5 sm:bottom-6 sm:right-6 h-11 w-11 sm:h-12 sm:w-12 bg-background/85 hover:bg-gold hover:text-background backdrop-blur-md rounded-full flex items-center justify-center text-foreground transition-all duration-300 shadow-luxe hover:scale-110 active:scale-95 z-20 group/btn"
-              >
-                <Search className="h-5 w-5 transition-transform duration-300 group-hover/btn:scale-110" />
-              </button>
+              {/* Tab Content Panel */}
+              <div className="p-5">
+                {activeTab === 'description' && (
+                  <div className="text-sm text-foreground/80 leading-relaxed rich-description-content">
+                    {product.description ? (
+                      <div dangerouslySetInnerHTML={{ __html: product.description }} />
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">No detailed description provided for this product.</p>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'details' && (
+                  <div className="space-y-3 text-sm">
+                    <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-background/50 border border-border/40">
+                      <div>
+                        <span className="text-[11px] uppercase font-bold text-muted-foreground">SKU</span>
+                        <p className="font-mono font-semibold text-cream mt-0.5">{product.sku || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <span className="text-[11px] uppercase font-bold text-muted-foreground">Stock Status</span>
+                        <p className="font-semibold text-emerald-400 mt-0.5 capitalize">{product.stockStatus || 'In Stock'}</p>
+                      </div>
+                      <div>
+                        <span className="text-[11px] uppercase font-bold text-muted-foreground">Category</span>
+                        <p className="font-semibold text-cream mt-0.5">{product.parentCategory || product.category || 'Apparel'}</p>
+                      </div>
+                      {product.subCategory && (
+                        <div>
+                          <span className="text-[11px] uppercase font-bold text-muted-foreground">Subcategory</span>
+                          <p className="font-semibold text-cream mt-0.5">{product.subCategory}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'shipping' && (
+                  <div className="space-y-3 text-xs text-foreground/80 leading-relaxed">
+                    <div className="p-3.5 rounded-xl bg-background/50 border border-border/40 space-y-1.5">
+                      <p className="font-bold text-cream text-sm flex items-center gap-2">
+                        <Truck className="w-4 h-4 text-gold" /> Fast Nationwide Delivery
+                      </p>
+                      <p>
+                        We deliver door-to-door all over Bangladesh within 2 to 3 business days via our partner couriers (Steadfast &amp; Pathao).
+                      </p>
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-background/50 border border-border/40 space-y-1.5">
+                      <p className="font-bold text-cream text-sm flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-gold" /> Cash on Delivery Available
+                      </p>
+                      <p>
+                        Inspect your package and pay securely with Cash on Delivery or via instant bKash / Nagad payment.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {product.customTabs?.map((ct: any, idx: number) => {
+                  const tabKey = `custom_${idx}`;
+                  if (activeTab !== tabKey) return null;
+                  return (
+                    <div key={tabKey} className="text-sm text-foreground/80 leading-relaxed rich-description-content">
+                      <div dangerouslySetInnerHTML={{ __html: ct.content }} />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -552,16 +691,12 @@ export default function ProductPage() {
               )}
             </div>
 
-            {product.description ? (
+            {product.shortDescription ? (
               <div 
-                className="text-sm text-foreground/80 leading-relaxed mb-8 pr-4 prose prose-invert prose-p:text-foreground/80 prose-a:text-gold max-w-none rich-description-content"
-                dangerouslySetInnerHTML={{ __html: product.description }}
+                className="text-sm text-foreground/85 leading-relaxed mb-6 pr-4 rich-description-content"
+                dangerouslySetInnerHTML={{ __html: product.shortDescription }}
               />
-            ) : (
-              <p className="text-sm text-foreground/80 leading-relaxed mb-8 pr-4">
-                No description available for this product.
-              </p>
-            )}
+            ) : null}
 
             <div className="h-px w-full bg-border mb-8" />
 

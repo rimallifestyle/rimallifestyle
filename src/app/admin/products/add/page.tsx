@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, Upload, Save, ImagePlus, CheckCircle2, Plus, FolderPlus, Loader2, X, Sparkles } from 'lucide-react'
+import { ArrowLeft, Upload, Save, ImagePlus, CheckCircle2, Plus, FolderPlus, Loader2, X, Sparkles, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { fetchWithAuth, uploadImageToWP } from '@/lib/api'
@@ -18,7 +18,9 @@ export default function AddProductPage() {
   
   // Form State
   const [name, setName] = useState('')
+  const [shortDescription, setShortDescription] = useState('')
   const [description, setDescription] = useState('')
+  const [customTabs, setCustomTabs] = useState<{ id: string; title: string; content: string }[]>([])
   const [regularPrice, setRegularPrice] = useState('')
   const [salePrice, setSalePrice] = useState('')
   const [sku, setSku] = useState('')
@@ -79,7 +81,9 @@ export default function AddProductPage() {
           if (productRes.ok) {
             const product = await productRes.json()
             setName(product.name || '')
+            setShortDescription(product.shortDescription || '')
             setDescription(product.description || '')
+            setCustomTabs(Array.isArray(product.customTabs) ? product.customTabs : [])
             setRegularPrice(product.regularPrice?.toString() || '')
             setSalePrice(product.salePrice?.toString() || '')
             setSku(product.sku || '')
@@ -301,7 +305,9 @@ export default function AddProductPage() {
       const finalCategory = subCategory || parentCategory || category
       const productData = {
         name,
+        shortDescription,
         description,
+        customTabs: customTabs.filter(t => t.title && t.title.trim()),
         regularPrice,
         salePrice: salePrice || undefined,
         sku,
@@ -405,14 +411,96 @@ export default function AddProductPage() {
                 />
               </div>
               
+              {/* Short Description */}
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-2">Description</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-white/70">Short Description (Summary)</label>
+                  <span className="text-[11px] text-white/40">Displayed next to price &amp; Add to Cart on product page</span>
+                </div>
+                <textarea 
+                  rows={2}
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
+                  placeholder="A quick summary of the product (e.g. Crafted from 100% Egyptian cotton with a relaxed luxury silhouette)..." 
+                  className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20 focus:bg-white/10 transition-all resize-none custom-scrollbar text-sm"
+                />
+              </div>
+              
+              {/* Main Full Description */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-white/70">Main Description (Tab Content)</label>
+                  <span className="text-[11px] text-white/40">Displayed under product images in the Description tab</span>
+                </div>
                 <RichTextEditor 
                   value={description}
                   onChange={setDescription}
-                  placeholder="Describe your product, fabric features, bullet points, size guide..."
+                  placeholder="Detailed product description, fabric care, bullet points, size guide..."
                   minHeight="220px"
                 />
+              </div>
+
+              {/* Custom Product Tabs */}
+              <div className="pt-4 border-t border-white/10">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Custom Product Tabs</h3>
+                    <p className="text-xs text-white/50">Add custom tabs shown under the product image alongside Description</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCustomTabs([...customTabs, { id: `tab_${Date.now()}`, title: '', content: '' }])}
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-all cursor-pointer border border-white/10"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-gold" />
+                    <span>Add Custom Tab</span>
+                  </button>
+                </div>
+
+                {customTabs.length > 0 ? (
+                  <div className="space-y-4">
+                    {customTabs.map((tab, idx) => (
+                      <div key={tab.id || idx} className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3 relative">
+                        <div className="flex items-center justify-between gap-3">
+                          <input
+                            type="text"
+                            value={tab.title}
+                            onChange={(e) => {
+                              const updated = [...customTabs]
+                              updated[idx].title = e.target.value
+                              setCustomTabs(updated)
+                            }}
+                            placeholder="Tab Title (e.g. Size Guide, Care Instructions, Fabric Details)"
+                            className="flex-1 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-white placeholder:text-white/30 focus:outline-none focus:border-gold"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setCustomTabs(customTabs.filter((_, i) => i !== idx))}
+                            className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors cursor-pointer border border-red-500/20"
+                            title="Delete tab"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <textarea
+                          rows={3}
+                          value={tab.content}
+                          onChange={(e) => {
+                            const updated = [...customTabs]
+                            updated[idx].content = e.target.value
+                            setCustomTabs(updated)
+                          }}
+                          placeholder="Tab content or details..."
+                          className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-gold custom-scrollbar"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-white/40 italic">
+                    No custom tabs added yet. By default, Description, Details &amp; Specs, and Shipping &amp; Returns tabs are shown.
+                  </p>
+                )}
               </div>
             </div>
           </div>

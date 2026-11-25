@@ -40,7 +40,7 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const { 
-      name, description, regularPrice, salePrice, sku, stockQuantity, 
+      name, shortDescription, description, customTabs, regularPrice, salePrice, sku, stockQuantity, 
       category, parentCategory, subCategory, image, gallery, globalAttributes, productAttributes, variantStocks, status 
     } = body;
 
@@ -57,7 +57,9 @@ export async function POST(req: Request) {
     const newProduct = new Product({
       name,
       slug,
+      shortDescription,
       description,
+      customTabs: Array.isArray(customTabs) ? customTabs : [],
       regularPrice: Number(regularPrice),
       salePrice: salePrice ? Number(salePrice) : undefined,
       sku,

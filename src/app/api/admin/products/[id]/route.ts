@@ -38,7 +38,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     const body = await req.json();
     const { 
-      name, description, regularPrice, salePrice, sku, stockQuantity, 
+      name, shortDescription, description, customTabs, regularPrice, salePrice, sku, stockQuantity, 
       category, parentCategory, subCategory, image, gallery, globalAttributes, productAttributes, variantStocks, status 
     } = body;
 
@@ -56,7 +56,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       {
         ...(name && { name }),
         ...(slug && { slug }),
+        shortDescription,
         description,
+        ...(customTabs !== undefined && { customTabs }),
         regularPrice: regularPrice !== undefined ? Number(regularPrice) : undefined,
         salePrice: salePrice !== undefined ? Number(salePrice) : undefined,
         sku,
