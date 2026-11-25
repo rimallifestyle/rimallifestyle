@@ -206,12 +206,12 @@ function AnimatedSuccessView({ orderId, formData, cart }: { orderId: string; for
 
               {/* Action Buttons */}
               <div className={`w-full flex flex-col sm:flex-row items-center lg:justify-start gap-4 transition-all duration-700 transform-gpu ease-out pt-6 ${stage >= 5 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-                <Link href="/" className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-gold via-yellow-500 to-amber-600 hover:opacity-95 text-slate-950 font-bold uppercase tracking-widest text-xs rounded-full transition-all duration-300 transform-gpu hover:scale-105 active:scale-95 shadow-[0_10px_25px_rgba(234,179,8,0.3)] flex items-center justify-center gap-2 group">
-                  <span>Continue Shopping</span>
-                  <ShoppingBag className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
+                <Link href="/" className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-gold via-yellow-500 to-amber-600 hover:opacity-95 text-slate-950 font-bold uppercase tracking-widest text-xs rounded-full transition-all duration-300 transform-gpu hover:scale-105 active:scale-95 shadow-[0_10px_25px_rgba(234,179,8,0.3)] flex items-center justify-center gap-2 group whitespace-nowrap shrink-0">
+                  <span className="whitespace-nowrap">Continue Shopping</span>
+                  <ShoppingBag className="w-4 h-4 transition-transform group-hover:-translate-y-0.5 shrink-0" />
                 </Link>
-                <Link href="/shop" className="w-full sm:w-auto px-8 py-4 bg-secondary/50 hover:bg-secondary border border-border/80 hover:border-gold text-foreground hover:text-gold font-bold uppercase tracking-widest text-xs rounded-full transition-all duration-300 transform-gpu hover:scale-105 active:scale-95 text-center">
-                  Browse New Collection
+                <Link href="/shop" className="w-full sm:w-auto px-8 py-4 bg-secondary/50 hover:bg-secondary border border-border/80 hover:border-gold text-foreground hover:text-gold font-bold uppercase tracking-widest text-xs rounded-full transition-all duration-300 transform-gpu hover:scale-105 active:scale-95 text-center whitespace-nowrap shrink-0">
+                  <span className="whitespace-nowrap">Browse New Collection</span>
                 </Link>
               </div>
             </div>
@@ -330,7 +330,7 @@ function AnimatedProcessingView() {
       <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-white/5 rounded-full blur-[80px] pointer-events-none" />
 
       <main className="flex-1 flex flex-col items-center justify-center py-20 px-4 relative z-10">
-        <div className="bg-card/30 backdrop-blur-3xl border border-white/10 rounded-[2rem] p-8 sm:p-12 w-full max-w-md shadow-2xl relative overflow-hidden">
+        <div className="bg-card/30 backdrop-blur-3xl border border-white/10 rounded-[2rem] p-8 sm:p-14 w-full max-w-xl sm:max-w-2xl shadow-2xl relative overflow-hidden">
           
           {/* Shimmer Effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
@@ -614,17 +614,17 @@ export default function CheckoutPage() {
       if (response.ok && data.success) {
         setOrderId(data.order_id);
       } else {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let randomCode = '';
-        for (let i = 0; i < 4; i++) { randomCode += chars.charAt(Math.floor(Math.random() * chars.length)); }
-        setOrderId(`RM${randomCode}`);
+        for (let i = 0; i < 3; i++) { randomCode += chars.charAt(Math.floor(Math.random() * chars.length)); }
+        setOrderId(`RL${randomCode}`);
         console.error("Order API failed:", data);
       }
     } catch (err) {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       let randomCode = '';
-      for (let i = 0; i < 4; i++) { randomCode += chars.charAt(Math.floor(Math.random() * chars.length)); }
-      setOrderId(`RM${randomCode}`);
+      for (let i = 0; i < 3; i++) { randomCode += chars.charAt(Math.floor(Math.random() * chars.length)); }
+      setOrderId(`RL${randomCode}`);
       console.error("Order API network error:", err);
     }
 

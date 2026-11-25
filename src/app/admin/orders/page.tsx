@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShoppingCart, Search, Filter, MoreHorizontal, Eye, Download, CreditCard, Banknote, Clock, CheckCircle2, AlertCircle, XCircle, Trash2 } from 'lucide-react'
+import { ShoppingCart, Search, Filter, MoreHorizontal, Eye, Download, CreditCard, Banknote, Clock, CheckCircle2, AlertCircle, XCircle, Trash2, Truck } from 'lucide-react'
 import { toast } from 'sonner'
 import { KpiCard } from '@/components/admin/dashboard/KpiCard'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -183,9 +183,17 @@ export default function OrdersPage() {
                             <AvatarFallback className="bg-transparent text-white/70 text-xs font-medium">{(order.userProfileName || order.customerName)?.charAt(0).toUpperCase()}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 group-hover:from-white group-hover:to-white transition-all">
-                              {order.orderId}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 group-hover:from-white group-hover:to-white transition-all">
+                                {order.orderId}
+                              </p>
+                              {order.courier?.provider && (
+                                <span className="text-[10px] text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-1.5 py-0.5 rounded-full flex items-center gap-1 font-semibold capitalize" title={`Dispatched via ${order.courier.provider} (${order.courier.trackingCode || ''})`}>
+                                  <Truck className="w-2.5 h-2.5" />
+                                  {order.courier.provider}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-white/50 mt-0.5">{order.userProfileName || order.customerName}</p>
                           </div>
                         </div>

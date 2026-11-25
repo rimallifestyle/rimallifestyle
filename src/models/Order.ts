@@ -18,6 +18,14 @@ export interface IOrder extends Document {
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   paymentMethod: string;
   paymentStatus: 'pending' | 'paid' | 'failed';
+  courier?: {
+    provider?: string;
+    trackingCode?: string;
+    consignmentId?: string | number;
+    dispatchedAt?: Date;
+    status?: string;
+    courierResponse?: any;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +56,14 @@ const OrderSchema: Schema = new Schema(
       type: String, 
       enum: ['pending', 'paid', 'failed'], 
       default: 'pending' 
+    },
+    courier: {
+      provider: { type: String },
+      trackingCode: { type: String },
+      consignmentId: { type: Schema.Types.Mixed },
+      dispatchedAt: { type: Date },
+      status: { type: String },
+      courierResponse: { type: Schema.Types.Mixed }
     }
   },
   { timestamps: true }

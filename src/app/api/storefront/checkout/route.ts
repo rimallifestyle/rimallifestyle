@@ -20,13 +20,26 @@ export async function POST(req: Request) {
     
     const total = subTotal + shippingFee;
     
-    // Generate a unique order ID: RM + 4 alphanumeric characters
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let randomCode = '';
-    for (let i = 0; i < 4; i++) {
-      randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
+    // Generate a unique order ID: RL + 3 characters (e.g. RL101, RL842, RL7B2)
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let orderId = '';
+    let isUnique = false;
+    let attempts = 0;
+    while (!isUnique && attempts < 20) {
+      let randomCode = '';
+      for (let i = 0; i < 3; i++) {
+        randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      orderId = `RL${randomCode}`;
+      const existing = await Order.findOne({ orderId });
+      if (!existing) {
+        isUnique = true;
+      }
+      attempts++;
     }
-    const orderId = `RM${randomCode}`;
+    if (!orderId) {
+      orderId = `RL${Math.floor(100 + Math.random() * 900)}`;
+    }
     
     // Use session email OR userProfile email provided from client
     const emailToUse = session?.user?.email || userProfile?.email;
