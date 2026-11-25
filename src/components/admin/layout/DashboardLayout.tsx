@@ -57,17 +57,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (isCheckingAuth) {
     return (
-      <div className="min-h-screen bg-[#050000] flex items-center justify-center text-white">
-        <div className="w-8 h-8 border-4 border-white/20 border-t-[#C52A35] rounded-full animate-spin" />
+      <div className={`min-h-screen flex items-center justify-center ${isLight ? 'bg-[#f6f7fb] text-slate-800' : 'bg-[#050000] text-white'}`}>
+        <div className={`w-8 h-8 border-4 rounded-full animate-spin ${isLight ? 'border-slate-300 border-t-[#C52A35]' : 'border-white/20 border-t-[#C52A35]'}`} />
       </div>
     )
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#050000] text-foreground overflow-hidden relative">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#7A1111]/20 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#550000]/30 blur-[120px] pointer-events-none" />
+      <div className={`min-h-screen ${isLight ? 'bg-[#f6f7fb] text-slate-900' : 'bg-[#050000] text-foreground'} overflow-hidden relative`}>
+        <div className={`absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full ${isLight ? 'bg-[#C52A35]/5' : 'bg-[#7A1111]/20'} blur-[120px] pointer-events-none`} />
+        <div className={`absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full ${isLight ? 'bg-[#7A1111]/5' : 'bg-[#550000]/30'} blur-[120px] pointer-events-none`} />
         <LoginScreen onSuccess={handleLoginSuccess} />
       </div>
     )

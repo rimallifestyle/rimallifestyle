@@ -234,6 +234,21 @@ html, body {
    Admin Dashboard Light Mode Support & Smooth Switching
    ══════════════════════════════════════════════════════════════════ */
 
+/* Pre-paint styles to eliminate light mode reload flash */
+html.admin-light,
+html.admin-light body {
+  background-color: #f6f7fb !important;
+  color: #0f172a !important;
+}
+
+/* Prevent animation flash during initial page load / reload */
+html:not(.admin-loaded) .admin-smooth-transition,
+html:not(.admin-loaded) .admin-smooth-transition *,
+html:not(.admin-loaded) .admin-smooth-transition *::before,
+html:not(.admin-loaded) .admin-smooth-transition *::after {
+  transition: none !important;
+}
+
 .admin-smooth-transition,
 .admin-smooth-transition *,
 .admin-smooth-transition *::before,
