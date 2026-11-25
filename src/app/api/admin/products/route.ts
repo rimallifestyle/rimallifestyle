@@ -54,6 +54,16 @@ export async function POST(req: Request) {
       slug = `${slug}-${Date.now()}`;
     }
 
+    let productSku = sku ? String(sku).trim() : '';
+    if (!productSku) {
+      const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let code = '';
+      for (let i = 0; i < 5; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      productSku = `RL${code}`;
+    }
+
     const newProduct = new Product({
       name,
       slug,
@@ -62,7 +72,7 @@ export async function POST(req: Request) {
       customTabs: Array.isArray(customTabs) ? customTabs : [],
       regularPrice: Number(regularPrice),
       salePrice: salePrice ? Number(salePrice) : undefined,
-      sku,
+      sku: productSku,
       stockQuantity: stockQuantity ? Number(stockQuantity) : 0,
       category: category || subCategory || parentCategory,
       parentCategory,

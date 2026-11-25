@@ -34,7 +34,7 @@ export type Product = {
   reviews?: number;
   shortDescription?: string;
   description?: string;
-  customTabs?: { id?: string; title: string; content: string }[];
+  customTabs?: { id?: string; title: string; icon?: string; content: string }[];
   attributes?: ProductAttribute[];
   gallery?: string[];
   stockStatus?: "instock" | "outofstock";

@@ -31,10 +31,13 @@ import {
   FileText,
   Layers,
   Sparkles,
+  Share2,
+  Copy,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useUserSync } from "@/context/UserSync";
 import { useReviews, useSubmitReview } from "@/hooks/useReviews";
+import { toast } from "sonner";
 
 
 
@@ -180,6 +183,60 @@ export default function ProductPage() {
   }, [product]);
 
   const [activeTab, setActiveTab] = useState<string>("description");
+
+  const getCustomTabIcon = (iconName?: string) => {
+    switch (iconName?.toLowerCase()) {
+      case 'ruler': return Ruler;
+      case 'shield': return ShieldCheck;
+      case 'care': return RefreshCcw;
+      case 'package': return Package;
+      case 'star': return Star;
+      case 'info': return Info;
+      case 'sparkles':
+      default: return Sparkles;
+    }
+  };
+
+  const hasDescription = Boolean(product?.description && product.description.trim().length > 0);
+  const hasSpecs = Boolean(product?.sku || product?.parentCategory || product?.category || (product?.attributes && product.attributes.length > 0));
+  const validCustomTabs = (product?.customTabs || []).filter((ct: any) => ct.title && ct.content && ct.content.trim().length > 0);
+
+  const tabList: { key: string; label: string; icon: any; content?: string }[] = [];
+  if (hasDescription) {
+    tabList.push({ key: 'description', label: 'Description', icon: FileText });
+  }
+  if (hasSpecs) {
+    tabList.push({ key: 'details', label: 'Details & Specs', icon: Layers });
+  }
+  tabList.push({ key: 'shipping', label: 'Shipping & Policy', icon: Truck });
+  validCustomTabs.forEach((ct: any, idx: number) => {
+    tabList.push({
+      key: `custom_${idx}`,
+      label: ct.title,
+      icon: getCustomTabIcon(ct.icon),
+      content: ct.content,
+    });
+  });
+
+  useEffect(() => {
+    if (tabList.length > 0 && !tabList.some((t) => t.key === activeTab)) {
+      setActiveTab(tabList[0].key);
+    }
+  }, [hasDescription, hasSpecs, validCustomTabs.length]);
+
+  const handleNativeShare = () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    if (navigator.share) {
+      navigator.share({
+        title: product?.name || 'Rimal Lifestyle',
+        text: product?.shortDescription || product?.name,
+        url,
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url);
+      toast.success('Product link copied to clipboard!');
+    }
+  };
   const [isAdding, setIsAdding] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [drawerAction, setDrawerAction] = useState<"cart" | "buy">("cart");
@@ -484,139 +541,102 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Extensible Product Tabs under Image (Description & Extra Tabs) */}
-            <div className="bg-card/40 border border-border/70 rounded-2xl overflow-hidden shadow-sm">
-              {/* Tab Navigation */}
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar p-2 bg-secondary/30 border-b border-border/60">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('description')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'description'
-                      ? "bg-gold text-background shadow-sm"
-                      : "text-foreground/70 hover:text-foreground hover:bg-white/5"
-                  }`}
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>Description</span>
-                </button>
+            {/* Extensible Product Tabs under Image (Only non-empty tabs) */}
+            {tabList.length > 0 && (
+              <div className="bg-card/40 border border-border/70 rounded-2xl overflow-hidden shadow-sm">
+                {/* Tab Navigation */}
+                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar p-2 bg-secondary/30 border-b border-border/60">
+                  {tabList.map((tab) => {
+                    const TabIcon = tab.icon;
+                    const isActive = activeTab === tab.key;
+                    return (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setActiveTab(tab.key)}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                          isActive
+                            ? "bg-gold text-background shadow-sm"
+                            : "text-foreground/70 hover:text-foreground hover:bg-white/5"
+                        }`}
+                      >
+                        <TabIcon className="w-3.5 h-3.5" />
+                        <span>{tab.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('details')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'details'
-                      ? "bg-gold text-background shadow-sm"
-                      : "text-foreground/70 hover:text-foreground hover:bg-white/5"
-                  }`}
-                >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>Details &amp; Specs</span>
-                </button>
+                {/* Tab Content Panel */}
+                <div className="p-5">
+                  {activeTab === 'description' && hasDescription && (
+                    <div className="text-sm text-foreground/80 leading-relaxed rich-description-content">
+                      <div dangerouslySetInnerHTML={{ __html: product.description! }} />
+                    </div>
+                  )}
 
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('shipping')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'shipping'
-                      ? "bg-gold text-background shadow-sm"
-                      : "text-foreground/70 hover:text-foreground hover:bg-white/5"
-                  }`}
-                >
-                  <Truck className="w-3.5 h-3.5" />
-                  <span>Shipping &amp; Policy</span>
-                </button>
-
-                {/* Dynamic Custom Tabs */}
-                {product.customTabs?.map((ct: any, idx: number) => {
-                  const tabKey = `custom_${idx}`;
-                  return (
-                    <button
-                      key={tabKey}
-                      type="button"
-                      onClick={() => setActiveTab(tabKey)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-                        activeTab === tabKey
-                          ? "bg-gold text-background shadow-sm"
-                          : "text-foreground/70 hover:text-foreground hover:bg-white/5"
-                      }`}
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>{ct.title || `Tab ${idx + 1}`}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Tab Content Panel */}
-              <div className="p-5">
-                {activeTab === 'description' && (
-                  <div className="text-sm text-foreground/80 leading-relaxed rich-description-content">
-                    {product.description ? (
-                      <div dangerouslySetInnerHTML={{ __html: product.description }} />
-                    ) : (
-                      <p className="text-sm text-muted-foreground italic">No detailed description provided for this product.</p>
-                    )}
-                  </div>
-                )}
-
-                {activeTab === 'details' && (
-                  <div className="space-y-3 text-sm">
-                    <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-background/50 border border-border/40">
-                      <div>
-                        <span className="text-[11px] uppercase font-bold text-muted-foreground">SKU</span>
-                        <p className="font-mono font-semibold text-cream mt-0.5">{product.sku || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <span className="text-[11px] uppercase font-bold text-muted-foreground">Stock Status</span>
-                        <p className="font-semibold text-emerald-400 mt-0.5 capitalize">{product.stockStatus || 'In Stock'}</p>
-                      </div>
-                      <div>
-                        <span className="text-[11px] uppercase font-bold text-muted-foreground">Category</span>
-                        <p className="font-semibold text-cream mt-0.5">{product.parentCategory || product.category || 'Apparel'}</p>
-                      </div>
-                      {product.subCategory && (
+                  {activeTab === 'details' && hasSpecs && (
+                    <div className="space-y-3 text-sm">
+                      <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-background/50 border border-border/40">
+                        {product.sku && (
+                          <div>
+                            <span className="text-[11px] uppercase font-bold text-muted-foreground">SKU / ID</span>
+                            <p className="font-mono font-semibold text-cream mt-0.5">{product.sku}</p>
+                          </div>
+                        )}
                         <div>
-                          <span className="text-[11px] uppercase font-bold text-muted-foreground">Subcategory</span>
-                          <p className="font-semibold text-cream mt-0.5">{product.subCategory}</p>
+                          <span className="text-[11px] uppercase font-bold text-muted-foreground">Stock Status</span>
+                          <p className="font-semibold text-emerald-400 mt-0.5 capitalize">{product.stockStatus || 'In Stock'}</p>
                         </div>
-                      )}
+                        {(product.parentCategory || product.category) && (
+                          <div>
+                            <span className="text-[11px] uppercase font-bold text-muted-foreground">Category</span>
+                            <p className="font-semibold text-cream mt-0.5">{product.parentCategory || product.category}</p>
+                          </div>
+                        )}
+                        {product.subCategory && (
+                          <div>
+                            <span className="text-[11px] uppercase font-bold text-muted-foreground">Subcategory</span>
+                            <p className="font-semibold text-cream mt-0.5">{product.subCategory}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {activeTab === 'shipping' && (
-                  <div className="space-y-3 text-xs text-foreground/80 leading-relaxed">
-                    <div className="p-3.5 rounded-xl bg-background/50 border border-border/40 space-y-1.5">
-                      <p className="font-bold text-cream text-sm flex items-center gap-2">
-                        <Truck className="w-4 h-4 text-gold" /> Fast Nationwide Delivery
-                      </p>
-                      <p>
-                        We deliver door-to-door all over Bangladesh within 2 to 3 business days via our partner couriers (Steadfast &amp; Pathao).
-                      </p>
+                  {activeTab === 'shipping' && (
+                    <div className="space-y-3 text-xs text-foreground/80 leading-relaxed">
+                      <div className="p-3.5 rounded-xl bg-background/50 border border-border/40 space-y-1.5">
+                        <p className="font-bold text-cream text-sm flex items-center gap-2">
+                          <Truck className="w-4 h-4 text-gold" /> Fast Nationwide Delivery
+                        </p>
+                        <p>
+                          We deliver door-to-door all over Bangladesh within 2 to 3 business days via our partner couriers (Steadfast &amp; Pathao).
+                        </p>
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-background/50 border border-border/40 space-y-1.5">
+                        <p className="font-bold text-cream text-sm flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-gold" /> Cash on Delivery Available
+                        </p>
+                        <p>
+                          Inspect your package and pay securely with Cash on Delivery or via instant bKash / Nagad payment.
+                        </p>
+                      </div>
                     </div>
-                    <div className="p-3.5 rounded-xl bg-background/50 border border-border/40 space-y-1.5">
-                      <p className="font-bold text-cream text-sm flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-gold" /> Cash on Delivery Available
-                      </p>
-                      <p>
-                        Inspect your package and pay securely with Cash on Delivery or via instant bKash / Nagad payment.
-                      </p>
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {product.customTabs?.map((ct: any, idx: number) => {
-                  const tabKey = `custom_${idx}`;
-                  if (activeTab !== tabKey) return null;
-                  return (
-                    <div key={tabKey} className="text-sm text-foreground/80 leading-relaxed rich-description-content">
-                      <div dangerouslySetInnerHTML={{ __html: ct.content }} />
-                    </div>
-                  );
-                })}
+                  {validCustomTabs.map((ct: any, idx: number) => {
+                    const tabKey = `custom_${idx}`;
+                    if (activeTab !== tabKey) return null;
+                    return (
+                      <div key={tabKey} className="text-sm text-foreground/80 leading-relaxed rich-description-content">
+                        <div dangerouslySetInnerHTML={{ __html: ct.content }} />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Right: Info */}

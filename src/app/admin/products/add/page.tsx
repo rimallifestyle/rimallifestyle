@@ -20,7 +20,7 @@ export default function AddProductPage() {
   const [name, setName] = useState('')
   const [shortDescription, setShortDescription] = useState('')
   const [description, setDescription] = useState('')
-  const [customTabs, setCustomTabs] = useState<{ id: string; title: string; content: string }[]>([])
+  const [customTabs, setCustomTabs] = useState<{ id: string; title: string; icon?: string; content: string }[]>([])
   const [regularPrice, setRegularPrice] = useState('')
   const [salePrice, setSalePrice] = useState('')
   const [sku, setSku] = useState('')
@@ -36,6 +36,15 @@ export default function AddProductPage() {
   const [globalAttributes, setGlobalAttributes] = useState<any[]>([])
   const [productAttributes, setProductAttributes] = useState<{id?: number, name: string, slug: string, type?: string, options: string[], allTerms?: any[]}[]>([])
   const [variantStocks, setVariantStocks] = useState<Record<string, number>>({})
+
+  const generateProductId = () => {
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < 5; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `RL${code}`;
+  };
   
   // Image State
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -159,6 +168,8 @@ export default function AddProductPage() {
               setVariantStocks(product.variantStocks)
             }
           }
+        } else {
+          setSku(generateProductId());
         }
       } catch (err) {
         console.error('Failed to load data', err)
@@ -461,7 +472,7 @@ export default function AddProductPage() {
                   <div className="space-y-4">
                     {customTabs.map((tab, idx) => (
                       <div key={tab.id || idx} className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3 relative">
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                           <input
                             type="text"
                             value={tab.title}
@@ -471,27 +482,47 @@ export default function AddProductPage() {
                               setCustomTabs(updated)
                             }}
                             placeholder="Tab Title (e.g. Size Guide, Care Instructions, Fabric Details)"
-                            className="flex-1 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-white placeholder:text-white/30 focus:outline-none focus:border-gold"
+                            className="flex-1 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-white placeholder:text-white/30 focus:outline-none focus:border-gold w-full"
                           />
-                          <button
-                            type="button"
-                            onClick={() => setCustomTabs(customTabs.filter((_, i) => i !== idx))}
-                            className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors cursor-pointer border border-red-500/20"
-                            title="Delete tab"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <select
+                              value={tab.icon || 'sparkles'}
+                              onChange={(e) => {
+                                const updated = [...customTabs]
+                                updated[idx].icon = e.target.value
+                                setCustomTabs(updated)
+                              }}
+                              className="h-9 px-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:border-gold cursor-pointer"
+                            >
+                              <option value="sparkles" className="bg-neutral-900 text-white">✨ Sparkles (Features)</option>
+                              <option value="ruler" className="bg-neutral-900 text-white">📏 Ruler (Size Guide)</option>
+                              <option value="shield" className="bg-neutral-900 text-white">🛡️ Shield (Warranty / Quality)</option>
+                              <option value="care" className="bg-neutral-900 text-white">🔄 Refresh (Care &amp; Wash)</option>
+                              <option value="package" className="bg-neutral-900 text-white">📦 Package (Material)</option>
+                              <option value="star" className="bg-neutral-900 text-white">⭐ Star (Highlights)</option>
+                              <option value="info" className="bg-neutral-900 text-white">ℹ️ Info (Information)</option>
+                            </select>
+                            <button
+                              type="button"
+                              onClick={() => setCustomTabs(customTabs.filter((_, i) => i !== idx))}
+                              className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors cursor-pointer border border-red-500/20 shrink-0"
+                              title="Delete tab"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                        <textarea
-                          rows={3}
+
+                        {/* Rich Text Editor with Toolbar for Custom Tab */}
+                        <RichTextEditor
                           value={tab.content}
-                          onChange={(e) => {
+                          onChange={(val) => {
                             const updated = [...customTabs]
-                            updated[idx].content = e.target.value
+                            updated[idx].content = val
                             setCustomTabs(updated)
                           }}
-                          placeholder="Tab content or details..."
-                          className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-gold custom-scrollbar"
+                          minHeight="140px"
+                          placeholder="Tab content with bold, bullet points, numbers..."
                         />
                       </div>
                     ))}
@@ -534,13 +565,23 @@ export default function AddProductPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-2">SKU (Stock Keeping Unit)</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-white/70">Product ID / SKU (RL + 5 codes)</label>
+                  <button
+                    type="button"
+                    onClick={() => setSku(generateProductId())}
+                    className="text-xs text-gold hover:underline flex items-center gap-1 cursor-pointer font-medium"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>Auto Generate</span>
+                  </button>
+                </div>
                 <input 
                   type="text" 
                   value={sku}
-                  onChange={(e) => setSku(e.target.value)}
-                  placeholder="e.g. PRD-001" 
-                  className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20 focus:bg-white/10 transition-all"
+                  onChange={(e) => setSku(e.target.value.toUpperCase())}
+                  placeholder="e.g. RL84920" 
+                  className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 text-white font-mono font-bold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20 focus:bg-white/10 transition-all"
                 />
               </div>
               

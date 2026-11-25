@@ -5,7 +5,7 @@ export interface IProduct extends Document {
   slug: string;
   shortDescription?: string;
   description?: string;
-  customTabs?: { id?: string; title: string; content: string }[];
+  customTabs?: { id?: string; title: string; icon?: string; content: string }[];
   regularPrice: number;
   salePrice?: number;
   sku?: string;
@@ -32,6 +32,7 @@ const ProductSchema: Schema = new Schema(
     customTabs: [{
       id: { type: String },
       title: { type: String },
+      icon: { type: String },
       content: { type: String }
     }],
     regularPrice: { type: Number, required: true },

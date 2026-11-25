@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
 import { KpiSkeleton, TableSkeleton } from '@/components/ui/Skeleton'
 import { toast } from 'sonner'
+import { StoreWideSaleCard } from '@/components/admin/products/StoreWideSaleCard'
 
 import { fetchWithAuth } from '@/lib/api'
 
@@ -104,13 +105,28 @@ export default function ProductsPage() {
             <p className="text-white/60 text-sm">Manage your store products, pricing, and inventory.</p>
           </div>
           
-          <Link href="/products/add">
+          <Link href="/admin/products/add">
             <button className="flex items-center gap-2 h-10 px-6 rounded-full bg-[#550000] text-sm font-medium text-white hover:bg-[#7A1111] transition-all shadow-[0_0_15px_rgba(85,0,0,0.5)]">
               <Plus className="w-4 h-4" />
               Add Product
             </button>
           </Link>
         </div>
+      </ScrollReveal>
+
+      {/* Store-Wide Sale Discount Control */}
+      <ScrollReveal delay={0.12}>
+        <StoreWideSaleCard onSuccess={async () => {
+          try {
+            const res = await fetch('/api/admin/products');
+            if (res.ok) {
+              const data = await res.json();
+              setProducts(data);
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        }} />
       </ScrollReveal>
 
       {/* KPI Cards Row */}

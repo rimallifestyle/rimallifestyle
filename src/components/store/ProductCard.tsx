@@ -85,23 +85,8 @@ export function ProductCard({ product }: { product: Product }) {
         </Link>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-maroon-deep/40 via-transparent to-transparent" />
 
-        {isOutOfStock ? (
-          <span className="absolute left-3 top-3 rounded-full bg-red-500/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-sm flex items-center gap-1.5 backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-            Out of Stock
-          </span>
-        ) : (
-          <span className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-sm flex items-center gap-1.5 backdrop-blur-sm ${
-            isLowStock ? 'bg-amber-600/95' : 'bg-emerald-600/90'
-          }`}>
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-            <span>In Stock:</span>
-            <span className="font-mono text-[11px] font-black">{stockQty}</span>
-          </span>
-        )}
-        
-        {product.tag && !isOutOfStock && (
-          <span className="absolute left-3 top-10 rounded-full bg-cream/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-maroon-deep shadow-sm">
+        {product.tag && (
+          <span className="absolute left-3 top-3 rounded-full bg-cream/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-maroon-deep shadow-sm z-10">
             {product.tag}
           </span>
         )}
@@ -212,23 +197,8 @@ export function ProductCardOverlay({ product }: { product: Product }) {
         <div className="absolute inset-0 bg-gradient-to-t from-maroon-deep via-maroon-deep/40 to-transparent opacity-95" />
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-maroon-deep/40" />
 
-        {isOutOfStock ? (
-          <span className="absolute left-4 top-4 rounded-full bg-red-500/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-sm flex items-center gap-1.5 backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-            Out of Stock
-          </span>
-        ) : (
-          <span className={`absolute left-4 top-4 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-sm flex items-center gap-1.5 backdrop-blur-sm ${
-            isLowStock ? 'bg-amber-600/95' : 'bg-emerald-600/90'
-          }`}>
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-            <span>In Stock:</span>
-            <span className="font-mono text-[11px] font-black">{stockQty}</span>
-          </span>
-        )}
-        
-        {product.tag && !isOutOfStock && (
-          <span className="absolute left-4 top-11 rounded-full bg-gold px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent-foreground shadow-sm">
+        {product.tag && (
+          <span className="absolute left-4 top-4 rounded-full bg-gold px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent-foreground shadow-sm z-10">
             {product.tag}
           </span>
         )}
@@ -423,23 +393,8 @@ export function ProductCardDetailed({ product }: { product: Product }) {
           />
         </Link>
 
-        {isOutOfStock ? (
-          <span className="absolute left-3 top-3 rounded-full bg-red-500/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-sm flex items-center gap-1.5 backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-            Out of Stock
-          </span>
-        ) : (
-          <span className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-sm flex items-center gap-1.5 backdrop-blur-sm ${
-            isLowStock ? 'bg-amber-600/95' : 'bg-emerald-600/90'
-          }`}>
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-            <span>In Stock:</span>
-            <span className="font-mono text-[11px] font-black">{stockQty}</span>
-          </span>
-        )}
-
-        {product.tag && !isOutOfStock && (
-          <span className="absolute left-3 top-11 rounded-full bg-cream/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-maroon-deep shadow-sm">
+        {product.tag && (
+          <span className="absolute left-3 top-3 rounded-full bg-cream/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-maroon-deep shadow-sm z-10">
             {product.tag}
           </span>
         )}

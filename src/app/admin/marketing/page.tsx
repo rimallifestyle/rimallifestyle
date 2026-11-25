@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Megaphone, Mail, MessageSquare, Zap, ArrowUpRight, Plus, Play, Pause, BarChart3, Users, DollarSign, ExternalLink } from 'lucide-react'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
 import { cn } from '@/lib/utils'
+import { StoreWideSaleCard } from '@/components/admin/products/StoreWideSaleCard'
 
 const campaignsData = [
   { id: 1, name: 'Eid Mega Sale 2026', type: 'Flash Sale', status: 'Active', budget: '৳ 50,000', spent: '৳ 12,450', conversions: 342, roi: '+240%', icon: Zap, color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-400/20' },
@@ -59,6 +60,11 @@ export default function MarketingPage() {
             Create Campaign
           </button>
         </div>
+      </ScrollReveal>
+
+      {/* Store-Wide Sale Discount */}
+      <ScrollReveal delay={0.12}>
+        <StoreWideSaleCard />
       </ScrollReveal>
 
       {/* Top Metrics Row */}
