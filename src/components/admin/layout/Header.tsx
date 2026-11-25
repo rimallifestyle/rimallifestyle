@@ -5,9 +5,17 @@ import { Search, Bell, ChevronDown, Menu } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import { useUserSync } from "@/context/UserSync"
+import { useAdminNotifications } from "@/hooks/useAdminNotifications"
 
-export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
+export function Header({ 
+  onMenuClick, 
+  onNotificationClick 
+}: { 
+  onMenuClick?: () => void; 
+  onNotificationClick?: () => void; 
+}) {
   const { userProfile } = useUserSync()
+  const { unreadCount } = useAdminNotifications()
 
   const getInitials = (name: string) => {
     if (!name) return 'AD'
@@ -56,9 +64,20 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         </button>
 
         {/* Notifications */}
-        <button className="relative w-10 h-10 rounded-full glass-button flex items-center justify-center hover:text-white text-white/80 transition-all">
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#C52A35] shadow-[0_0_8px_rgba(197,42,53,0.8)]" />
+        <button 
+          onClick={onNotificationClick}
+          className="relative w-10 h-10 rounded-full glass-button flex items-center justify-center hover:text-white text-white/80 hover:bg-white/10 transition-all cursor-pointer group"
+          title="Notifications"
+          type="button"
+        >
+          <Bell className="w-4 h-4 transition-transform group-hover:scale-110" />
+          {unreadCount > 0 ? (
+            <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#C52A35] text-[10px] font-bold text-white shadow-[0_0_10px_rgba(197,42,53,0.8)] border border-[#0c0404]">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          ) : (
+            <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-white/30" />
+          )}
         </button>
 
         {/* User Profile */}

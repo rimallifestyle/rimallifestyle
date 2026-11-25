@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { StorefrontSidebar } from './StorefrontSidebar'
 import { StorefrontHeader } from './StorefrontHeader'
+import { NotificationDrawer } from './NotificationDrawer'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
@@ -18,6 +19,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [isSwitchingToStorefront, setIsSwitchingToStorefront] = useState(false)
   const [isSwitchingToAdmin, setIsSwitchingToAdmin] = useState(false)
   const [manuallyAuthenticated, setManuallyAuthenticated] = useState(false)
@@ -93,7 +95,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#550000]/30 blur-[120px] pointer-events-none" />
         
         {!isStorefront ? (
-          <Header onMenuClick={() => setIsSidebarOpen(true)} />
+          <Header 
+            onMenuClick={() => setIsSidebarOpen(true)} 
+            onNotificationClick={() => setIsNotificationOpen(true)} 
+          />
         ) : (
           <StorefrontHeader onMenuClick={() => setIsSidebarOpen(true)} onExitBuilder={handleSwitchAdmin} />
         )}
@@ -181,6 +186,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Right-side Slide-over Notification Panel */}
+      <NotificationDrawer 
+        isOpen={isNotificationOpen} 
+        onClose={() => setIsNotificationOpen(false)} 
+      />
     </div>
   )
 }
