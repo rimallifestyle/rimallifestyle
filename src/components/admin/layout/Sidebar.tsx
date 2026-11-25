@@ -29,6 +29,7 @@ import {
   CreditCard,
   LogOut,
   Navigation,
+  Globe,
 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
@@ -65,6 +66,7 @@ const navItems2 = [
   { icon: BarChart, label: 'Reports', href: '/admin/reports' },
   { icon: Megaphone, label: 'Marketing', href: '/admin/marketing', hasChildren: true },
   { icon: Palette, label: 'Appearance', href: '/admin/appearance', hasChildren: true },
+  { icon: Globe, label: 'SEO & Social', href: '/admin/seo' },
   {
     icon: Store,
     label: 'Storefront',

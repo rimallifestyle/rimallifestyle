@@ -31,6 +31,15 @@ const settingsCategories = [
     href: '/admin/settings/appearance'
   },
   { 
+    id: 'seo-social', 
+    name: 'SEO & Social Sharing', 
+    description: 'Configure search engine meta tags, OpenGraph banner, and live share preview.', 
+    icon: Globe, 
+    color: 'text-purple-400', 
+    bg: 'bg-purple-500/10',
+    href: '/admin/seo'
+  },
+  { 
     id: 'store-details', 
     name: 'Store Details', 
     description: 'Manage your store profile, address, and contact information.', 
