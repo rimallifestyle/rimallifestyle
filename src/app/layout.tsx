@@ -166,13 +166,19 @@ export default async function RootLayout({
             __html: `
               (function() {
                 try {
-                  var t = localStorage.getItem('rimal_admin_theme');
-                  if (t === 'light') {
-                    document.documentElement.classList.add('admin-light');
-                    document.documentElement.setAttribute('data-theme', 'light');
+                  var isAdm = window.location.pathname.startsWith('/admin');
+                  if (isAdm) {
+                    var t = localStorage.getItem('rimal_admin_theme');
+                    if (t === 'light') {
+                      document.documentElement.classList.add('admin-light');
+                      document.documentElement.setAttribute('data-theme', 'light');
+                    } else {
+                      document.documentElement.classList.remove('admin-light');
+                      document.documentElement.setAttribute('data-theme', 'dark');
+                    }
                   } else {
                     document.documentElement.classList.remove('admin-light');
-                    document.documentElement.setAttribute('data-theme', 'dark');
+                    document.documentElement.removeAttribute('data-theme');
                   }
                 } catch(e) {}
               })();
