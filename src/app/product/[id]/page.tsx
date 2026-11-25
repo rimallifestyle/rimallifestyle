@@ -554,7 +554,7 @@ export default function ProductPage() {
 
             {product.description ? (
               <div 
-                className="text-sm text-foreground/80 leading-relaxed mb-8 pr-4 prose prose-invert prose-p:text-foreground/80 prose-a:text-gold max-w-none"
+                className="text-sm text-foreground/80 leading-relaxed mb-8 pr-4 prose prose-invert prose-p:text-foreground/80 prose-a:text-gold max-w-none rich-description-content"
                 dangerouslySetInnerHTML={{ __html: product.description }}
               />
             ) : (

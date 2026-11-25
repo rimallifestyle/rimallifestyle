@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { fetchWithAuth, uploadImageToWP } from '@/lib/api'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
+import { RichTextEditor } from '@/components/admin/products/RichTextEditor'
 
 export default function AddProductPage() {
   const router = useRouter()
@@ -406,13 +407,12 @@ export default function AddProductPage() {
               
               <div>
                 <label className="block text-sm font-medium text-white/70 mb-2">Description</label>
-                <textarea 
-                  rows={5}
+                <RichTextEditor 
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe your product..." 
-                  className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20 focus:bg-white/10 transition-all resize-none custom-scrollbar"
-                ></textarea>
+                  onChange={setDescription}
+                  placeholder="Describe your product, fabric features, bullet points, size guide..."
+                  minHeight="220px"
+                />
               </div>
             </div>
           </div>

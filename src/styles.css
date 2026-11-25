@@ -466,3 +466,110 @@ html:not(.admin-loaded) .admin-smooth-transition *::after {
 .admin-light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(197, 42, 53, 0.5) !important;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   WORDPRESS-STYLE RICH TEXT DESCRIPTION & LISTS
+   ───────────────────────────────────────────────────────────── */
+.rich-description-content,
+.rich-description-editor {
+  line-height: 1.75;
+}
+
+.rich-description-content p,
+.rich-description-editor p {
+  margin-bottom: 0.75rem;
+}
+
+.rich-description-content b,
+.rich-description-content strong,
+.rich-description-editor b,
+.rich-description-editor strong {
+  font-weight: 700 !important;
+}
+
+.rich-description-content em,
+.rich-description-content i,
+.rich-description-editor em,
+.rich-description-editor i {
+  font-style: italic;
+}
+
+.rich-description-content u,
+.rich-description-editor u {
+  text-decoration: underline;
+}
+
+.rich-description-content s,
+.rich-description-content strike,
+.rich-description-editor s,
+.rich-description-editor strike {
+  text-decoration: line-through;
+}
+
+/* Bullet Points (Unordered Lists) */
+.rich-description-content ul,
+.rich-description-editor ul {
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+  padding-left: 1.5rem !important;
+  margin: 0.75rem 0 !important;
+}
+
+/* Numbered Points (Ordered Lists) */
+.rich-description-content ol,
+.rich-description-editor ol {
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+  padding-left: 1.5rem !important;
+  margin: 0.75rem 0 !important;
+}
+
+.rich-description-content li,
+.rich-description-editor li {
+  display: list-item !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.rich-description-content h1,
+.rich-description-editor h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.rich-description-content h2,
+.rich-description-editor h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 1rem 0 0.4rem;
+}
+
+.rich-description-content h3,
+.rich-description-editor h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0.85rem 0 0.35rem;
+}
+
+.rich-description-content blockquote,
+.rich-description-editor blockquote {
+  border-left: 3px solid #eab308;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.rich-description-content a,
+.rich-description-editor a {
+  color: #eab308 !important;
+  text-decoration: underline !important;
+}
+
+/* Light mode overrides for Rich Text Editor */
+.admin-light .rich-description-editor {
+  color: #0f172a !important;
+}
+.admin-light .rich-description-editor:empty:before {
+  color: rgba(15, 23, 42, 0.4) !important;
+}
