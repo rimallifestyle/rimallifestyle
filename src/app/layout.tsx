@@ -48,7 +48,16 @@ export async function generateMetadata(): Promise<Metadata> {
       if (v.ogImage) ogImage = v.ogImage;
       if (v.siteUrl) siteUrl = v.siteUrl;
       if (v.twitterCard) twitterCard = v.twitterCard;
-      if (v.googleVerification) googleVerification = v.googleVerification;
+      if (v.googleVerification) {
+        let gv = v.googleVerification.trim();
+        const match = gv.match(/content=["']([^"']+)["']/i);
+        if (match) {
+          gv = match[1];
+        } else if (gv.startsWith("google-site-verification=")) {
+          gv = gv.replace("google-site-verification=", "");
+        }
+        googleVerification = gv;
+      }
       if (typeof v.allowIndexing === "boolean") allowIndexing = v.allowIndexing;
     }
   } catch (e) {
@@ -111,13 +120,52 @@ export async function generateMetadata(): Promise<Metadata> {
   return metadata;
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let siteUrl = "https://rimallifestyle.com";
+  let storeName = "Rimal Store";
+  let logoUrl = "";
+  let description = "Modern Luxury Clothing in Bangladesh";
+
+  try {
+    await connectToDatabase();
+    const siteSetting = await Setting.findOne({ key: "site_identity" }).lean();
+    if (siteSetting?.value) {
+      if (siteSetting.value.storeName) storeName = siteSetting.value.storeName;
+      if (siteSetting.value.logoUrl) logoUrl = siteSetting.value.logoUrl;
+    }
+    const seoSetting = await Setting.findOne({ key: "seo_settings" }).lean();
+    if (seoSetting?.value) {
+      if (seoSetting.value.siteUrl) siteUrl = seoSetting.value.siteUrl.replace(/\/$/, "");
+      if (seoSetting.value.metaDescription) description = seoSetting.value.metaDescription;
+    }
+  } catch {}
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ClothingStore",
+    "name": storeName,
+    "url": siteUrl,
+    ...(logoUrl && { "logo": logoUrl }),
+    "description": description,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": `${siteUrl}/shop?search={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${inter.variable} ${cormorant.variable} antialiased`} suppressHydrationWarning>
         <Providers>
           {children}

@@ -339,6 +339,41 @@ export default function ProductPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-gold/30 selection:text-cream">
       <Header />
 
+      {/* Product JSON-LD Schema for Google Rich Snippets */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": product.name,
+            "image": allImages && allImages.length > 0 ? allImages : undefined,
+            "description": product.description ? product.description.replace(/<[^>]*>?/gm, "").slice(0, 300) : product.name,
+            "sku": product.sku || product.id,
+            "brand": {
+              "@type": "Brand",
+              "name": "Rimal Lifestyle",
+            },
+            "offers": {
+              "@type": "Offer",
+              "priceCurrency": "BDT",
+              "price": product.price,
+              "availability": isOutOfStock ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+              "itemCondition": "https://schema.org/NewCondition",
+            },
+            ...(reviewCount > 0
+              ? {
+                  "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": avgRating,
+                    "reviewCount": reviewCount,
+                  },
+                }
+              : {}),
+          }),
+        }}
+      />
+
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10 animate-in fade-in duration-700">
         {/* Breadcrumb */}
         <nav className="flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-widest mb-8">

@@ -18,7 +18,13 @@ import {
   MessageCircle,
   Twitter,
   Link as LinkIcon,
-  HelpCircle
+  HelpCircle,
+  Copy,
+  Check,
+  FileCode,
+  ArrowUpRight,
+  ShieldCheck,
+  Zap
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
@@ -41,6 +47,8 @@ export default function SeoSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [previewTab, setPreviewTab] = useState<"facebook" | "twitter" | "google">("facebook");
+  const [copiedSitemap, setCopiedSitemap] = useState(false);
+  const [copiedRobots, setCopiedRobots] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<SeoFormState>({
@@ -146,6 +154,23 @@ export default function SeoSettingsPage() {
       toast.error(err.message || "Failed to save settings");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleCopy = async (text: string, type: 'sitemap' | 'robots') => {
+    try {
+      await navigator.clipboard.writeText(text);
+      if (type === 'sitemap') {
+        setCopiedSitemap(true);
+        setTimeout(() => setCopiedSitemap(false), 2000);
+        toast.success("Sitemap URL copied to clipboard!");
+      } else {
+        setCopiedRobots(true);
+        setTimeout(() => setCopiedRobots(false), 2000);
+        toast.success("robots.txt URL copied to clipboard!");
+      }
+    } catch {
+      toast.error("Failed to copy URL");
     }
   };
 
@@ -444,6 +469,166 @@ export default function SeoSettingsPage() {
                 />
                 <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C52A35]"></div>
               </label>
+            </div>
+          </div>
+
+          {/* Google Indexing & Search Console */}
+          <div className="glass-card rounded-3xl p-6 space-y-5 border border-white/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  <Zap className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-white flex items-center gap-2">
+                    Google Indexing & Search Console
+                    <span className="px-2 py-0.5 rounded-md text-[10px] bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">
+                      Live
+                    </span>
+                  </h2>
+                  <p className="text-xs text-white/50">Submit your dynamic sitemap and get your pages crawled by Google immediately.</p>
+                </div>
+              </div>
+
+              <a
+                href="https://search.google.com/search-console"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-medium border border-white/10 transition-all"
+              >
+                <span>Google Console</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-white/60" />
+              </a>
+            </div>
+
+            {/* Sitemap URL row */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <label className="font-medium text-white/80">Dynamic XML Sitemap</label>
+                <a
+                  href="/sitemap.xml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-[#C52A35] hover:underline flex items-center gap-1"
+                >
+                  <span>View live XML</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={`${(formData.siteUrl || "https://rimallifestyle.com").replace(/\/$/, "")}/sitemap.xml`}
+                  className="w-full h-10 px-3 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-white/90 select-all focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleCopy(`${(formData.siteUrl || "https://rimallifestyle.com").replace(/\/$/, "")}/sitemap.xml`, 'sitemap')}
+                  className="h-10 px-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shrink-0"
+                >
+                  {copiedSitemap ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedSitemap ? "Copied" : "Copy"}</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-white/40">
+                Auto-generates clean URLs for all static pages, categories, and published products every hour.
+              </p>
+            </div>
+
+            {/* Robots.txt row */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <label className="font-medium text-white/80">Crawling Rules (robots.txt)</label>
+                <a
+                  href="/robots.txt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-[#C52A35] hover:underline flex items-center gap-1"
+                >
+                  <span>View robots.txt</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={`${(formData.siteUrl || "https://rimallifestyle.com").replace(/\/$/, "")}/robots.txt`}
+                  className="w-full h-10 px-3 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-white/90 select-all focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleCopy(`${(formData.siteUrl || "https://rimallifestyle.com").replace(/\/$/, "")}/robots.txt`, 'robots')}
+                  className="h-10 px-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shrink-0"
+                >
+                  {copiedRobots ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedRobots ? "Copied" : "Copy"}</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-white/40">
+                Protects /admin and user accounts from crawling while instructing search bots to index the storefront and sitemap.
+              </p>
+            </div>
+
+            {/* Structured Data & Schema.org Status */}
+            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-white">
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span>Google Rich Snippets (Schema.org JSON-LD)</span>
+                </span>
+                <a
+                  href="https://search.google.com/test/rich-results"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-[#C52A35] hover:underline flex items-center gap-1"
+                >
+                  <span>Test Rich Results</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-white/70 pt-1">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>ClothingStore & Store Info</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>Product Prices & In-Stock Status</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>SearchAction Sitelink Search Box</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>Product Ratings & Reviews</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick 3-Step Guide */}
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-2 text-white/80">
+              <span className="font-bold text-amber-300 block flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4" />
+                How to index your website on Google in 3 steps:
+              </span>
+              <ol className="list-decimal list-inside space-y-1.5 text-white/70 leading-relaxed text-[11px]">
+                <li>
+                  <strong className="text-white">Verify Ownership:</strong> Open{" "}
+                  <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="text-amber-300 underline font-semibold">
+                    Google Search Console
+                  </a>
+                  , copy the HTML tag code or verification code into the <em>Google Search Console Verification</em> field above, and click <em>Save Changes</em>.
+                </li>
+                <li>
+                  <strong className="text-white">Submit Sitemap:</strong> In Google Search Console, go to <strong>Sitemaps</strong>, enter <code className="text-amber-200 bg-black/40 px-1 py-0.5 rounded font-mono">sitemap.xml</code> and click <strong>Submit</strong>. Google will automatically crawl all published products and pages.
+                </li>
+                <li>
+                  <strong className="text-white">Request Fast Indexing:</strong> In Search Console, paste your homepage or any product URL in the top <strong>URL Inspection</strong> bar and click <strong>&quot;Request Indexing&quot;</strong>.
+                </li>
+              </ol>
             </div>
           </div>
         </div>
