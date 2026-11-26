@@ -11,6 +11,7 @@ import { Footer } from "@/components/store/Footer";
 import { useProducts } from "@/hooks/useProducts";
 import { useEffect, useState } from "react";
 import { API_ROOT } from "@/lib/api";
+import type { Product } from "@/components/store/products";
 
 // Default section order (shown if no layout saved yet)
 const DEFAULT_LAYOUT = [
@@ -32,6 +33,7 @@ const DEFAULT_LAYOUT = [
 export default function Home() {
   const { data: dynamicProducts, isLoading: isProductsLoading } = useProducts();
   const [layout, setLayout] = useState(DEFAULT_LAYOUT);
+  const [sectionsConfig, setSectionsConfig] = useState<Record<string, any>>({});
 
   // Load homepage layout config from backend
   useEffect(() => {
@@ -45,32 +47,143 @@ export default function Home() {
       .catch(() => {}); // fallback to DEFAULT_LAYOUT
   }, []);
 
-  // Filter products by category, using only dynamic data from the database
-  const getProducts = (category: string) => {
-    if (dynamicProducts && dynamicProducts.length > 0) {
-      return dynamicProducts.filter((p) => p.category === category);
+  // Load section configs (titles, descriptions, categories) from backend
+  useEffect(() => {
+    fetch(`${API_ROOT}storefront/sections?t=` + Date.now())
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && typeof data === 'object') {
+          setSectionsConfig(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Intelligent category matcher: handles custom storefront assignments & smart built-in detection
+  const matchCategory = (p: Product, sectionKey: string): boolean => {
+    // 1. If storefront section config has an explicit category assigned:
+    const customCat = sectionsConfig[sectionKey]?.category;
+    if (customCat && customCat !== '') {
+      if (customCat === 'all') return true;
+      const target = customCat.toLowerCase().trim();
+      const pCat = (p.category || '').toLowerCase().trim();
+      const pSlug = (p.categorySlug || '').toLowerCase().trim();
+      const pId = (p.categoryId || '').toString().trim();
+      const pSub = (p.subCategory || '').toLowerCase().trim();
+      const pParent = (p.parentCategory || '').toLowerCase().trim();
+      if (pCat === target || pSlug === target || pId === target || pSub === target || pParent === target) {
+        return true;
+      }
     }
-    return [];
+
+    // 2. Built-in smart matching for standard section keys:
+    const nameLower = (p.name || '').toLowerCase();
+    const catLower = (p.category || '').toLowerCase().trim();
+    const slugLower = (p.categorySlug || '').toLowerCase().trim();
+    const subLower = (p.subCategory || '').toLowerCase().trim();
+    const allCatTexts = `${catLower} ${slugLower} ${subLower}`;
+
+    switch (sectionKey) {
+      case 'shirts':
+        // Must match shirt/shirts but exclude t-shirt / tshirt
+        if (
+          nameLower.includes('t-shirt') || 
+          nameLower.includes('tshirt') || 
+          allCatTexts.includes('t-shirt') || 
+          allCatTexts.includes('tshirt')
+        ) {
+          return false;
+        }
+        return (
+          allCatTexts.includes('shirt') ||
+          nameLower.includes('shirt')
+        );
+
+      case 'tshirts':
+        return (
+          allCatTexts.includes('t-shirt') ||
+          allCatTexts.includes('tshirt') ||
+          allCatTexts.includes('tee') ||
+          nameLower.includes('t-shirt') ||
+          nameLower.includes('tshirt')
+        );
+
+      case 'polos':
+        return (
+          allCatTexts.includes('polo') ||
+          nameLower.includes('polo')
+        );
+
+      case 'pants':
+        return (
+          allCatTexts.includes('pant') ||
+          allCatTexts.includes('trouser') ||
+          allCatTexts.includes('denim') ||
+          allCatTexts.includes('jeans') ||
+          allCatTexts.includes('chino') ||
+          nameLower.includes('pant') ||
+          nameLower.includes('trouser') ||
+          nameLower.includes('denim') ||
+          nameLower.includes('jeans')
+        );
+
+      case 'jackets':
+        return (
+          allCatTexts.includes('jacket') ||
+          allCatTexts.includes('coat') ||
+          allCatTexts.includes('blazer') ||
+          allCatTexts.includes('outerwear') ||
+          nameLower.includes('jacket') ||
+          nameLower.includes('coat')
+        );
+
+      case 'hats':
+        return (
+          allCatTexts.includes('hat') ||
+          allCatTexts.includes('cap') ||
+          nameLower.includes('hat') ||
+          nameLower.includes('cap')
+        );
+
+      case 'panjabi':
+        return (
+          allCatTexts.includes('panjabi') ||
+          allCatTexts.includes('punjabi') ||
+          allCatTexts.includes('kurta') ||
+          nameLower.includes('panjabi') ||
+          nameLower.includes('punjabi') ||
+          nameLower.includes('kurta')
+        );
+
+      default:
+        return allCatTexts.includes(sectionKey.toLowerCase());
+    }
   };
 
-  const dynamicShirts   = getProducts("shirt");
-  const dynamicTshirts  = getProducts("tshirt");
-  const dynamicPants    = getProducts("pant");
-  const dynamicHats     = getProducts("hat");
-  const dynamicPolos    = getProducts("polo");
-  const dynamicJackets  = getProducts("jacket");
-  const dynamicPanjabis = getProducts("panjabi");
+  const getProductsForSection = (sectionKey: string): Product[] => {
+    if (!dynamicProducts || dynamicProducts.length === 0) return [];
+    const max = sectionsConfig[sectionKey]?.maxProducts || 12;
+    return dynamicProducts.filter((p) => matchCategory(p, sectionKey)).slice(0, max);
+  };
 
-  // Map section IDs to their components
+  const dynamicShirts   = getProductsForSection("shirts");
+  const dynamicTshirts  = getProductsForSection("tshirts");
+  const dynamicPants    = getProductsForSection("pants");
+  const dynamicHats     = getProductsForSection("hats");
+  const dynamicPolos    = getProductsForSection("polos");
+  const dynamicJackets  = getProductsForSection("jackets");
+  const dynamicPanjabis = getProductsForSection("panjabi");
+
+  // Map section IDs to their components with dynamic section customization
   const SECTION_MAP: Record<string, React.ReactNode> = {
     hero_slider: <HeroSlider />,
     marquee: <Marquee />,
     new_arrivals: (
       <ProductSlider
         id="new"
-        eyebrow="Just landed"
-        title="New arrivals"
-        description="Fresh drops from the atelier — hand-picked pieces to build your wardrobe."
+        eyebrow={sectionsConfig['new']?.eyebrow || "Just landed"}
+        title={sectionsConfig['new']?.title || "New arrivals"}
+        description={sectionsConfig['new']?.description || "Fresh drops from the atelier — hand-picked pieces to build your wardrobe."}
         products={dynamicProducts || []}
         variant="default"
         isLoading={isProductsLoading}
@@ -81,9 +194,9 @@ export default function Home() {
     shirts: (
       <ProductSlider
         id="shirts"
-        eyebrow="Shirt category"
-        title="Shirts, tailored."
-        description="From crisp oxfords to weekend linens — shirts made for every occasion."
+        eyebrow={sectionsConfig['shirts']?.eyebrow || "Shirt category"}
+        title={sectionsConfig['shirts']?.title || "Shirts, tailored."}
+        description={sectionsConfig['shirts']?.description || "From crisp oxfords to weekend linens — shirts made for every occasion."}
         products={dynamicShirts}
         variant="default"
         isLoading={isProductsLoading}
@@ -92,9 +205,9 @@ export default function Home() {
     tshirts: (
       <ProductSlider
         id="tshirts"
-        eyebrow="T-Shirt category"
-        title="Essential tees."
-        description="Elevated basics in heavyweight cotton and premium blends."
+        eyebrow={sectionsConfig['tshirts']?.eyebrow || "T-Shirt category"}
+        title={sectionsConfig['tshirts']?.title || "Essential tees."}
+        description={sectionsConfig['tshirts']?.description || "Elevated basics in heavyweight cotton and premium blends."}
         products={dynamicTshirts}
         variant="minimal"
         isLoading={isProductsLoading}
@@ -103,9 +216,9 @@ export default function Home() {
     polos: (
       <ProductSlider
         id="polos"
-        eyebrow="Polo collection"
-        title="The perfect polo."
-        description="Refined piqué and merino polos — a smarter alternative to the t-shirt."
+        eyebrow={sectionsConfig['polos']?.eyebrow || "Polo collection"}
+        title={sectionsConfig['polos']?.title || "The perfect polo."}
+        description={sectionsConfig['polos']?.description || "Refined piqué and merino polos — a smarter alternative to the t-shirt."}
         products={dynamicPolos}
         variant="default"
         isLoading={isProductsLoading}
@@ -114,9 +227,9 @@ export default function Home() {
     pants: (
       <ProductSlider
         id="pants"
-        eyebrow="Trouser category"
-        title="Trousers & chinos."
-        description="Precise cuts and considered fabrics — from tailored wool to everyday chinos."
+        eyebrow={sectionsConfig['pants']?.eyebrow || "Trouser category"}
+        title={sectionsConfig['pants']?.title || "Trousers & chinos."}
+        description={sectionsConfig['pants']?.description || "Precise cuts and considered fabrics — from tailored wool to everyday chinos."}
         products={dynamicPants}
         variant="detailed"
         isLoading={isProductsLoading}
@@ -125,9 +238,9 @@ export default function Home() {
     jackets: (
       <ProductSlider
         id="jackets"
-        eyebrow="Outerwear"
-        title="Jackets & coats."
-        description="Statement outerwear designed for cold days and warm compliments."
+        eyebrow={sectionsConfig['jackets']?.eyebrow || "Outerwear"}
+        title={sectionsConfig['jackets']?.title || "Jackets & coats."}
+        description={sectionsConfig['jackets']?.description || "Statement outerwear designed for cold days and warm compliments."}
         products={dynamicJackets}
         variant="default"
         isLoading={isProductsLoading}
@@ -136,9 +249,9 @@ export default function Home() {
     hats: (
       <ProductSlider
         id="hats"
-        eyebrow="Headwear"
-        title="Hats & caps."
-        description="Finish every look — from fedoras to flat caps, wool to leather."
+        eyebrow={sectionsConfig['hats']?.eyebrow || "Headwear"}
+        title={sectionsConfig['hats']?.title || "Hats & caps."}
+        description={sectionsConfig['hats']?.description || "Finish every look — from fedoras to flat caps, wool to leather."}
         products={dynamicHats}
         variant="minimal"
         isLoading={isProductsLoading}
@@ -147,9 +260,9 @@ export default function Home() {
     panjabi: (
       <ProductSlider
         id="panjabi"
-        eyebrow="Traditional · Festive"
-        title="The Panjabi edit."
-        description="Traditional silhouettes reimagined with modern craft — for weddings, festivals, and every moment worth dressing for."
+        eyebrow={sectionsConfig['panjabi']?.eyebrow || "Traditional · Festive"}
+        title={sectionsConfig['panjabi']?.title || "The Panjabi edit."}
+        description={sectionsConfig['panjabi']?.description || "Traditional silhouettes reimagined with modern craft — for weddings, festivals, and every moment worth dressing for."}
         products={dynamicPanjabis}
         variant="default"
         isLoading={isProductsLoading}
@@ -165,6 +278,15 @@ export default function Home() {
         {layout
           .filter(section => section.enabled)
           .map(section => {
+            // For category product sliders, if loading has finished and there are no products, omit the empty section
+            if (!isProductsLoading && dynamicProducts && dynamicProducts.length > 0) {
+              const categorySectionKeys = ['shirts', 'tshirts', 'polos', 'pants', 'jackets', 'hats', 'panjabi'];
+              if (categorySectionKeys.includes(section.id)) {
+                const prods = getProductsForSection(section.id);
+                if (prods.length === 0) return null;
+              }
+            }
+
             const component = SECTION_MAP[section.id];
             if (!component) return null;
             return (
@@ -178,5 +300,3 @@ export default function Home() {
     </div>
   );
 }
-
-

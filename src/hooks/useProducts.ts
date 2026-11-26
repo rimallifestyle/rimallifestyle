@@ -25,6 +25,8 @@ export function useProducts() {
           sku: item.sku,
           description: item.description,
           category: item.category || "Uncategorized",
+          categorySlug: item.categorySlug || (typeof item.category === 'string' ? item.category.toLowerCase().replace(/\s+/g, '-') : ''),
+          categoryId: item.categoryId || (typeof item.category === 'string' ? item.category : ''),
           parentCategory: item.parentCategory || undefined,
           subCategory: item.subCategory || undefined,
           image: item.image || '',

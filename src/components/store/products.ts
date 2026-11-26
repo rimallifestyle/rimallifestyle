@@ -26,6 +26,8 @@ export type Product = {
   bgPos: string;
   bgSize?: string;
   category: ProductCategory;
+  categorySlug?: string;
+  categoryId?: string;
   parentCategory?: string;
   subCategory?: string;
   colors?: number;

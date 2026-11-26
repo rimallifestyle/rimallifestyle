@@ -52,6 +52,8 @@ export async function GET() {
         }
 
         p.category = effectiveSub ? effectiveSub.name : (directCat ? directCat.name : p.category);
+        p.categorySlug = effectiveSub?.slug || directCat?.slug || (typeof p.category === 'string' ? p.category.toLowerCase().replace(/\s+/g, '-') : undefined);
+        p.categoryId = effectiveSub?._id?.toString() || directCat?._id?.toString() || p.category?.toString();
         p.subCategory = effectiveSub ? effectiveSub.name : (p.subCategory ? p.subCategory : undefined);
         p.parentCategory = effectiveParent ? effectiveParent.name : (p.parentCategory ? p.parentCategory : undefined);
       });
