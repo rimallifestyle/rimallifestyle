@@ -673,7 +673,7 @@ export default function ProductPage() {
               )}
             </div>
 
-            <h1 className="text-4xl sm:text-5xl font-serif font-medium text-cream leading-[1.15] mb-3">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-serif font-medium text-cream leading-snug sm:leading-tight mb-3 line-clamp-2 break-words" title={product.name}>
               {product.name}
             </h1>
             {product.sku && (
