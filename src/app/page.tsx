@@ -71,7 +71,15 @@ export default function Home() {
       const pId = (p.categoryId || '').toString().trim();
       const pSub = (p.subCategory || '').toLowerCase().trim();
       const pParent = (p.parentCategory || '').toLowerCase().trim();
-      if (pCat === target || pSlug === target || pId === target || pSub === target || pParent === target) {
+      if (
+        pCat === target || 
+        pSlug === target || 
+        pId === target || 
+        pSub === target || 
+        pParent === target ||
+        (pCat && target && (pCat.includes(target) || target.includes(pCat))) ||
+        (pSlug && target && (pSlug.includes(target) || target.includes(pSlug)))
+      ) {
         return true;
       }
     }
@@ -276,7 +284,11 @@ export default function Home() {
       <Header />
       <main>
         {layout
-          .filter(section => section.enabled)
+          .filter(section => {
+            if (sectionsConfig[section.id]?.enabled === false) return false;
+            if (sectionsConfig[section.id]?.enabled === true) return true;
+            return section.enabled;
+          })
           .map(section => {
             // For category product sliders, if loading has finished and there are no products, omit the empty section
             if (!isProductsLoading && dynamicProducts && dynamicProducts.length > 0) {

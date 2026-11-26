@@ -1,8 +1,9 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { Save, Loader2, CheckCircle2, Sliders } from 'lucide-react'
+import { Save, Loader2, CheckCircle2, Sliders, Eye, EyeOff } from 'lucide-react'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 
 const SECTIONS_CONFIG = [
   { id: 'new', label: 'New Arrivals', defaultCat: 'all' },
@@ -26,25 +27,35 @@ export default function ProductSectionsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [secRes, catRes] = await Promise.all([
+        const [secRes, catRes, layoutRes] = await Promise.all([
           fetch(API_BASE).then(r => r.ok ? r.json() : ({} as Record<string, any>)),
-          fetch('/api/admin/categories').then(r => r.ok ? r.json() : [])
+          fetch('/api/admin/categories').then(r => r.ok ? r.json() : []),
+          fetch('/api/storefront/settings?key=homepage_layout').then(r => r.ok ? r.json() : null)
         ])
 
         if (Array.isArray(catRes)) {
           setCategories(catRes)
         }
 
+        const layoutSections = Array.isArray(layoutRes?.sections) ? layoutRes.sections : [];
+
         const merged: Record<string, any> = {}
         const sectionMap: Record<string, any> = (secRes && typeof secRes === 'object') ? secRes : {}
         SECTIONS_CONFIG.forEach(({ id }) => {
-          merged[id] = sectionMap[id] || { 
+          const foundLayout = layoutSections.find((s: any) => s.id === id);
+          const isEnabled = sectionMap[id]?.enabled !== undefined 
+            ? sectionMap[id].enabled 
+            : (foundLayout ? foundLayout.enabled : true);
+
+          merged[id] = { 
             id, 
             eyebrow: '', 
             title: '', 
             description: '', 
             maxProducts: 8,
-            category: ''
+            category: '',
+            ...sectionMap[id],
+            enabled: isEnabled !== false
           }
         })
         setSections(merged)
@@ -78,6 +89,25 @@ export default function ProductSectionsPage() {
         body: JSON.stringify(payload)
       })
       if (!res.ok) throw new Error()
+
+      // Also sync layout enabled state
+      if (typeof section.enabled === 'boolean') {
+        const layoutRes = await fetch('/api/storefront/settings?key=homepage_layout');
+        if (layoutRes.ok) {
+          const layoutData = await layoutRes.json();
+          if (Array.isArray(layoutData?.sections)) {
+            const updatedSections = layoutData.sections.map((item: any) =>
+              item.id === id ? { ...item, enabled: section.enabled } : item
+            );
+            await fetch('/api/storefront/settings?key=homepage_layout', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ sections: updatedSections })
+            });
+          }
+        }
+      }
+
       toast.success(`${SECTIONS_CONFIG.find(s => s.id === id)?.label} saved!`)
     } catch {
       toast.error('Failed to save section')
@@ -99,6 +129,26 @@ export default function ProductSectionsPage() {
           })
         })
       )
+
+      // Sync layout
+      const layoutRes = await fetch('/api/storefront/settings?key=homepage_layout');
+      if (layoutRes.ok) {
+        const layoutData = await layoutRes.json();
+        if (Array.isArray(layoutData?.sections)) {
+          const updatedSections = layoutData.sections.map((item: any) => {
+            if (sections[item.id]?.enabled !== undefined) {
+              return { ...item, enabled: sections[item.id].enabled };
+            }
+            return item;
+          });
+          await fetch('/api/storefront/settings?key=homepage_layout', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sections: updatedSections })
+          });
+        }
+      }
+
       toast.success('All product sections saved successfully!')
     } catch {
       toast.error('Failed to save some sections')
@@ -125,7 +175,7 @@ export default function ProductSectionsPage() {
             Product Sections
           </h1>
           <p className="text-white/50 text-sm mt-1">
-            Customize the title, eyebrow label, description, product limits, and category source for each homepage section
+            Customize the title, eyebrow label, description, category source, and visibility for each homepage section
           </p>
         </div>
 
@@ -151,18 +201,33 @@ export default function ProductSectionsPage() {
             <div key={id} className="glass-card rounded-2xl p-5 space-y-4 border border-white/10 hover:border-white/20 transition-all">
               <div className="flex items-center justify-between pb-2 border-b border-white/5">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-gold" />
+                  <span className={cn("w-2 h-2 rounded-full", s.enabled !== false ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "bg-white/30")} />
                   <h2 className="text-white font-semibold text-sm">{label}</h2>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => save(id)}
-                  disabled={saving === id || saving === 'all'}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#7A1111] text-white text-xs font-medium hover:bg-[#9A1515] transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  {saving === id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-                  Save
-                </button>
+                
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-xs select-none">
+                    <input
+                      type="checkbox"
+                      checked={s.enabled !== false}
+                      onChange={e => update(id, 'enabled', e.target.checked)}
+                      className="rounded accent-emerald-500 w-3.5 h-3.5 cursor-pointer"
+                    />
+                    <span className={cn("text-xs font-medium", s.enabled !== false ? "text-emerald-400" : "text-white/40")}>
+                      {s.enabled !== false ? "Active on Home" : "Hidden"}
+                    </span>
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => save(id)}
+                    disabled={saving === id || saving === 'all'}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#7A1111] text-white text-xs font-medium hover:bg-[#9A1515] transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {saving === id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                    Save
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -175,7 +240,7 @@ export default function ProductSectionsPage() {
                     type="text" 
                     value={s.eyebrow || ''} 
                     onChange={e => update(id, 'eyebrow', e.target.value)}
-                    placeholder="e.g. Just landed, Shirt category"
+                    placeholder="e.g. Just landed, Trouser category"
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-gold" 
                   />
                 </div>
@@ -189,7 +254,7 @@ export default function ProductSectionsPage() {
                     type="text" 
                     value={s.title || ''} 
                     onChange={e => update(id, 'title', e.target.value)}
-                    placeholder="e.g. Shirts, tailored."
+                    placeholder="e.g. Trousers & chinos."
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-gold" 
                   />
                 </div>
