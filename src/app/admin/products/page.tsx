@@ -246,18 +246,27 @@ export default function ProductsPage() {
                     ৳{product.regularPrice || '0'}
                   </td>
                   <td className="py-3 text-sm text-white/70 bg-transparent group-hover:bg-white/5 transition-colors border-b border-white/5 group-hover:border-transparent">
-                    {product.stockQuantity ?? 'N/A'}
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-medium text-white">{product.stockQuantity ?? 0}</span>
+                      <span className={cn(
+                        "text-[10px] px-1.5 py-0.5 rounded font-medium",
+                        Number(product.stockQuantity) > 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"
+                      )}>
+                        {Number(product.stockQuantity) > 0 ? 'In Stock' : 'Out'}
+                      </span>
+                    </div>
                   </td>
                   <td className="py-3 bg-transparent group-hover:bg-white/5 transition-colors border-b border-white/5 group-hover:border-transparent">
                     <span className={cn(
-                      "px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 w-fit",
-                      Number(product.stockQuantity) > 0 ? "text-emerald-400 bg-emerald-400/10" :
-                      "text-red-400 bg-red-400/10"
+                      "px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 w-fit border",
+                      product.status === 'draft' 
+                        ? "text-amber-400 bg-amber-400/10 border-amber-400/20" 
+                        : "text-emerald-400 bg-emerald-400/10 border-emerald-400/20"
                     )}>
                       <span className={cn("w-1.5 h-1.5 rounded-full", 
-                        Number(product.stockQuantity) > 0 ? "bg-emerald-400" : "bg-red-400"
+                        product.status === 'draft' ? "bg-amber-400" : "bg-emerald-400"
                       )} />
-                      {Number(product.stockQuantity) > 0 ? 'In Stock' : 'Out of Stock'}
+                      {product.status === 'draft' ? 'Draft' : 'Published'}
                     </span>
                   </td>
                   <td className="py-3 pr-4 rounded-r-2xl bg-transparent group-hover:bg-white/5 transition-colors border-b border-white/5 group-hover:border-transparent">

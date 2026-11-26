@@ -56,7 +56,8 @@ export default function AddProductPage() {
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([])
   const galleryInputRef = useRef<HTMLInputElement>(null)
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submittingAction, setSubmittingAction] = useState<'published' | 'draft' | null>(null)
+  const [productStatus, setProductStatus] = useState<'published' | 'draft'>('published')
 
   useEffect(() => {
     async function loadData() {
@@ -97,6 +98,7 @@ export default function AddProductPage() {
             setSalePrice(product.salePrice?.toString() || '')
             setSku(product.sku || '')
             setStockQuantity(product.stockQuantity?.toString() || '')
+            setProductStatus(product.status === 'draft' ? 'draft' : 'published')
             
             if (product.category) {
               const catRaw = product.category.toString().trim()
@@ -275,14 +277,14 @@ export default function AddProductPage() {
     setGalleryPreviews(newPreviews)
   }
 
-  const handleSubmit = async (e: React.FormEvent, status: 'published' | 'draft' = 'published') => {
-    e.preventDefault()
+  const handleSubmit = async (e?: React.FormEvent, status: 'published' | 'draft' = 'published') => {
+    if (e) e.preventDefault()
     if (!name || !regularPrice) {
       toast.error('Product Name and Regular Price are required.')
       return
     }
 
-    setIsSubmitting(true)
+    setSubmittingAction(status)
 
     try {
       const uploadImageToCloudinary = async (file: File) => {
@@ -345,7 +347,7 @@ export default function AddProductPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Failed to save product')
 
-      toast.success(`Product ${editId ? 'updated' : 'created'} successfully!`)
+      toast.success(status === 'draft' ? 'Product saved as draft (unpublished)!' : `Product ${editId ? 'updated' : 'published'} successfully!`)
       
       // Optional: Redirect after success
       setTimeout(() => {
@@ -355,7 +357,7 @@ export default function AddProductPage() {
     } catch (err: any) {
       toast.error(err.message || 'Failed to create product.')
     } finally {
-      setIsSubmitting(false)
+      setSubmittingAction(null)
     }
   }
 
@@ -370,7 +372,19 @@ export default function AddProductPage() {
             </button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">{editId ? 'Edit Product' : 'Add New Product'}</h1>
+            <div className="flex items-center gap-2 mb-1">
+              <h1 className="text-2xl font-bold text-white">{editId ? 'Edit Product' : 'Add New Product'}</h1>
+              {editId && (
+                <span className={cn(
+                  "px-2.5 py-0.5 rounded-full text-xs font-medium border",
+                  productStatus === 'draft' 
+                    ? "bg-amber-400/10 text-amber-400 border-amber-400/20" 
+                    : "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
+                )}>
+                  {productStatus === 'draft' ? 'Draft (Unpublished)' : 'Published'}
+                </span>
+              )}
+            </div>
             <p className="text-white/60 text-sm">{editId ? 'Update your product listing details.' : 'Create a new product listing for your store.'}</p>
           </div>
         </div>
@@ -379,24 +393,30 @@ export default function AddProductPage() {
           <button 
             type="button" 
             onClick={(e) => handleSubmit(e, 'draft')}
-            disabled={isSubmitting}
-            className="flex items-center gap-2 h-10 px-6 rounded-full glass-button text-sm font-medium text-white hover:bg-white/10 transition-all disabled:opacity-50"
+            disabled={submittingAction !== null}
+            className="flex items-center gap-2 h-10 px-6 rounded-full glass-button text-sm font-medium text-white hover:bg-white/10 transition-all disabled:opacity-50 cursor-pointer"
           >
-            {isSubmitting && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-            Save as Draft
+            {submittingAction === 'draft' && (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            )}
+            <span>{submittingAction === 'draft' ? 'Saving Draft...' : 'Save as Draft'}</span>
           </button>
           <button 
-            type="submit" 
+            type="button" 
             onClick={(e) => handleSubmit(e, 'published')}
-            disabled={isSubmitting}
-            className="flex items-center gap-2 h-10 px-6 rounded-full bg-[#550000] text-sm font-medium text-white hover:bg-[#7A1111] transition-all shadow-[0_0_15px_rgba(85,0,0,0.5)] disabled:opacity-50"
+            disabled={submittingAction !== null}
+            className="flex items-center gap-2 h-10 px-6 rounded-full bg-[#550000] text-sm font-medium text-white hover:bg-[#7A1111] transition-all shadow-[0_0_15px_rgba(85,0,0,0.5)] disabled:opacity-50 cursor-pointer"
           >
-            {isSubmitting ? (
+            {submittingAction === 'published' ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <Save className="w-4 h-4" />
             )}
-            {isSubmitting ? 'Saving...' : (editId ? 'Update Product' : 'Publish Product')}
+            <span>
+              {submittingAction === 'published' 
+                ? (editId ? 'Updating...' : 'Publishing...') 
+                : (editId ? (productStatus === 'draft' ? 'Publish Product' : 'Update Product') : 'Publish Product')}
+            </span>
           </button>
         </div>
       </div>
