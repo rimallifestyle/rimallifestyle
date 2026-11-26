@@ -12,6 +12,9 @@ export interface CategoryTreeItem {
   parent: string;
   parentName?: string;
   parentSlug?: string;
+  thumbnail?: string;
+  count?: number;
+  description?: string;
   subcategories: CategoryTreeItem[];
 }
 
@@ -19,18 +22,51 @@ export async function GET() {
   try {
     await connectToDatabase();
     
-    // 1. Fetch all categories from Category collection
-    const categoriesFromDb = await Category.find().sort({ name: 1 }).lean();
+    // 1. Fetch category counts and sample product images for thumbnail fallback
+    const [categoriesFromDb, productCounts, sampleProductImages] = await Promise.all([
+      Category.find().sort({ name: 1 }).lean(),
+      Product.aggregate([
+        { $match: { status: { $ne: 'draft' } } },
+        { $group: { _id: { $toLower: "$category" }, count: { $sum: 1 } } }
+      ]).catch(() => []),
+      Product.aggregate([
+        { $match: { image: { $exists: true, $ne: '' }, status: { $ne: 'draft' } } },
+        { $group: { _id: { $toLower: "$category" }, image: { $first: "$image" } } }
+      ]).catch(() => [])
+    ]);
+
+    const countMap: Record<string, number> = {};
+    if (Array.isArray(productCounts)) {
+      productCounts.forEach((pc: any) => {
+        if (pc._id) countMap[pc._id] = pc.count;
+      });
+    }
+
+    const imageMap: Record<string, string> = {};
+    if (Array.isArray(sampleProductImages)) {
+      sampleProductImages.forEach((pi: any) => {
+        if (pi._id && pi.image) imageMap[pi._id] = pi.image;
+      });
+    }
     
     const catMap = new Map<string, CategoryTreeItem>();
     
     categoriesFromDb.forEach((c: any) => {
       const idStr = c._id.toString();
+      const slug = c.slug || c.name.toLowerCase().replace(/\s+/g, '-');
+      const nameKey = c.name.toLowerCase().trim();
+      const slugKey = slug.toLowerCase().trim();
+      const productCount = countMap[nameKey] ?? countMap[slugKey] ?? c.count ?? 0;
+      const thumbnail = c.thumbnail || imageMap[nameKey] || imageMap[slugKey] || '';
+
       catMap.set(idStr, {
         id: idStr,
         name: c.name,
-        slug: c.slug || c.name.toLowerCase().replace(/\s+/g, '-'),
+        slug: slug,
         parent: c.parent ? c.parent.toString() : '0',
+        thumbnail,
+        count: productCount,
+        description: c.description || '',
         subcategories: []
       });
     });
@@ -86,11 +122,14 @@ export async function GET() {
         }
 
         if (!exists) {
+          const nameKey = trimmed.toLowerCase();
           rootCategories.push({
             id: slug,
             name: trimmed.charAt(0).toUpperCase() + trimmed.slice(1),
             slug: slug,
             parent: '0',
+            thumbnail: imageMap[nameKey] || '',
+            count: countMap[nameKey] || 0,
             subcategories: []
           });
         }

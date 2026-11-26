@@ -61,6 +61,13 @@ const DEFAULT_SECTIONS: Record<string, { eyebrow: string; title: string; descrip
     maxProducts: 8,
     category: "",
   },
+  category_showcase: {
+    eyebrow: "Curated Selections",
+    title: "The Rimal wardrobe, considered.",
+    description: "Explore our signature collections crafted with modern luxury.",
+    maxProducts: 8,
+    category: "",
+  },
 };
 
 export async function GET(req: Request) {

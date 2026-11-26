@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 
 const SECTIONS_CONFIG = [
   { id: 'new', label: 'New Arrivals', defaultCat: 'all' },
+  { id: 'category_showcase', label: 'Categories Showcase (Slider)', defaultCat: '', isShowcase: true },
   { id: 'shirts', label: 'Shirts Section', defaultCat: 'shirt' },
   { id: 'tshirts', label: 'T-Shirts Section', defaultCat: 't-shirt' },
   { id: 'polos', label: 'Polos Section', defaultCat: 'polo' },
@@ -42,7 +43,8 @@ export default function ProductSectionsPage() {
         const merged: Record<string, any> = {}
         const sectionMap: Record<string, any> = (secRes && typeof secRes === 'object') ? secRes : {}
         SECTIONS_CONFIG.forEach(({ id }) => {
-          const foundLayout = layoutSections.find((s: any) => s.id === id);
+          const layoutId = id === 'category_showcase' ? 'categories' : id;
+          const foundLayout = layoutSections.find((s: any) => s.id === layoutId);
           const isEnabled = sectionMap[id]?.enabled !== undefined 
             ? sectionMap[id].enabled 
             : (foundLayout ? foundLayout.enabled : true);
@@ -54,6 +56,8 @@ export default function ProductSectionsPage() {
             description: '', 
             maxProducts: 8,
             category: '',
+            selectedCategories: '',
+            displayMode: 'all',
             ...sectionMap[id],
             enabled: isEnabled !== false
           }
@@ -96,8 +100,9 @@ export default function ProductSectionsPage() {
         if (layoutRes.ok) {
           const layoutData = await layoutRes.json();
           if (Array.isArray(layoutData?.sections)) {
+            const layoutId = id === 'category_showcase' ? 'categories' : id;
             const updatedSections = layoutData.sections.map((item: any) =>
-              item.id === id ? { ...item, enabled: section.enabled } : item
+              item.id === layoutId ? { ...item, enabled: section.enabled } : item
             );
             await fetch('/api/storefront/settings?key=homepage_layout', {
               method: 'PUT',
@@ -136,8 +141,9 @@ export default function ProductSectionsPage() {
         const layoutData = await layoutRes.json();
         if (Array.isArray(layoutData?.sections)) {
           const updatedSections = layoutData.sections.map((item: any) => {
-            if (sections[item.id]?.enabled !== undefined) {
-              return { ...item, enabled: sections[item.id].enabled };
+            const secKey = item.id === 'categories' ? 'category_showcase' : item.id;
+            if (sections[secKey]?.enabled !== undefined) {
+              return { ...item, enabled: sections[secKey].enabled };
             }
             return item;
           });
@@ -273,41 +279,126 @@ export default function ProductSectionsPage() {
                   />
                 </div>
 
-                {/* Category Source & Max Products */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div>
-                    <label className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">
-                      Category Source
-                    </label>
-                    <select
-                      value={s.category || ''}
-                      onChange={e => update(id, 'category', e.target.value)}
-                      className="w-full bg-[#140202] border border-white/10 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-gold cursor-pointer"
-                    >
-                      <option value="">Auto (Smart Category Match)</option>
-                      <option value="all">All Catalog Products</option>
-                      {categories.map((c: any) => (
-                        <option key={c._id || c.id} value={c.slug || c.name}>
-                          {c.name} {c.slug ? `(${c.slug})` : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                {/* For Category Showcase: Dynamic vs Specific Categories picker */}
+                {id === 'category_showcase' ? (
+                  <div className="space-y-3 pt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">
+                          Showcase Mode
+                        </label>
+                        <select
+                          value={s.displayMode || (s.selectedCategories ? 'specific' : 'all')}
+                          onChange={e => {
+                            const mode = e.target.value;
+                            update(id, 'displayMode', mode);
+                            if (mode === 'all') {
+                              update(id, 'selectedCategories', '');
+                            }
+                          }}
+                          className="w-full bg-[#140202] border border-white/10 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-gold cursor-pointer"
+                        >
+                          <option value="all">Dynamic (All Catalog Categories)</option>
+                          <option value="specific">Pick Specific Categories</option>
+                        </select>
+                      </div>
 
-                  <div>
-                    <label className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">
-                      Max Products
-                    </label>
-                    <input 
-                      type="number" 
-                      min={1} 
-                      max={30} 
-                      value={s.maxProducts || 8} 
-                      onChange={e => update(id, 'maxProducts', parseInt(e.target.value, 10) || 8)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-gold" 
-                    />
+                      <div>
+                        <label className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">
+                          Max Categories to Display
+                        </label>
+                        <input 
+                          type="number" 
+                          min={1} 
+                          max={30} 
+                          value={s.maxProducts || 8} 
+                          onChange={e => update(id, 'maxProducts', parseInt(e.target.value, 10) || 8)}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-gold" 
+                        />
+                      </div>
+                    </div>
+
+                    {(s.displayMode === 'specific' || Boolean(s.selectedCategories)) && (
+                      <div className="space-y-2 p-3 rounded-xl bg-white/5 border border-white/10">
+                        <div className="flex items-center justify-between">
+                          <label className="text-white/60 text-xs font-medium">
+                            Select Categories to Show in Slider:
+                          </label>
+                          <span className="text-[11px] text-gold font-mono">
+                            {(s.selectedCategories ? s.selectedCategories.split(',').filter(Boolean).length : 0)} selected
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar pt-1">
+                          {categories.map((c: any) => {
+                            const cVal = c.slug || c.name.toLowerCase().replace(/\s+/g, '-');
+                            const selectedList = (s.selectedCategories || '').split(',').filter(Boolean);
+                            const isSelected = selectedList.includes(cVal) || selectedList.includes(c.name.toLowerCase());
+                            return (
+                              <button
+                                key={c._id || c.id}
+                                type="button"
+                                onClick={() => {
+                                  let next: string[];
+                                  if (isSelected) {
+                                    next = selectedList.filter((x: string) => x !== cVal && x !== c.name.toLowerCase());
+                                  } else {
+                                    next = [...selectedList, cVal];
+                                  }
+                                  update(id, 'selectedCategories', next.join(','));
+                                }}
+                                className={cn(
+                                  "px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer border",
+                                  isSelected 
+                                    ? "bg-gold text-black border-gold font-semibold shadow-[0_0_10px_rgba(212,175,55,0.3)]" 
+                                    : "bg-black/40 text-white/70 border-white/10 hover:border-white/30 hover:text-white"
+                                )}
+                              >
+                                <span>{c.name}</span>
+                                {isSelected ? <span>✓</span> : <span className="opacity-40">+</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
+                ) : (
+                  /* Standard Product Section Category Source & Max Products */
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">
+                        Category Source
+                      </label>
+                      <select
+                        value={s.category || ''}
+                        onChange={e => update(id, 'category', e.target.value)}
+                        className="w-full bg-[#140202] border border-white/10 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-gold cursor-pointer"
+                      >
+                        <option value="">Auto (Smart Category Match)</option>
+                        <option value="all">All Catalog Products</option>
+                        {categories.map((c: any) => (
+                          <option key={c._id || c.id} value={c.slug || c.name}>
+                            {c.name} {c.slug ? `(${c.slug})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">
+                        Max Products
+                      </label>
+                      <input 
+                        type="number" 
+                        min={1} 
+                        max={30} 
+                        value={s.maxProducts || 8} 
+                        onChange={e => update(id, 'maxProducts', parseInt(e.target.value, 10) || 8)}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-gold" 
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )

@@ -119,9 +119,9 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         </div>
         <div className="shrink-0 text-right">
-          <div className="font-display text-lg text-gold">৳{product.price.toLocaleString()}</div>
+          <div className="font-sans font-semibold text-base sm:text-lg text-gold">৳{product.price.toLocaleString()}</div>
           {product.compareAt && (
-            <div className="text-[11px] text-muted-foreground line-through">
+            <div className="font-sans text-[11px] text-muted-foreground line-through">
               ৳{product.compareAt.toLocaleString()}
             </div>
           )}
@@ -235,11 +235,11 @@ export function ProductCardOverlay({ product }: { product: Product }) {
           </Link>
           <div className="mt-3 flex items-end justify-between gap-3">
             <div className="flex items-end gap-2">
-              <span className="font-display text-2xl text-gold">
+              <span className="font-sans font-bold text-xl sm:text-2xl text-gold">
                 ৳{product.price.toLocaleString()}
               </span>
               {product.compareAt && (
-                <span className="text-xs text-cream/60 line-through">
+                <span className="font-sans text-xs text-cream/60 line-through">
                   ৳{product.compareAt.toLocaleString()}
                 </span>
               )}
@@ -336,9 +336,9 @@ export function ProductCardMinimal({ product }: { product: Product }) {
           </h3>
         </Link>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-sm font-medium text-gold">৳{product.price.toLocaleString()}</span>
+          <span className="font-sans font-semibold text-sm sm:text-base text-gold">৳{product.price.toLocaleString()}</span>
           {product.compareAt && (
-            <span className="text-xs text-muted-foreground line-through">
+            <span className="font-sans text-xs text-muted-foreground line-through">
               ৳{product.compareAt.toLocaleString()}
             </span>
           )}
@@ -420,9 +420,9 @@ export function ProductCardDetailed({ product }: { product: Product }) {
             </Link>
           </div>
           <div className="flex items-center gap-2 mt-1">
-            <div className="font-display text-xl text-gold">৳{product.price.toLocaleString()}</div>
+            <div className="font-sans font-semibold text-base sm:text-lg text-gold">৳{product.price.toLocaleString()}</div>
             {product.compareAt && (
-              <div className="text-xs text-cream/60 line-through">
+              <div className="font-sans text-xs text-cream/60 line-through">
                 ৳{product.compareAt.toLocaleString()}
               </div>
             )}
