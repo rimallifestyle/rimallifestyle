@@ -16,12 +16,22 @@ export function useProducts() {
         const stockQty = item.stockQuantity !== undefined && item.stockQuantity !== null
           ? Number(item.stockQuantity)
           : (item.stockStatus === "outofstock" ? 0 : 25);
+        // Proper discount pricing logic:
+        // If product has a valid salePrice lower than regularPrice:
+        // - `price` is the discounted selling price (salePrice)
+        // - `compareAt` is the higher regular price (regularPrice) to strike through
+        const regPrice = Number(item.regularPrice) || 0;
+        const sPrice = item.salePrice !== undefined && item.salePrice !== null && item.salePrice !== ""
+          ? Number(item.salePrice)
+          : undefined;
+        const hasDiscount = sPrice !== undefined && sPrice > 0 && sPrice < regPrice;
+
         return {
           id: item._id,
           slug: item.slug || item._id,
           name: item.name || 'Untitled',
-          price: item.regularPrice || 0,
-          compareAt: item.salePrice || undefined,
+          price: hasDiscount ? (sPrice as number) : regPrice,
+          compareAt: hasDiscount ? regPrice : undefined,
           sku: item.sku,
           description: item.description,
           category: item.category || "Uncategorized",

@@ -243,7 +243,14 @@ export default function ProductsPage() {
                       : 'Uncategorized'}
                   </td>
                   <td className="py-3 font-medium text-white bg-transparent group-hover:bg-white/5 transition-colors border-b border-white/5 group-hover:border-transparent">
-                    ৳{product.regularPrice || '0'}
+                    {product.salePrice && Number(product.salePrice) > 0 && Number(product.salePrice) < Number(product.regularPrice) ? (
+                      <div className="flex flex-col">
+                        <span className="text-gold font-bold">৳{Number(product.salePrice).toLocaleString()}</span>
+                        <span className="text-[11px] text-white/40 line-through">৳{Number(product.regularPrice || 0).toLocaleString()}</span>
+                      </div>
+                    ) : (
+                      <span>৳{Number(product.regularPrice || 0).toLocaleString()}</span>
+                    )}
                   </td>
                   <td className="py-3 text-sm text-white/70 bg-transparent group-hover:bg-white/5 transition-colors border-b border-white/5 group-hover:border-transparent">
                     <div className="flex items-center gap-1.5">

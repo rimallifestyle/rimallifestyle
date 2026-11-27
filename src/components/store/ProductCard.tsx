@@ -110,11 +110,15 @@ export function ProductCard({ product }: { product: Product }) {
         </Link>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-maroon-deep/40 via-transparent to-transparent" />
 
-        {product.tag && (
+        {product.tag ? (
           <span className="absolute left-3 top-3 rounded-full bg-cream/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-maroon-deep shadow-sm z-10">
             {product.tag}
           </span>
-        )}
+        ) : (product.compareAt && product.compareAt > product.price) ? (
+          <span className="absolute left-3 top-3 rounded-full bg-[#C52A35] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm z-10">
+            -{Math.round(((product.compareAt - product.price) / product.compareAt) * 100)}%
+          </span>
+        ) : null}
         <button
           onClick={(e) => { e.preventDefault(); toggleWishlist(Number(product.id)); }}
           aria-label="Add to wishlist"
@@ -145,7 +149,7 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
         <div className="shrink-0 text-right">
           <div className="font-sans font-semibold text-base sm:text-lg text-gold">৳{product.price.toLocaleString()}</div>
-          {product.compareAt && (
+          {product.compareAt && product.compareAt > product.price && (
             <div className="font-sans text-[11px] text-muted-foreground line-through">
               ৳{product.compareAt.toLocaleString()}
             </div>
@@ -282,7 +286,7 @@ export function ProductCardOverlay({ product }: { product: Product }) {
               <span className="font-sans font-bold text-xl sm:text-2xl text-gold">
                 ৳{product.price.toLocaleString()}
               </span>
-              {product.compareAt && (
+              {product.compareAt && product.compareAt > product.price && (
                 <span className="font-sans text-xs text-cream/60 line-through">
                   ৳{product.compareAt.toLocaleString()}
                 </span>
@@ -381,7 +385,7 @@ export function ProductCardMinimal({ product }: { product: Product }) {
         </Link>
         <div className="flex items-center gap-2 mt-0.5">
           <span className="font-sans font-semibold text-sm sm:text-base text-gold">৳{product.price.toLocaleString()}</span>
-          {product.compareAt && (
+          {product.compareAt && product.compareAt > product.price && (
             <span className="font-sans text-xs text-muted-foreground line-through">
               ৳{product.compareAt.toLocaleString()}
             </span>
@@ -437,11 +441,15 @@ export function ProductCardDetailed({ product }: { product: Product }) {
           />
         </Link>
 
-        {product.tag && (
+        {product.tag ? (
           <span className="absolute left-3 top-3 rounded-full bg-cream/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-maroon-deep shadow-sm z-10">
             {product.tag}
           </span>
-        )}
+        ) : (product.compareAt && product.compareAt > product.price) ? (
+          <span className="absolute left-3 top-3 rounded-full bg-[#C52A35] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm z-10">
+            -{Math.round(((product.compareAt - product.price) / product.compareAt) * 100)}%
+          </span>
+        ) : null}
         <button
           onClick={(e) => { e.preventDefault(); toggleWishlist(Number(product.id)); }}
           aria-label="Add to wishlist"
@@ -465,7 +473,7 @@ export function ProductCardDetailed({ product }: { product: Product }) {
           </div>
           <div className="flex items-center gap-2 mt-1">
             <div className="font-sans font-semibold text-base sm:text-lg text-gold">৳{product.price.toLocaleString()}</div>
-            {product.compareAt && (
+            {product.compareAt && product.compareAt > product.price && (
               <div className="font-sans text-xs text-cream/60 line-through">
                 ৳{product.compareAt.toLocaleString()}
               </div>

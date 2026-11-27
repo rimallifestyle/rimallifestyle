@@ -725,12 +725,12 @@ export default function ProductPage() {
 
             <div className="flex items-center gap-3 mb-6">
               <div className="text-3xl font-bold text-cream">৳{(product.price ?? 0).toLocaleString()}</div>
-              {product.compareAt && (
+              {product.compareAt && product.compareAt > product.price && (
                 <div className="text-lg text-muted-foreground line-through decoration-muted-foreground/50">
                   ৳{product.compareAt.toLocaleString()}
                 </div>
               )}
-              {product.compareAt && (
+              {product.compareAt && product.compareAt > product.price && (
                 <span className="ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-maroon-deep text-gold tracking-wider">
                   {Math.round(((product.compareAt - product.price) / product.compareAt) * 100)}% OFF
                 </span>
