@@ -60,6 +60,17 @@ export async function GET(req: Request) {
         });
       }
 
+      if (key === "feature_strip_settings") {
+        return NextResponse.json({
+          items: [
+            { icon: "Truck", title: "Free shipping", sub: "On orders over $150" },
+            { icon: "RotateCcw", title: "30-day returns", sub: "Hassle-free exchange" },
+            { icon: "ShieldCheck", title: "Secure checkout", sub: "Encrypted payments" },
+            { icon: "Sparkles", title: "Handcrafted", sub: "Limited production runs" },
+          ]
+        });
+      }
+
       if (key === "footer_settings") {
         return NextResponse.json({
           description: "Rimal Store crafts refined menswear inspired by heritage tailoring and modern design. Made to last a lifetime.",

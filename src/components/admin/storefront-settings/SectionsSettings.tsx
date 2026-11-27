@@ -400,19 +400,21 @@ export default function ProductSectionsPage() {
               </div>
 
               <div className="space-y-3">
-                {/* Section Title */}
-                <div>
-                  <label className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">
-                    Section Title
-                  </label>
-                  <input 
-                    type="text" 
-                    value={s.title || ''} 
-                    onChange={e => update(id, 'title', e.target.value)}
-                    placeholder="e.g. Trousers & chinos."
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-gold" 
-                  />
-                </div>
+                {/* Section Title (hidden for category showcase to keep pure product category cards) */}
+                {id !== 'category_showcase' && (
+                  <div>
+                    <label className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">
+                      Section Title
+                    </label>
+                    <input 
+                      type="text" 
+                      value={s.title || ''} 
+                      onChange={e => update(id, 'title', e.target.value)}
+                      placeholder="e.g. Trousers & chinos."
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-gold" 
+                    />
+                  </div>
+                )}
 
                 {/* For Category Showcase: Dynamic vs Specific Categories (including subcategories) */}
                 {id === 'category_showcase' ? (

@@ -32,6 +32,9 @@ import {
   Sparkles,
   Share2,
   Copy,
+  MessageCircle,
+  Facebook,
+  Check,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useUserSync } from "@/context/UserSync";
@@ -223,18 +226,128 @@ export default function ProductPage() {
     }
   }, [hasDescription, hasSpecs, validCustomTabs.length]);
 
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      setIsLinkCopied(true);
+      toast.success('Product link copied to clipboard!');
+      setTimeout(() => setIsLinkCopied(false), 2500);
+    }
+  };
+
   const handleNativeShare = () => {
     const url = typeof window !== 'undefined' ? window.location.href : '';
-    if (navigator.share) {
+    if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({
         title: product?.name || 'Rimal Lifestyle',
         text: product?.shortDescription || product?.name,
         url,
       }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(url);
-      toast.success('Product link copied to clipboard!');
+      handleCopyLink();
     }
+  };
+
+  const renderProductTabs = () => {
+    if (!product || tabList.length === 0) return null;
+    return (
+      <div className="bg-card/40 border border-border/70 rounded-2xl overflow-hidden shadow-sm">
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar p-2 bg-secondary/30 border-b border-border/60">
+          {tabList.map((tab) => {
+            const TabIcon = tab.icon;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                  isActive
+                    ? "bg-gold text-background shadow-sm"
+                    : "text-foreground/70 hover:text-foreground hover:bg-white/5"
+                }`}
+              >
+                <TabIcon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab Content Panel */}
+        <div className="p-5">
+          {activeTab === 'description' && hasDescription && (
+            <div className="text-sm text-foreground/80 leading-relaxed rich-description-content">
+              <div dangerouslySetInnerHTML={{ __html: product.description! }} />
+            </div>
+          )}
+
+          {activeTab === 'details' && hasSpecs && (
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-background/50 border border-border/40">
+                {product.sku && (
+                  <div>
+                    <span className="text-[11px] uppercase font-bold text-muted-foreground">SKU / ID</span>
+                    <p className="font-mono font-semibold text-cream mt-0.5">{product.sku}</p>
+                  </div>
+                )}
+                <div>
+                  <span className="text-[11px] uppercase font-bold text-muted-foreground">Stock Status</span>
+                  <p className="font-semibold text-emerald-400 mt-0.5 capitalize">{product.stockStatus || 'In Stock'}</p>
+                </div>
+                {(product.parentCategory || product.category) && (
+                  <div>
+                    <span className="text-[11px] uppercase font-bold text-muted-foreground">Category</span>
+                    <p className="font-semibold text-cream mt-0.5">{product.parentCategory || product.category}</p>
+                  </div>
+                )}
+                {product.subCategory && (
+                  <div>
+                    <span className="text-[11px] uppercase font-bold text-muted-foreground">Subcategory</span>
+                    <p className="font-semibold text-cream mt-0.5">{product.subCategory}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'shipping' && (
+            <div className="space-y-3 text-xs text-foreground/80 leading-relaxed">
+              <div className="p-3.5 rounded-xl bg-background/50 border border-border/40 space-y-1.5">
+                <p className="font-bold text-cream text-sm flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-gold" /> Fast Nationwide Delivery
+                </p>
+                <p>
+                  We deliver door-to-door all over Bangladesh within 2 to 3 business days via our partner couriers (Steadfast &amp; Pathao).
+                </p>
+              </div>
+              <div className="p-3.5 rounded-xl bg-background/50 border border-border/40 space-y-1.5">
+                <p className="font-bold text-cream text-sm flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-gold" /> Cash on Delivery Available
+                </p>
+                <p>
+                  Inspect your package and pay securely with Cash on Delivery or via instant bKash / Nagad payment.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {validCustomTabs.map((ct: any, idx: number) => {
+            const tabKey = `custom_${idx}`;
+            if (activeTab !== tabKey) return null;
+            return (
+              <div key={tabKey} className="text-sm text-foreground/80 leading-relaxed rich-description-content">
+                <div dangerouslySetInnerHTML={{ __html: ct.content }} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
   const [isAdding, setIsAdding] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -540,102 +653,10 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Extensible Product Tabs under Image (Only non-empty tabs) */}
-            {tabList.length > 0 && (
-              <div className="bg-card/40 border border-border/70 rounded-2xl overflow-hidden shadow-sm">
-                {/* Tab Navigation */}
-                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar p-2 bg-secondary/30 border-b border-border/60">
-                  {tabList.map((tab) => {
-                    const TabIcon = tab.icon;
-                    const isActive = activeTab === tab.key;
-                    return (
-                      <button
-                        key={tab.key}
-                        type="button"
-                        onClick={() => setActiveTab(tab.key)}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-                          isActive
-                            ? "bg-gold text-background shadow-sm"
-                            : "text-foreground/70 hover:text-foreground hover:bg-white/5"
-                        }`}
-                      >
-                        <TabIcon className="w-3.5 h-3.5" />
-                        <span>{tab.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Tab Content Panel */}
-                <div className="p-5">
-                  {activeTab === 'description' && hasDescription && (
-                    <div className="text-sm text-foreground/80 leading-relaxed rich-description-content">
-                      <div dangerouslySetInnerHTML={{ __html: product.description! }} />
-                    </div>
-                  )}
-
-                  {activeTab === 'details' && hasSpecs && (
-                    <div className="space-y-3 text-sm">
-                      <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-background/50 border border-border/40">
-                        {product.sku && (
-                          <div>
-                            <span className="text-[11px] uppercase font-bold text-muted-foreground">SKU / ID</span>
-                            <p className="font-mono font-semibold text-cream mt-0.5">{product.sku}</p>
-                          </div>
-                        )}
-                        <div>
-                          <span className="text-[11px] uppercase font-bold text-muted-foreground">Stock Status</span>
-                          <p className="font-semibold text-emerald-400 mt-0.5 capitalize">{product.stockStatus || 'In Stock'}</p>
-                        </div>
-                        {(product.parentCategory || product.category) && (
-                          <div>
-                            <span className="text-[11px] uppercase font-bold text-muted-foreground">Category</span>
-                            <p className="font-semibold text-cream mt-0.5">{product.parentCategory || product.category}</p>
-                          </div>
-                        )}
-                        {product.subCategory && (
-                          <div>
-                            <span className="text-[11px] uppercase font-bold text-muted-foreground">Subcategory</span>
-                            <p className="font-semibold text-cream mt-0.5">{product.subCategory}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeTab === 'shipping' && (
-                    <div className="space-y-3 text-xs text-foreground/80 leading-relaxed">
-                      <div className="p-3.5 rounded-xl bg-background/50 border border-border/40 space-y-1.5">
-                        <p className="font-bold text-cream text-sm flex items-center gap-2">
-                          <Truck className="w-4 h-4 text-gold" /> Fast Nationwide Delivery
-                        </p>
-                        <p>
-                          We deliver door-to-door all over Bangladesh within 2 to 3 business days via our partner couriers (Steadfast &amp; Pathao).
-                        </p>
-                      </div>
-                      <div className="p-3.5 rounded-xl bg-background/50 border border-border/40 space-y-1.5">
-                        <p className="font-bold text-cream text-sm flex items-center gap-2">
-                          <ShieldCheck className="w-4 h-4 text-gold" /> Cash on Delivery Available
-                        </p>
-                        <p>
-                          Inspect your package and pay securely with Cash on Delivery or via instant bKash / Nagad payment.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {validCustomTabs.map((ct: any, idx: number) => {
-                    const tabKey = `custom_${idx}`;
-                    if (activeTab !== tabKey) return null;
-                    return (
-                      <div key={tabKey} className="text-sm text-foreground/80 leading-relaxed rich-description-content">
-                        <div dangerouslySetInnerHTML={{ __html: ct.content }} />
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            {/* Extensible Product Tabs under Image (Desktop only) */}
+            <div className="hidden lg:block">
+              {renderProductTabs()}
+            </div>
           </div>
 
           {/* Right: Info */}
@@ -846,12 +867,12 @@ export default function ProductPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col gap-3 mb-8">
+            <div className="flex flex-col gap-3 mb-6">
               <div className="flex gap-2 sm:gap-3">
                 <button
                   onClick={handleAddToCart}
                   disabled={isAdding || isOutOfStock}
-                  className="flex-1 h-12 px-2 sm:px-4 rounded-lg bg-white text-black flex items-center justify-center gap-1.5 sm:gap-2 font-semibold text-xs sm:text-sm transition-transform active:scale-[0.98] hover:bg-white/90 shadow-luxe whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 h-12 px-2 sm:px-4 rounded-lg bg-white text-black flex items-center justify-center gap-1.5 sm:gap-2 font-semibold text-xs sm:text-sm transition-transform active:scale-[0.98] hover:bg-white/90 shadow-luxe whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {isAdding ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -863,12 +884,83 @@ export default function ProductPage() {
                 <button
                   onClick={handleBuyNow}
                   disabled={isOutOfStock}
-                  className="flex-1 h-12 px-2 sm:px-4 rounded-lg bg-gold text-background flex items-center justify-center gap-1.5 sm:gap-2 font-semibold text-xs sm:text-sm transition-transform active:scale-[0.98] hover:opacity-90 shadow-luxe whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 h-12 px-2 sm:px-4 rounded-lg bg-gold text-background flex items-center justify-center gap-1.5 sm:gap-2 font-semibold text-xs sm:text-sm transition-transform active:scale-[0.98] hover:opacity-90 shadow-luxe whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {isOutOfStock ? 'Out of Stock' : quantity > 1 ? `Buy It Now (${quantity})` : 'Buy It Now'}
                 </button>
-                <button className="h-12 w-12 rounded-lg border border-border bg-card flex items-center justify-center text-foreground hover:text-gold hover:border-gold/50 transition shrink-0">
+                <button className="h-12 w-12 rounded-lg border border-border bg-card flex items-center justify-center text-foreground hover:text-gold hover:border-gold/50 transition shrink-0 cursor-pointer">
                   <Heart className="h-5 w-5 shrink-0" />
+                </button>
+              </div>
+            </div>
+
+            {/* Social Share Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2.5 p-3 rounded-xl bg-card/60 border border-border/70 mb-8">
+              <span className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
+                <Share2 className="h-3.5 w-3.5 text-gold" />
+                <span>Share this piece:</span>
+              </span>
+              <div className="flex items-center gap-1.5">
+                {/* WhatsApp */}
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                    `Check out ${product.name} on Rimal: ${typeof window !== 'undefined' ? window.location.href : ''}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Share on WhatsApp"
+                  title="Share on WhatsApp"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-medium transition cursor-pointer"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">WhatsApp</span>
+                </a>
+
+                {/* Facebook */}
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                    typeof window !== 'undefined' ? window.location.href : ''
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Share on Facebook"
+                  title="Share on Facebook"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs font-medium transition cursor-pointer"
+                >
+                  <Facebook className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Facebook</span>
+                </a>
+
+                {/* Copy Link */}
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  aria-label="Copy link"
+                  title="Copy link"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-cream border border-border/70 text-xs font-medium transition cursor-pointer active:scale-95"
+                >
+                  {isLinkCopied ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-emerald-400" />
+                      <span className="text-emerald-400 font-semibold">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5 text-gold" />
+                      <span>Copy Link</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Native Device Share */}
+                <button
+                  type="button"
+                  onClick={handleNativeShare}
+                  aria-label="More share options"
+                  title="More share options"
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-gold/20 hover:text-gold text-muted-foreground border border-border/70 transition cursor-pointer"
+                >
+                  <Share2 className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
@@ -896,6 +988,11 @@ export default function ProductPage() {
                   <p className="text-[10px] text-muted-foreground">100% secure checkout</p>
                 </div>
               </div>
+            </div>
+
+            {/* Extensible Product Tabs (Mobile only - placed after actions & features) */}
+            <div className="block lg:hidden mt-8">
+              {renderProductTabs()}
             </div>
           </div>
         </div>

@@ -31,8 +31,8 @@ const FALLBACK_CATEGORIES: CategoryItem[] = [
 
 export function CategoryShowcase() {
   const router = useRouter();
-  const [eyebrow, setEyebrow] = useState("Curated Selections");
-  const [title, setTitle] = useState("The Rimal wardrobe, considered.");
+  const [eyebrow, setEyebrow] = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [maxProducts, setMaxProducts] = useState(8);

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
-import { LayoutGrid, Image as ImageIcon, Megaphone, Layout as LayoutIcon, Navigation, Sliders, Info, Phone, ArrowLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { LayoutGrid, Image as ImageIcon, Megaphone, Layout as LayoutIcon, Navigation, Sliders, Info, Phone, ArrowLeft, ChevronRight, Loader2, Sparkles } from 'lucide-react'
 
 // Import all settings components
 import LayoutSettings from '@/components/admin/storefront-settings/LayoutSettings'
@@ -15,6 +15,7 @@ import SectionsSettings from '@/components/admin/storefront-settings/SectionsSet
 import AboutSettings from '@/components/admin/storefront-settings/AboutSettings'
 import ContactSettings from '@/components/admin/storefront-settings/ContactSettings'
 import SiteIdentitySettings from '@/components/admin/storefront-settings/SiteIdentitySettings'
+import FeatureStripSettings from '@/components/admin/storefront-settings/FeatureStripSettings'
 
 const DASHBOARD_CARDS = [
   {
@@ -31,6 +32,7 @@ const DASHBOARD_CARDS = [
     category: 'Global Theme',
     items: [
       { id: 'identity', title: 'Site Identity', desc: 'Manage store logo and name', icon: ImageIcon, component: SiteIdentitySettings, color: 'from-emerald-500/20 to-emerald-500/5', border: 'border-emerald-500/30' },
+      { id: 'features', title: 'Feature Strip', desc: 'Free shipping, returns & checkout badges', icon: Sparkles, component: FeatureStripSettings, color: 'from-amber-500/20 to-amber-500/5', border: 'border-amber-500/30' },
       { id: 'navigation', title: 'Navigation', desc: 'Header menus and links', icon: Navigation, component: NavigationSettings, color: 'from-cyan-500/20 to-cyan-500/5', border: 'border-cyan-500/30' },
       { id: 'marquee', title: 'Announcement', desc: 'Top scrolling text', icon: Megaphone, component: MarqueeSettings, color: 'from-orange-500/20 to-orange-500/5', border: 'border-orange-500/30' },
       { id: 'footer', title: 'Footer', desc: 'Bottom links and newsletter', icon: LayoutIcon, component: FooterSettings, color: 'from-red-500/20 to-red-500/5', border: 'border-red-500/30' },
