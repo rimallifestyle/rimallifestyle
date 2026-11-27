@@ -92,9 +92,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative w-full admin-smooth-transition">
-        {/* Subtle background glow effect behind content */}
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#7A1111]/20 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#550000]/30 blur-[120px] pointer-events-none" />
+        {/* Subtle background glow effect behind content (Dark mode only) */}
+        {!isLight && (
+          <>
+            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#7A1111]/20 blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#550000]/30 blur-[120px] pointer-events-none" />
+          </>
+        )}
         
         {!isStorefront ? (
           <Header 

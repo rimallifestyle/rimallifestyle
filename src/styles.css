@@ -264,52 +264,123 @@ html:not(.admin-loaded) .admin-smooth-transition *::after {
   color: #0f172a !important;
 }
 
-/* Glow Blobs in Light Mode */
-.admin-light .bg-\[\#7A1111\]\/20 {
-  background-color: rgba(197, 42, 53, 0.04) !important;
-}
-.admin-light .bg-\[\#550000\]\/30 {
-  background-color: rgba(122, 17, 17, 0.03) !important;
+/* Hide all dark/red glow blobs in light mode */
+.admin-light .bg-\[\#7A1111\]\/20,
+.admin-light .bg-\[\#550000\]\/30,
+.admin-light .bg-\[\#C52A35\]\/20,
+.admin-light .bg-\[\#7A1111\]\/10,
+.admin-light .bg-\[\#550000\]\/20,
+.admin-light [class*="bg-[#7A1111]/"],
+.admin-light [class*="bg-[#550000]/"] {
+  opacity: 0 !important;
+  background-color: transparent !important;
+  pointer-events: none !important;
 }
 
-/* Glass Card */
+/* Glass Card & Dashboard Cards */
 .admin-light .glass-card {
-  background: rgba(255, 255, 255, 0.88) !important;
-  border: 1px solid rgba(0, 0, 0, 0.07) !important;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02) !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02) !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  color: #0f172a !important;
 }
 .admin-light .glass-card:hover {
-  background: rgba(255, 255, 255, 0.98) !important;
+  background: #ffffff !important;
   border-color: rgba(0, 0, 0, 0.12) !important;
-  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.07) !important;
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Glass Button */
+/* Glass Buttons */
 .admin-light .glass-button {
   background: rgba(0, 0, 0, 0.04) !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   color: #1e293b !important;
+  box-shadow: none !important;
 }
 .admin-light .glass-button:hover {
   background: rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
   color: #0f172a !important;
 }
 
-/* Sidebar */
+/* All Hardcoded Dark Containers & Modals across Admin */
+.admin-light .bg-\[\#0f0404\],
+.admin-light .bg-\[\#0e0303\],
+.admin-light .bg-\[\#0e0303\]\/95,
+.admin-light .bg-\[\#0a0202\],
+.admin-light .bg-\[\#0a0202\]\/95,
+.admin-light .bg-\[\#0a0000\],
+.admin-light .bg-\[\#0a0000\]\/95,
+.admin-light .bg-\[\#050000\],
+.admin-light .bg-\[\#050000\]\/80,
+.admin-light .bg-\[\#050000\]\/90,
+.admin-light .bg-\[\#1a0505\],
+.admin-light .bg-\[\#100303\],
+.admin-light .bg-\[\#180404\],
+.admin-light .bg-\[\#140202\],
+.admin-light .bg-\[\#110000\],
+.admin-light .bg-\[\#0a0a0a\],
+.admin-light .bg-\[\#0a0a0a\]\/95,
+.admin-light .bg-\[\#110505\],
+.admin-light .bg-\[\#120000\],
+.admin-light .bg-\[\#140505\],
+.admin-light .bg-\[\#160404\],
+.admin-light .bg-\[\#180000\],
+.admin-light .bg-\[\#2a0404\],
+.admin-light .bg-\[\#080202\],
+.admin-light .bg-\[\#0d0303\],
+.admin-light .bg-\[\#070101\] {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+}
+
+/* Convert Black Overlays (inputs, chips, variant boxes) into Crisp Light Elements */
+.admin-light div:not(.fixed):not([class*="inset-0"]).bg-black\/20,
+.admin-light div:not(.fixed):not([class*="inset-0"]).bg-black\/30,
+.admin-light div:not(.fixed):not([class*="inset-0"]).bg-black\/40,
+.admin-light div:not(.fixed):not([class*="inset-0"]).bg-black\/50,
+.admin-light label.bg-black\/20,
+.admin-light label.bg-black\/30,
+.admin-light label.bg-black\/40,
+.admin-light .bg-black\/20:not(.fixed):not([class*="inset-0"]),
+.admin-light .bg-black\/30:not(.fixed):not([class*="inset-0"]),
+.admin-light .bg-black\/40:not(.fixed):not([class*="inset-0"]),
+.admin-light .bg-black\/50:not(.fixed):not([class*="inset-0"]) {
+  background-color: #f1f5f9 !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #1e293b !important;
+}
+
+/* Modal and Drawer Backdrop Overlays */
+.admin-light .fixed.inset-0,
+.admin-light div[class*="fixed inset-0"] {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Modal Inner Card */
+.admin-light .fixed > div:not([class*="inset-0"]) {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Main Sidebar & Storefront Sidebar */
 .admin-light aside {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-right-color: rgba(0, 0, 0, 0.07) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-right-color: rgba(0, 0, 0, 0.08) !important;
   backdrop-filter: blur(25px) !important;
+  color: #0f172a !important;
 }
 .admin-light aside .text-white {
   color: #0f172a !important;
 }
-.admin-light aside .text-white\/70 {
-  color: #475569 !important;
-}
+.admin-light aside .text-white\/70,
+.admin-light aside .text-white\/60,
 .admin-light aside .text-white\/50 {
   color: #64748b !important;
 }
@@ -319,24 +390,64 @@ html:not(.admin-loaded) .admin-smooth-transition *::after {
 .admin-light aside .bg-white\/10 {
   background-color: rgba(0, 0, 0, 0.05) !important;
 }
-.admin-light aside .hover\:bg-white\/5:hover {
+.admin-light aside .hover\:bg-white\/5:hover,
+.admin-light aside .hover\:bg-white\/10:hover {
   background-color: rgba(0, 0, 0, 0.04) !important;
-}
-
-/* Header */
-.admin-light header {
-  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
-}
-.admin-light header input {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
   color: #0f172a !important;
 }
-.admin-light header input::placeholder {
-  color: #94a3b8 !important;
+
+/* Active Sidebar Item & Primary Gradient/Solid Red (Must Keep Crisp White Text) */
+.admin-light .from-\[\#7A1111\],
+.admin-light .bg-\[\#C52A35\],
+.admin-light .bg-\[\#7A1111\],
+.admin-light .bg-\[\#550000\],
+.admin-light .bg-rose-500,
+.admin-light .bg-rose-600,
+.admin-light .bg-red-500,
+.admin-light .bg-red-600,
+.admin-light .bg-emerald-500,
+.admin-light .bg-emerald-600,
+.admin-light .bg-green-600,
+.admin-light .bg-blue-600,
+.admin-light [class*="bg-[#C52A35]"],
+.admin-light [class*="bg-[#7A1111]"],
+.admin-light [class*="bg-[#550000]"],
+.admin-light [class*="from-[#7A1111]"],
+.admin-light [class*="from-[#C52A35]"],
+.admin-light button.bg-\[\#C52A35\],
+.admin-light button[type="submit"]:not(.glass-button) {
+  color: #ffffff !important;
 }
 
-/* Text Hierarchy */
+.admin-light .from-\[\#7A1111\] *,
+.admin-light .bg-\[\#C52A35\] *,
+.admin-light .bg-\[\#7A1111\] *,
+.admin-light .bg-\[\#550000\] *,
+.admin-light .bg-rose-500 *,
+.admin-light .bg-rose-600 *,
+.admin-light .bg-red-500 *,
+.admin-light .bg-red-600 *,
+.admin-light .bg-emerald-500 *,
+.admin-light .bg-emerald-600 *,
+.admin-light [class*="bg-[#C52A35]"] *,
+.admin-light [class*="bg-[#7A1111]"] *,
+.admin-light [class*="from-[#7A1111]"] *,
+.admin-light [class*="from-[#C52A35]"] *,
+.admin-light button.bg-\[\#C52A35\] *,
+.admin-light button[type="submit"]:not(.glass-button) * {
+  color: #ffffff !important;
+}
+
+.admin-light .from-\[\#7A1111\] svg,
+.admin-light .bg-\[\#C52A35\] svg,
+.admin-light [class*="from-[#7A1111]"] svg,
+.admin-light [class*="bg-[#C52A35]"] svg,
+.admin-light button.bg-\[\#C52A35\] svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* General Text Hierarchy */
 .admin-light .text-white {
   color: #0f172a !important;
 }
@@ -349,72 +460,58 @@ html:not(.admin-loaded) .admin-smooth-transition *::after {
 .admin-light .text-white\/70 {
   color: #475569 !important;
 }
-.admin-light .text-white\/60 {
-  color: #64748b !important;
-}
+.admin-light .text-white\/60,
 .admin-light .text-white\/50 {
   color: #64748b !important;
 }
-.admin-light .text-white\/40 {
-  color: #94a3b8 !important;
-}
-.admin-light .text-white\/30 {
-  color: #cbd5e1 !important;
-}
-.admin-light .text-white\/20 {
-  color: #e2e8f0 !important;
-}
+.admin-light .text-white\/40,
+.admin-light .text-white\/30,
+.admin-light .text-white\/20,
 .admin-light .text-white\/10 {
-  color: #f1f5f9 !important;
-}
-
-/* Keep Crisp White Text on Buttons & Badges */
-.admin-light [class*="bg-\[\#C52A35\]"],
-.admin-light [class*="bg-\[\#7A1111\]"],
-.admin-light [class*="bg-\[\#550000\]"],
-.admin-light [class*="from-\[\#7A1111\]"],
-.admin-light [class*="from-\[\#C52A35\]"],
-.admin-light .bg-emerald-500,
-.admin-light .bg-rose-500,
-.admin-light .bg-green-500,
-.admin-light button[type="submit"]:not(.glass-button) {
-  color: #ffffff !important;
-}
-.admin-light [class*="bg-\[\#C52A35\]"] *,
-.admin-light [class*="from-\[\#7A1111\]"] *,
-.admin-light [class*="from-\[\#C52A35\]"] * {
-  color: #ffffff !important;
+  color: #94a3b8 !important;
 }
 
 /* Borders and Dividers */
-.admin-light .border-white\/5 {
-  border-color: rgba(0, 0, 0, 0.05) !important;
-}
-.admin-light .border-white\/10 {
+.admin-light .border-white\/5,
+.admin-light .border-white\/10,
+.admin-light .border-white\/15,
+.admin-light .border-white\/20,
+.admin-light .border-white\/30 {
   border-color: rgba(0, 0, 0, 0.08) !important;
 }
-.admin-light .border-white\/15 {
-  border-color: rgba(0, 0, 0, 0.12) !important;
-}
-.admin-light .border-white\/20 {
-  border-color: rgba(0, 0, 0, 0.15) !important;
-}
-.admin-light .bg-white\/5 {
-  background-color: rgba(0, 0, 0, 0.03) !important;
-}
+.admin-light .bg-white\/5,
 .admin-light .bg-white\/10 {
-  background-color: rgba(0, 0, 0, 0.06) !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
 }
+.admin-light .bg-white\/15,
 .admin-light .bg-white\/20 {
-  background-color: rgba(0, 0, 0, 0.09) !important;
+  background-color: rgba(0, 0, 0, 0.07) !important;
 }
 
-/* Inputs, Selects, Textareas */
+/* Header */
+.admin-light header {
+  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+  background-color: transparent !important;
+}
+.admin-light header input {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+.admin-light header input::placeholder {
+  color: #94a3b8 !important;
+}
+.admin-light header .text-white\/50 {
+  color: #94a3b8 !important;
+}
+
+/* Form Inputs, Selects, Textareas */
 .admin-light input:not([type="checkbox"]):not([type="radio"]),
 .admin-light select,
 .admin-light textarea {
-  background-color: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
   color: #0f172a !important;
 }
 .admin-light input:focus,
@@ -422,7 +519,12 @@ html:not(.admin-loaded) .admin-smooth-transition *::after {
 .admin-light textarea:focus {
   background-color: #ffffff !important;
   border-color: #C52A35 !important;
-  box-shadow: 0 0 0 1px rgba(197, 42, 53, 0.3) !important;
+  box-shadow: 0 0 0 1px rgba(197, 42, 53, 0.25) !important;
+  color: #0f172a !important;
+}
+.admin-light input::placeholder,
+.admin-light textarea::placeholder {
+  color: #94a3b8 !important;
 }
 .admin-light select option {
   background-color: #ffffff !important;
@@ -434,37 +536,61 @@ html:not(.admin-loaded) .admin-smooth-transition *::after {
   background-image: linear-gradient(to right, #0f172a, #475569) !important;
 }
 
-/* Table */
+/* Table Styles */
 .admin-light table th {
   color: #64748b !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  background-color: transparent !important;
 }
 .admin-light table td {
-  border-color: rgba(0, 0, 0, 0.06) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
   color: #1e293b !important;
 }
 .admin-light table tr:hover td {
   background-color: rgba(0, 0, 0, 0.02) !important;
 }
 
-/* Skeleton pulse */
+/* Skeleton Pulse */
 .admin-light .animate-pulse {
   background-color: rgba(0, 0, 0, 0.06) !important;
 }
 
 /* Notification Drawer in Light Mode */
 .admin-light .z-\[100\] > div:last-child {
-  background-color: rgba(255, 255, 255, 0.96) !important;
+  background-color: #ffffff !important;
   border-left-color: rgba(0, 0, 0, 0.08) !important;
   color: #0f172a !important;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Custom Scrollbar in Light Mode */
 .admin-light .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.15) !important;
+  border-radius: 9999px;
 }
 .admin-light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(197, 42, 53, 0.5) !important;
+}
+
+/* Recharts / Charts */
+.admin-light .recharts-cartesian-axis-tick text,
+.admin-light .recharts-text,
+.admin-light .recharts-legend-item-text {
+  fill: #64748b !important;
+  color: #64748b !important;
+}
+.admin-light .recharts-cartesian-grid line {
+  stroke: rgba(0, 0, 0, 0.06) !important;
+}
+.admin-light .recharts-default-tooltip {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+}
+.admin-light .recharts-default-tooltip * {
+  color: #0f172a !important;
 }
 
 /* ─────────────────────────────────────────────────────────────
