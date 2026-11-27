@@ -37,6 +37,9 @@ export async function POST(req: Request) {
         user: smtpUser,
         pass,
       },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000,
     });
 
     // Verify connection configuration
@@ -75,8 +78,10 @@ export async function POST(req: Request) {
     let errorMessage = "Failed to connect to SMTP server.";
     if (error.code === 'EAUTH') {
       errorMessage = "Authentication failed. Please check your username and password.";
-    } else if (error.code === 'ESOCKET') {
-      errorMessage = "Network error. Please check your Host and Port (try 465 or 587).";
+    } else if (error.code === 'EBUSY' || error.code === 'ENOTFOUND' || (error.message && error.message.includes('getaddrinfo'))) {
+      errorMessage = `Cannot resolve SMTP host "${host}". Please make sure this domain exists and has valid DNS records, or use your mail provider's official SMTP host (e.g. smtp.gmail.com).`;
+    } else if (error.code === 'ESOCKET' || error.code === 'ETIMEDOUT') {
+      errorMessage = "Connection timed out or network error. Please verify your Host and Port (e.g. 465 for SSL, 587 for TLS).";
     } else if (error.message) {
       errorMessage = error.message;
     }

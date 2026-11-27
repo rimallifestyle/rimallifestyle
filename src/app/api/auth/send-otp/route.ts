@@ -59,6 +59,9 @@ export async function POST(req: Request) {
         user: smtp.user,
         pass: smtp.pass,
       },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000,
     });
 
     // Import template
