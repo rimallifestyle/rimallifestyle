@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { API_ROOT } from "@/lib/api";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -23,8 +23,17 @@ export function HeroSlider() {
     return [];
   });
 
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const firstImgRef = useRef<HTMLImageElement>(null);
   const [emblaRef, embla] = useEmblaCarousel({ loop: true });
   const [selected, setSelected] = useState(0);
+
+  // Check if first image is already cached/complete
+  useEffect(() => {
+    if (firstImgRef.current && firstImgRef.current.complete) {
+      setImageLoaded(true);
+    }
+  }, [sliders]);
 
   useEffect(() => {
     // Fetch live sliders from database
@@ -85,43 +94,56 @@ export function HeroSlider() {
     };
   }, [embla, sliders.length]);
 
-  // If no sliders loaded yet, show a sleek pulse banner placeholder (never old demo banners!)
-  if (sliders.length === 0) {
-    return (
-      <section className="relative overflow-hidden bg-background">
-        <div className="w-full aspect-[16/9] sm:aspect-[21/9] md:aspect-[21/9] bg-secondary/30 animate-pulse" />
-      </section>
-    );
-  }
-
   return (
     <section 
-      className="relative overflow-hidden bg-background"
+      className="relative overflow-hidden bg-background select-none min-h-[180px] sm:min-h-[260px] md:min-h-[380px]"
       onClick={handleSliderClick}
     >
-      <div ref={emblaRef} className="overflow-hidden">
-        <div className="flex">
-          {sliders.map((slide, i) => (
-            <div key={slide.id || i} className="relative min-w-0 flex-[0_0_100%]">
-              <a
-                href={slide.ctaLink || "#"}
-                className="block w-full cursor-pointer select-none"
-                draggable={false}
-              >
-                <img
-                  src={slide.image}
-                  alt={slide.title || "Banner"}
-                  width={1920}
-                  height={900}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  draggable={false}
-                  className="w-full h-auto max-h-[360px] sm:max-h-[420px] md:max-h-[450px] lg:max-h-[480px] xl:max-h-[500px] object-cover object-center block select-none"
-                />
-              </a>
-            </div>
-          ))}
+      {/* Luxury Skeleton Loader - Shown while hero image is downloading */}
+      {(!imageLoaded || sliders.length === 0) && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-br from-card/80 via-secondary/50 to-card/90">
+          <div className="flex flex-col items-center gap-2.5">
+            <div className="h-8 w-8 rounded-full border-2 border-gold/25 border-t-gold animate-spin" />
+            <span className="text-[10px] uppercase tracking-[0.3em] text-gold/60 font-medium font-sans">
+              Loading...
+            </span>
+          </div>
         </div>
-      </div>
+      )}
+
+      {sliders.length > 0 && (
+        <div ref={emblaRef} className="overflow-hidden">
+          <div className="flex">
+            {sliders.map((slide, i) => (
+              <div key={slide.id || i} className="relative min-w-0 flex-[0_0_100%]">
+                <a
+                  href={slide.ctaLink || "#"}
+                  className="block w-full cursor-pointer select-none"
+                  draggable={false}
+                >
+                  <img
+                    ref={i === 0 ? firstImgRef : undefined}
+                    src={slide.image}
+                    alt={slide.title || "Banner"}
+                    width={1920}
+                    height={900}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                    fetchPriority={i === 0 ? "high" : "auto"}
+                    onLoad={() => {
+                      if (i === 0) setImageLoaded(true);
+                    }}
+                    draggable={false}
+                    className={`w-full h-auto max-h-[560px] sm:max-h-[620px] md:max-h-[680px] lg:max-h-[720px] xl:max-h-[760px] object-cover object-center block select-none transition-opacity duration-500 ${
+                      imageLoaded ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Controls */}
       {sliders.length > 1 && (
@@ -129,14 +151,14 @@ export function HeroSlider() {
           <button
             onClick={() => embla?.scrollPrev()}
             aria-label="Previous"
-            className="absolute left-4 sm:left-6 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-cream/30 bg-black/40 p-3 text-cream backdrop-blur-sm transition hover:border-gold hover:text-gold md:inline-flex cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+            className="absolute left-3 sm:left-5 md:left-6 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-cream/30 bg-black/40 p-3 text-cream backdrop-blur-sm transition hover:border-gold hover:text-gold md:inline-flex cursor-pointer shadow-lg hover:scale-105 active:scale-95"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={() => embla?.scrollNext()}
             aria-label="Next"
-            className="absolute right-4 sm:right-6 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-cream/30 bg-black/40 p-3 text-cream backdrop-blur-sm transition hover:border-gold hover:text-gold md:inline-flex cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+            className="absolute right-3 sm:right-5 md:right-6 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-cream/30 bg-black/40 p-3 text-cream backdrop-blur-sm transition hover:border-gold hover:text-gold md:inline-flex cursor-pointer shadow-lg hover:scale-105 active:scale-95"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
