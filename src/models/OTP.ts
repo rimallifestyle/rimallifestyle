@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IOTP extends Document {
   email: string;
   otp: string;
+  type?: string;
   createdAt: Date;
 }
 
@@ -16,10 +17,14 @@ const OTPSchema: Schema = new Schema(
       type: String,
       required: true,
     },
+    type: {
+      type: String,
+      default: "register",
+    },
     createdAt: {
       type: Date,
       default: Date.now,
-      expires: 300, // OTP expires after 5 minutes (300 seconds)
+      expires: 600, // 10 minutes expiry
     },
   }
 );
