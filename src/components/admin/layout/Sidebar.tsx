@@ -30,6 +30,7 @@ import {
   LogOut,
   Navigation,
   Globe,
+  FileText,
 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
@@ -57,6 +58,16 @@ const navItems1 = [
   { icon: ShieldAlert, label: 'Fraud Check', href: '/admin/fraud-check' },
   { icon: Ticket, label: 'Coupons', href: '/admin/coupons' },
   { icon: Star, label: 'Reviews', href: '/admin/reviews' },
+  {
+    icon: FileText,
+    label: 'Pages',
+    href: '/admin/pages',
+    hasChildren: true,
+    subItems: [
+      { label: 'All Pages', href: '/admin/pages' },
+      { label: 'Add New Page', href: '/admin/pages?action=add' }
+    ]
+  },
 ]
 
 const navItems2 = [

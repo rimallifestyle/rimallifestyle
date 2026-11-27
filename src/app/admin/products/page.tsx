@@ -230,7 +230,7 @@ export default function ProductsPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-white group-hover:text-[#C52A35] transition-colors">{product.name}</p>
-                        <p className="text-xs text-white/50">ID: PRD-{product._id?.substring(0, 8)}</p>
+                        <p className="text-xs text-white/50">ID: RL-{product._id?.substring(0, 5).toUpperCase()}</p>
                       </div>
                     </div>
                   </td>
