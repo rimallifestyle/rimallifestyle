@@ -4,7 +4,6 @@ import { useRouter, useParams } from "next/navigation";
 import { Header } from "@/components/store/Header";
 import { Footer } from "@/components/store/Footer";
 import { ProductSlider } from "@/components/store/ProductSlider";
-import { allProducts } from "@/components/store/products";
 import { useProduct } from "@/hooks/useProduct";
 import { useProducts } from "@/hooks/useProducts";
 import {

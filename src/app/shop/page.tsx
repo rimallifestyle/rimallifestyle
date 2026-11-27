@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 import { Header } from "@/components/store/Header";
 import { Footer } from "@/components/store/Footer";
@@ -28,7 +28,9 @@ const sortOptions = [
 ];
 
 function ShopContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("search") || searchParams.get("q") || "";
   const { data: allDynamicProducts, isLoading: isProductsLoading } = useProducts();
   const productsList = allDynamicProducts || [];
 
@@ -124,6 +126,15 @@ function ShopContent() {
   const filteredProducts = useMemo(() => {
     let filtered = [...productsList];
 
+    // Search Query Filter from URL
+    if (searchQuery.trim()) {
+      const qTerms = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      filtered = filtered.filter((p) => {
+        const text = `${p.name || ''} ${p.category || ''} ${p.subCategory || ''} ${p.parentCategory || ''} ${p.description || ''} ${p.sku || ''}`.toLowerCase();
+        return qTerms.every(term => text.includes(term));
+      });
+    }
+
     // Category / Subcategory Filter
     if (selectedCategories.length > 0) {
       filtered = filtered.filter((p) => {
@@ -197,7 +208,7 @@ function ShopContent() {
     }
 
     return filtered;
-  }, [selectedCategories, priceRange, minRating, sortBy, productsList, categoryTree]);
+  }, [searchQuery, selectedCategories, priceRange, minRating, sortBy, productsList, categoryTree]);
 
   const visibleProducts = filteredProducts.slice(0, visibleCount);
   const hasMore = visibleCount < filteredProducts.length;
@@ -428,6 +439,25 @@ function ShopContent() {
 
           {/* Main Content Area */}
           <div className="flex-1 w-full min-w-0">
+            {/* Search Query Active Pill */}
+            {searchQuery.trim() && (
+              <div className="flex items-center justify-between gap-3 mb-4 p-3 rounded-xl bg-gold/10 border border-gold/30 text-xs animate-in fade-in">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-gold font-semibold">Search:</span>
+                  <span className="text-foreground font-medium truncate">&ldquo;{searchQuery}&rdquo;</span>
+                  <span className="text-muted-foreground shrink-0">({filteredProducts.length} found)</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/shop')}
+                  className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-gold transition-colors shrink-0 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Clear</span>
+                </button>
+              </div>
+            )}
+
             {/* Toolbar (Mobile Filter & Sort) */}
             <div className="flex items-center justify-between border-y border-border/40 py-3 mb-6 bg-background/50 backdrop-blur z-10 sticky top-16 md:top-20">
               {/* Mobile Filter Trigger */}
