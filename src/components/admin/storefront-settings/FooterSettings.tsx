@@ -8,7 +8,14 @@ const API = '/api/storefront/settings?key=footer_settings'
 
 const DEFAULT_DATA = {
   description: "Rimal Store crafts refined menswear inspired by heritage tailoring and modern design. Made to last a lifetime.",
-  socialLinks: { instagram: "#", facebook: "#", twitter: "#", youtube: "#" },
+  socialLinks: {
+    instagram: "https://www.instagram.com/rimallifestyle/",
+    tiktok: "https://www.tiktok.com/@rimal.lifestyle",
+    facebook: "https://www.facebook.com/rimallifestyle",
+    whatsapp: "https://wa.me/8801577229347",
+    twitter: "",
+    youtube: ""
+  },
   columns: [
     { title: "Shop", links: [{ label: "New Arrivals", url: "#" }, { label: "Shirts", url: "#" }, { label: "T-Shirts", url: "#" }] },
     { title: "About", links: [{ label: "Our Story", url: "#" }, { label: "Craftsmanship", url: "#" }] },
@@ -155,14 +162,14 @@ export default function FooterSettingsPage() {
       <div className="glass-card rounded-2xl p-6">
         <h2 className="text-white font-semibold mb-4">Social Media Links</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {(['instagram', 'facebook', 'twitter', 'youtube'] as const).map(network => (
+          {(['instagram', 'tiktok', 'facebook', 'whatsapp', 'twitter', 'youtube'] as const).map(network => (
             <div key={network}>
               <label className="text-white/50 text-xs uppercase tracking-widest block mb-1.5 capitalize">{network}</label>
               <input
-                type="url"
+                type="text"
                 value={data.socialLinks?.[network] || ''}
                 onChange={e => updateSocial(network, e.target.value)}
-                placeholder={`https://${network}.com/yourpage`}
+                placeholder={network === 'whatsapp' ? 'https://wa.me/8801577229347' : `https://${network}.com/yourpage`}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#C52A35] transition-colors"
               />
             </div>

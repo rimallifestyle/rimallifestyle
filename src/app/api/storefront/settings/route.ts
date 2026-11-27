@@ -74,7 +74,14 @@ export async function GET(req: Request) {
       if (key === "footer_settings") {
         return NextResponse.json({
           description: "Rimal Store crafts refined menswear inspired by heritage tailoring and modern design. Made to last a lifetime.",
-          socialLinks: { instagram: "#", facebook: "#", twitter: "#", youtube: "#" },
+          socialLinks: {
+            instagram: "https://www.instagram.com/rimallifestyle/",
+            tiktok: "https://www.tiktok.com/@rimal.lifestyle",
+            facebook: "https://www.facebook.com/rimallifestyle",
+            whatsapp: "https://wa.me/8801577229347",
+            twitter: "",
+            youtube: ""
+          },
           columns: [
             { title: "Shop", links: [{ label: "New Arrivals", url: "#" }] },
             { title: "About", links: [{ label: "Our Story", url: "#" }] },

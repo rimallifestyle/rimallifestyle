@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { API_ROOT } from "@/lib/api";
-import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
+import {
+  InstagramIcon,
+  TikTokIcon,
+  FacebookIcon,
+  WhatsAppIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from "./SocialIcons";
 
 interface Link {
   label: string;
@@ -9,20 +16,34 @@ interface Link {
 
 interface FooterData {
   description: string;
-  socialLinks: { instagram: string; facebook: string; twitter: string; youtube: string };
+  socialLinks: {
+    instagram?: string;
+    tiktok?: string;
+    facebook?: string;
+    whatsapp?: string;
+    twitter?: string;
+    youtube?: string;
+  };
   columns: { title: string; links: Link[] }[];
   bottomLinks: Link[];
 }
 
 const initialFooterData: FooterData = {
   description: "Rimal Store crafts refined menswear inspired by heritage tailoring and modern design. Made to last a lifetime.",
-  socialLinks: { instagram: "#", facebook: "#", twitter: "#", youtube: "#" },
+  socialLinks: {
+    instagram: "https://www.instagram.com/rimallifestyle/",
+    tiktok: "https://www.tiktok.com/@rimal.lifestyle",
+    facebook: "https://www.facebook.com/rimallifestyle",
+    whatsapp: "https://wa.me/8801577229347",
+    twitter: "",
+    youtube: ""
+  },
   columns: [
-    { title: "Shop", links: [{label: "New Arrivals", url: "#"}] },
-    { title: "About", links: [{label: "Our Story", url: "#"}] },
-    { title: "Help", links: [{label: "Contact", url: "#"}] }
+    { title: "Shop", links: [{label: "New Arrivals", url: "/shop?category=new"}] },
+    { title: "About", links: [{label: "Our Story", url: "/about"}] },
+    { title: "Help", links: [{label: "Contact", url: "/contact"}] }
   ],
-  bottomLinks: [{label: "Privacy", url: "#"}]
+  bottomLinks: [{label: "Privacy Policy", url: "/privacy-policy"}, {label: "Terms & Conditions", url: "/terms-conditions"}, {label: "Refund Policy", url: "/refund-policy"}]
 };
 
 export function Footer() {
@@ -109,25 +130,77 @@ export function Footer() {
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               {data.description}
             </p>
-            <div className="mt-6 flex gap-4 text-muted-foreground">
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-muted-foreground">
               {data.socialLinks?.instagram && (
-                <a href={data.socialLinks.instagram} aria-label="Instagram" className="hover:text-gold" onClick={(e) => {}}>
-                  <Instagram className="h-5 w-5" />
+                <a
+                  href={data.socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  title="Follow on Instagram"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 hover:border-gold hover:text-gold hover:bg-gold/10 transition-all duration-300 hover:scale-110"
+                >
+                  <InstagramIcon className="h-4 w-4" />
+                </a>
+              )}
+              {data.socialLinks?.tiktok && (
+                <a
+                  href={data.socialLinks.tiktok}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="TikTok"
+                  title="Follow on TikTok"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 hover:border-gold hover:text-gold hover:bg-gold/10 transition-all duration-300 hover:scale-110"
+                >
+                  <TikTokIcon className="h-4 w-4" />
                 </a>
               )}
               {data.socialLinks?.facebook && (
-                <a href={data.socialLinks.facebook} aria-label="Facebook" className="hover:text-gold" onClick={(e) => {}}>
-                  <Facebook className="h-5 w-5" />
+                <a
+                  href={data.socialLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  title="Follow on Facebook"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 hover:border-gold hover:text-gold hover:bg-gold/10 transition-all duration-300 hover:scale-110"
+                >
+                  <FacebookIcon className="h-4 w-4" />
+                </a>
+              )}
+              {data.socialLinks?.whatsapp && (
+                <a
+                  href={data.socialLinks.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp (+880 1577-229347)"
+                  title="Chat on WhatsApp"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 hover:border-[#25D366] hover:text-[#25D366] hover:bg-[#25D366]/10 transition-all duration-300 hover:scale-110"
+                >
+                  <WhatsAppIcon className="h-4 w-4" />
                 </a>
               )}
               {data.socialLinks?.twitter && (
-                <a href={data.socialLinks.twitter} aria-label="Twitter" className="hover:text-gold" onClick={(e) => {}}>
-                  <Twitter className="h-5 w-5" />
+                <a
+                  href={data.socialLinks.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Twitter"
+                  title="Follow on X / Twitter"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 hover:border-gold hover:text-gold hover:bg-gold/10 transition-all duration-300 hover:scale-110"
+                >
+                  <TwitterIcon className="h-4 w-4" />
                 </a>
               )}
               {data.socialLinks?.youtube && (
-                <a href={data.socialLinks.youtube} aria-label="YouTube" className="hover:text-gold" onClick={(e) => {}}>
-                  <Youtube className="h-5 w-5" />
+                <a
+                  href={data.socialLinks.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                  title="Subscribe on YouTube"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 hover:border-gold hover:text-gold hover:bg-gold/10 transition-all duration-300 hover:scale-110"
+                >
+                  <YouTubeIcon className="h-4 w-4" />
                 </a>
               )}
             </div>

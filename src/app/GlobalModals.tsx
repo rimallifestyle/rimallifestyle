@@ -6,6 +6,7 @@ import { AuthModal } from "@/components/store/AuthModal";
 import { CartSidebar } from "@/components/store/CartSidebar";
 import { SearchOverlay } from "@/components/store/SearchOverlay";
 import { MobileNav } from "@/components/store/MobileNav";
+import { FloatingWhatsApp } from "@/components/store/FloatingWhatsApp";
 
 export function GlobalModals() {
   const {
@@ -33,6 +34,7 @@ export function GlobalModals() {
       <CartSidebar />
       <SearchOverlay />
       <MobileNav />
+      <FloatingWhatsApp />
     </>
   );
 }

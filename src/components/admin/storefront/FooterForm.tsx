@@ -168,14 +168,14 @@ export function FooterForm({ onClose }: { onClose?: () => void }) {
 
           <div className="space-y-3">
             <h4 className="text-xs font-medium text-white/70 border-b border-white/10 pb-1">Social Links</h4>
-            {['instagram', 'facebook', 'twitter', 'youtube'].map(network => (
+            {['instagram', 'tiktok', 'facebook', 'whatsapp', 'twitter', 'youtube'].map(network => (
               <div key={network} className="space-y-1">
                 <label className="text-[10px] text-white/50 capitalize">{network}</label>
                 <input 
                   type="text" 
                   value={data.socialLinks?.[network] || ''} 
                   onChange={(e) => handleSocialChange(network, e.target.value)}
-                  placeholder={`https://${network}.com/...`}
+                  placeholder={network === 'whatsapp' ? 'https://wa.me/8801577229347' : `https://${network}.com/...`}
                   className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#C52A35]"
                 />
               </div>

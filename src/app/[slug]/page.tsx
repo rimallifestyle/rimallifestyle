@@ -41,7 +41,7 @@ const DEFAULT_PAGE_CONTENTS: Record<string, { title: string; subtitle: string; i
     content: [
       'Have an inquiry about an existing order, sizing questions, or custom atelier requests? Our concierge team is available to assist you.',
       'Email Concierge: hello@rimal.store',
-      'Direct Phone & WhatsApp: +880 1800-RIMAL (74625)',
+      'Direct Phone & WhatsApp: +880 1577-229347',
       'Atelier Hours: Saturday to Thursday, 10:00 AM – 8:00 PM (GMT+6)',
       'Location: House 42, Road 11, Block D, Banani, Dhaka 1213, Bangladesh'
     ]
@@ -82,7 +82,7 @@ const DEFAULT_PAGE_CONTENTS: Record<string, { title: string; subtitle: string; i
       '2. Condition of Items: Items must be unwashed, unworn, free of any stains or scents, and with all original designer tags and packaging intact.',
       '3. Defective or Incorrect Items: In the rare event that you receive a defective or incorrect item, we will arrange a complimentary courier pickup and immediate replacement.',
       '4. Refund Processing: Approved refunds are processed to your original payment method or mobile banking (bKash/Nagad) within 3 to 5 business days of inspection approval.',
-      '5. How to Initiate: Simply reach out to our team via WhatsApp at +880 1800-RIMAL or email hello@rimal.store with your Order ID.'
+      '5. How to Initiate: Simply reach out to our team via WhatsApp at +880 1577-229347 or email hello@rimal.store with your Order ID.'
     ]
   }
 };
@@ -162,7 +162,7 @@ export default function DynamicContentPage() {
                   content: [
                     'Have an inquiry about an existing order, sizing questions, or custom atelier requests? Our concierge team is available to assist you.',
                     json.email ? `Email Concierge: ${json.email}` : 'Email: hello@rimal.store',
-                    json.phone ? `Direct Phone & WhatsApp: ${json.phone}` : 'Phone: +880 1800-RIMAL',
+                    json.phone ? `Direct Phone & WhatsApp: ${json.phone}` : 'Direct Phone & WhatsApp: +880 1577-229347',
                     json.address ? `Atelier Location: ${json.address}` : 'Location: Banani, Dhaka, Bangladesh',
                     'Atelier Hours: Saturday to Thursday, 10:00 AM – 8:00 PM (GMT+6)'
                   ].filter(Boolean)

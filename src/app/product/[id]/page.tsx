@@ -40,6 +40,12 @@ import { useState, useEffect } from "react";
 import { useUserSync } from "@/context/UserSync";
 import { useReviews, useSubmitReview } from "@/hooks/useReviews";
 import { toast } from "sonner";
+import {
+  WhatsAppIcon,
+  FacebookIcon,
+  InstagramIcon,
+  TikTokIcon,
+} from "@/components/store/SocialIcons";
 
 
 
@@ -898,22 +904,22 @@ export default function ProductPage() {
             <div className="flex flex-wrap items-center justify-between gap-2.5 p-3 rounded-xl bg-card/60 border border-border/70 mb-8">
               <span className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
                 <Share2 className="h-3.5 w-3.5 text-gold" />
-                <span>Share this piece:</span>
+                <span>Share &amp; Inquire:</span>
               </span>
-              <div className="flex items-center gap-1.5">
-                {/* WhatsApp */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {/* WhatsApp Chat / Order (+880 1577-229347) */}
                 <a
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                    `Check out ${product.name} on Rimal: ${typeof window !== 'undefined' ? window.location.href : ''}`
+                  href={`https://wa.me/8801577229347?text=${encodeURIComponent(
+                    `Hello Rimal Lifestyle, I want to order/inquire about: ${product.name} (${typeof window !== 'undefined' ? window.location.href : ''})`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Share on WhatsApp"
-                  title="Share on WhatsApp"
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-medium transition cursor-pointer"
+                  aria-label="Order on WhatsApp (+880 1577-229347)"
+                  title="Order or Ask on WhatsApp (+880 1577-229347)"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] border border-[#25D366]/35 text-xs font-medium transition cursor-pointer"
                 >
-                  <MessageCircle className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">WhatsApp</span>
+                  <WhatsAppIcon className="h-3.5 w-3.5" />
+                  <span className="text-xs font-semibold">WhatsApp</span>
                 </a>
 
                 {/* Facebook */}
@@ -925,10 +931,36 @@ export default function ProductPage() {
                   rel="noopener noreferrer"
                   aria-label="Share on Facebook"
                   title="Share on Facebook"
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs font-medium transition cursor-pointer"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#1877F2]/15 hover:bg-[#1877F2]/25 text-[#1877F2] border border-[#1877F2]/35 text-xs font-medium transition cursor-pointer"
                 >
-                  <Facebook className="h-3.5 w-3.5" />
+                  <FacebookIcon className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Facebook</span>
+                </a>
+
+                {/* Instagram Profile */}
+                <a
+                  href="https://www.instagram.com/rimallifestyle/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="View on Instagram"
+                  title="View on Instagram (@rimallifestyle)"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 border border-pink-500/30 text-xs font-medium transition cursor-pointer"
+                >
+                  <InstagramIcon className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Instagram</span>
+                </a>
+
+                {/* TikTok Profile */}
+                <a
+                  href="https://www.tiktok.com/@rimal.lifestyle"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow on TikTok"
+                  title="Follow on TikTok (@rimal.lifestyle)"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white border border-white/20 text-xs font-medium transition cursor-pointer"
+                >
+                  <TikTokIcon className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">TikTok</span>
                 </a>
 
                 {/* Copy Link */}
@@ -947,7 +979,7 @@ export default function ProductPage() {
                   ) : (
                     <>
                       <Copy className="h-3.5 w-3.5 text-gold" />
-                      <span>Copy Link</span>
+                      <span className="hidden sm:inline">Copy Link</span>
                     </>
                   )}
                 </button>
