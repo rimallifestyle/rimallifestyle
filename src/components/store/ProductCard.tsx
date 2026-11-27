@@ -39,6 +39,20 @@ function ProductImage({ product, className = "" }: { product: Product; className
   );
 }
 
+function getColorHex(name: string): string {
+  const n = name.toLowerCase().trim();
+  if (n.includes('black')) return '#111111';
+  if (n.includes('white')) return '#f8f8f8';
+  if (n.includes('red') || n.includes('maroon') || n.includes('burgundy')) return '#7A1111';
+  if (n.includes('blue') || n.includes('navy')) return '#1B2A4A';
+  if (n.includes('green') || n.includes('olive')) return '#2D4A3E';
+  if (n.includes('gold') || n.includes('yellow')) return '#D4AF37';
+  if (n.includes('grey') || n.includes('gray')) return '#777777';
+  if (n.includes('brown') || n.includes('tan') || n.includes('beige')) return '#A08060';
+  if (n.includes('cream') || n.includes('off white')) return '#FFFDD0';
+  return '#444444';
+}
+
 /* ─────────────────────────────────────────────────────────────
    Variant 1 — Bordered card (default)
    Framed, structured, e-commerce classic with a modern edge.
@@ -54,6 +68,17 @@ export function ProductCard({ product }: { product: Product }) {
     : (product.stockStatus === 'outofstock' ? 0 : 20);
   const isOutOfStock = product.stockStatus === 'outofstock' || stockQty <= 0;
   const isLowStock = !isOutOfStock && stockQty <= 5;
+
+  // Check if product actually has colors
+  const colorAttr = product.attributes?.find(
+    (a) =>
+      a.name.toLowerCase() === 'color' ||
+      a.name.toLowerCase() === 'colour' ||
+      a.slug?.toLowerCase().includes('color')
+  );
+  const colorOptions = colorAttr?.options || [];
+  const hasColor = colorOptions.length > 0 || (typeof product.colors === 'number' && product.colors > 0);
+  const colorCount = colorOptions.length > 0 ? colorOptions.length : product.colors;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -129,15 +154,34 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
 
       <div className="mt-3 flex items-center justify-between gap-1.5 pt-2.5 border-t border-border/40">
-        <div className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-full border border-border/60 bg-[oklch(0.32_0.11_18)]" />
-          <span className="h-3 w-3 rounded-full border border-border/60 bg-[oklch(0.96_0.02_80)]" />
-          <span className="h-3 w-3 rounded-full border border-border/60 bg-[oklch(0.18_0.02_240)]" />
-          <span className="ml-1.5 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-            {product.colors ?? 3} colors
+        {hasColor ? (
+          <div className="flex items-center gap-1.5">
+            {colorOptions.length > 0 ? (
+              colorOptions.slice(0, 4).map((c, i) => (
+                <span
+                  key={i}
+                  title={c}
+                  style={{ backgroundColor: getColorHex(c) }}
+                  className="h-3 w-3 rounded-full border border-border/60 shadow-xs"
+                />
+              ))
+            ) : (
+              <>
+                <span className="h-3 w-3 rounded-full border border-border/60 bg-[oklch(0.32_0.11_18)]" />
+                <span className="h-3 w-3 rounded-full border border-border/60 bg-[oklch(0.96_0.02_80)]" />
+                <span className="h-3 w-3 rounded-full border border-border/60 bg-[oklch(0.18_0.02_240)]" />
+              </>
+            )}
+            <span className="ml-1 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+              {colorCount} {colorCount === 1 ? 'color' : 'colors'}
+            </span>
+          </div>
+        ) : (
+          <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60">
+            {formatCategoryBadge(product)}
           </span>
-        </div>
-        <div className="flex items-center gap-1 text-[11px]">
+        )}
+        <div className="flex items-center gap-1 text-[11px] ml-auto">
           <span className="text-muted-foreground text-[10px] uppercase tracking-wider">Total Stock:</span>
           <span className={`font-semibold font-mono ${
             isOutOfStock ? 'text-red-400' : isLowStock ? 'text-amber-400' : 'text-emerald-400'

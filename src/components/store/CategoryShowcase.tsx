@@ -290,34 +290,28 @@ export function CategoryShowcase() {
               <div
                 key={c.id || c.slug || idx}
                 onClick={(e) => handleCardClick(e, c.slug)}
-                className="group relative block overflow-hidden rounded-xl sm:rounded-2xl bg-secondary shadow-luxe transition-transform duration-300 hover:-translate-y-1 min-w-0 flex-[0_0_46%] sm:flex-[0_0_45%] md:flex-[0_0_30%] lg:flex-[0_0_23%] xl:flex-[0_0_19%] snap-start shrink-0 cursor-pointer"
+                className="group relative block overflow-hidden rounded-xl sm:rounded-2xl aspect-[3/4] shadow-luxe transition-transform duration-300 hover:-translate-y-1 min-w-0 flex-[0_0_46%] sm:flex-[0_0_45%] md:flex-[0_0_30%] lg:flex-[0_0_23%] xl:flex-[0_0_19%] snap-start shrink-0 cursor-pointer bg-card"
               >
-                {/* Image Container */}
-                <div className="aspect-[3/4] w-full overflow-hidden bg-muted">
-                  <img
-                    src={imgSrc}
-                    alt={c.name}
-                    loading="lazy"
-                    draggable={false}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 pointer-events-none select-none"
-                  />
-                </div>
-
-                {/* Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-maroon-deep/95 via-maroon-deep/30 to-transparent pointer-events-none" />
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors pointer-events-none" />
+                {/* Full Card Background Image - Zero Color Tint Overlay */}
+                <img
+                  src={imgSrc}
+                  alt={c.name}
+                  loading="lazy"
+                  draggable={false}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 pointer-events-none select-none"
+                />
 
                 {/* Card Bottom Details */}
-                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 md:p-6">
-                  <span className="inline-block text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.2em] text-gold mb-0.5">
+                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
+                  <span className="inline-block text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.2em] text-gold mb-0.5 drop-shadow-sm">
                     {tag}
                   </span>
                   <div className="mt-0.5 flex items-end justify-between gap-1.5 sm:gap-2">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-display text-sm sm:text-lg md:text-2xl text-cream tracking-tight truncate group-hover:text-gold transition-colors">
+                      <h3 className="font-display text-sm sm:text-lg md:text-2xl text-cream tracking-tight truncate group-hover:text-gold transition-colors drop-shadow-md">
                         {c.name}
                       </h3>
-                      <p className="mt-0.5 text-[10px] sm:text-xs text-cream/70 font-sans truncate">
+                      <p className="mt-0.5 text-[10px] sm:text-xs text-cream/80 font-sans truncate drop-shadow-sm">
                         {countText}
                       </p>
                     </div>
