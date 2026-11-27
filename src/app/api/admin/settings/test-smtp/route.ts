@@ -6,6 +6,7 @@ import connectToDatabase from "@/lib/mongodb";
 import User from "@/models/User";
 
 export async function POST(req: Request) {
+  let testedHost = "";
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) {
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
     }
 
     const { host, port, user: smtpUser, pass, testEmail, fromName, fromEmail } = await req.json();
+    testedHost = host || "";
 
     if (!host || !port || !smtpUser || !pass) {
       return NextResponse.json(
@@ -79,7 +81,9 @@ export async function POST(req: Request) {
     if (error.code === 'EAUTH') {
       errorMessage = "Authentication failed. Please check your username and password.";
     } else if (error.code === 'EBUSY' || error.code === 'ENOTFOUND' || (error.message && error.message.includes('getaddrinfo'))) {
-      errorMessage = `Cannot resolve SMTP host "${host}". Please make sure this domain exists and has valid DNS records, or use your mail provider's official SMTP host (e.g. smtp.gmail.com).`;
+      errorMessage = testedHost 
+        ? `Cannot resolve SMTP host "${testedHost}". Please make sure this domain exists and has valid DNS records, or use your mail provider's official SMTP host (e.g. smtp.gmail.com).`
+        : "Cannot resolve SMTP host. Please make sure the domain exists and has valid DNS records.";
     } else if (error.code === 'ESOCKET' || error.code === 'ETIMEDOUT') {
       errorMessage = "Connection timed out or network error. Please verify your Host and Port (e.g. 465 for SSL, 587 for TLS).";
     } else if (error.message) {

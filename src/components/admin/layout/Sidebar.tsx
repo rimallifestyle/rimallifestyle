@@ -89,10 +89,46 @@ const navItems2 = [
   { icon: LifeBuoy, label: 'Support', href: '/admin/support' },
 ]
 
+const getTrimmedLogoUrl = (url?: string) => {
+  if (!url) return '';
+  if (url.includes('cloudinary.com') && !url.includes('/e_trim/')) {
+    return url.replace('/image/upload/', '/image/upload/e_trim/');
+  }
+  return url;
+};
+
+const DEFAULT_LOGO_URL = "https://res.cloudinary.com/nbbawtsd/image/upload/e_trim/v1793198654/rimal_store/appearance/c6s136efreimz7gkl5ap.webp";
+
 export function Sidebar({ onClose, onSwitchStorefront }: { onClose?: () => void, onSwitchStorefront?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const [unseenCount, setUnseenCount] = useState<number>(0)
+  const [logoUrl, setLogoUrl] = useState<string>(DEFAULT_LOGO_URL)
+
+  // Fetch site identity logo from cache and backend
+  useEffect(() => {
+    const saved = localStorage.getItem('rimal_site_identity');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed?.logoUrl) setLogoUrl(getTrimmedLogoUrl(parsed.logoUrl));
+      } catch (e) {}
+    }
+
+    fetch('/api/storefront/settings?key=site_identity')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.logoUrl) {
+          const trimmed = getTrimmedLogoUrl(data.logoUrl);
+          setLogoUrl(trimmed);
+          try {
+            const existing = JSON.parse(localStorage.getItem('rimal_site_identity') || '{}');
+            localStorage.setItem('rimal_site_identity', JSON.stringify({ ...existing, logoUrl: data.logoUrl }));
+          } catch (e) {}
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Fetch unseen order count
   useEffect(() => {
@@ -143,12 +179,20 @@ export function Sidebar({ onClose, onSwitchStorefront }: { onClose?: () => void,
     <aside className="w-[260px] h-screen flex flex-col border-r border-white/10 bg-black/20 backdrop-blur-3xl z-40 relative">
       {/* Logo Area */}
       <div className="h-20 flex items-center justify-between px-6">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-            <Store className="w-5 h-5 text-[#550000]" />
-          </div>
-          <span className="text-xl font-bold text-white tracking-wide">Rimal Admin</span>
-        </div>
+        <Link href="/admin" className="flex items-center gap-2.5 group">
+          {logoUrl ? (
+            <img 
+              src={logoUrl} 
+              alt="Rimal" 
+              className="h-9 max-h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105" 
+            />
+          ) : (
+            <span className="font-display text-2xl font-bold text-gold tracking-tight">RIMAL</span>
+          )}
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold/90 bg-gold/10 px-1.5 py-0.5 rounded border border-gold/20">
+            Admin
+          </span>
+        </Link>
         
         {/* Mobile Close Button */}
         {onClose && (
