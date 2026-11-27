@@ -96,12 +96,12 @@ export function HeroSlider() {
 
   return (
     <section 
-      className="relative overflow-hidden bg-background select-none min-h-[180px] sm:min-h-[260px] md:min-h-[380px]"
+      className="relative overflow-hidden bg-background select-none w-full"
       onClick={handleSliderClick}
     >
       {/* Luxury Skeleton Loader - Shown while hero image is downloading */}
       {(!imageLoaded || sliders.length === 0) && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-br from-card/80 via-secondary/50 to-card/90">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-br from-card/80 via-secondary/50 to-card/90 min-h-[200px] sm:min-h-[280px] md:min-h-[380px]">
           <div className="flex flex-col items-center gap-2.5">
             <div className="h-8 w-8 rounded-full border-2 border-gold/25 border-t-gold animate-spin" />
             <span className="text-[10px] uppercase tracking-[0.3em] text-gold/60 font-medium font-sans">
@@ -134,7 +134,7 @@ export function HeroSlider() {
                       if (i === 0) setImageLoaded(true);
                     }}
                     draggable={false}
-                    className={`w-full h-auto max-h-[560px] sm:max-h-[620px] md:max-h-[680px] lg:max-h-[720px] xl:max-h-[760px] object-cover object-center block select-none transition-opacity duration-500 ${
+                    className={`w-full h-auto block select-none transition-opacity duration-300 ${
                       imageLoaded ? "opacity-100" : "opacity-0"
                     }`}
                   />
