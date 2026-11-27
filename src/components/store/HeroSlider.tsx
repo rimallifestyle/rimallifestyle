@@ -108,28 +108,45 @@ export function HeroSlider() {
         <div className="flex">
           {sliders.map((slide, i) => (
             <div key={i} className="relative min-w-0 flex-[0_0_100%]">
-              <div className="relative h-[70vh] min-h-[520px] w-full md:h-[85vh]">
-                <img
-                  src={slide.image}
-                  alt=""
-                  width={1920}
-                  height={900}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  className="h-full w-full object-cover"
-                />
-                <div className="absolute inset-0 gradient-hero" />
-                <div className="absolute inset-0 flex items-end md:items-center">
-                  <div className="w-full px-6 pb-16 md:px-12 lg:px-16 xl:px-20 md:pb-0">
+              <div className="relative w-full md:h-[85vh]">
+                <a
+                  href={slide.ctaLink || "#"}
+                  className="block w-full h-full cursor-pointer select-none"
+                  draggable={false}
+                >
+                  <img
+                    src={slide.image}
+                    alt={slide.title || "Banner"}
+                    width={1920}
+                    height={900}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    draggable={false}
+                    className="w-full h-auto block select-none md:h-full md:w-full md:object-cover"
+                  />
+                </a>
+
+                {/* Dark gradient overlay - hidden on mobile, visible on desktop */}
+                <div className="hidden md:block absolute inset-0 gradient-hero pointer-events-none" />
+
+                {/* Text and buttons - hidden on mobile, visible on desktop */}
+                <div className="hidden md:flex absolute inset-0 items-center pointer-events-none">
+                  <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20 pointer-events-auto">
                     <div className="max-w-xl">
-                      <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.35em] text-gold">
-                        {slide.kicker}
-                      </p>
-                      <h1 className="font-display text-4xl leading-[1.05] text-cream md:text-6xl lg:text-7xl">
-                        {slide.title}
-                      </h1>
-                      <p className="mt-5 max-w-md text-base text-cream/80 md:text-lg">
-                        {slide.sub}
-                      </p>
+                      {slide.kicker && (
+                        <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.35em] text-gold">
+                          {slide.kicker}
+                        </p>
+                      )}
+                      {slide.title && (
+                        <h1 className="font-display text-4xl leading-[1.05] text-cream md:text-6xl lg:text-7xl">
+                          {slide.title}
+                        </h1>
+                      )}
+                      {slide.sub && (
+                        <p className="mt-5 max-w-md text-base text-cream/80 md:text-lg">
+                          {slide.sub}
+                        </p>
+                      )}
                       <div className="mt-8 flex flex-wrap gap-3">
                         <a
                           href={slide.ctaLink || "#"}
@@ -138,12 +155,14 @@ export function HeroSlider() {
                           {slide.cta || "Shop Now"}
                           <ChevronRight className="h-4 w-4 transition group-hover:translate-x-1" />
                         </a>
-                        <a
-                          href={slide.secondaryCtaLink || "#lookbook"}
-                          className="inline-flex items-center gap-2 border border-cream/40 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-cream transition hover:border-gold hover:text-gold"
-                        >
-                          {slide.secondaryCta || "View lookbook"}
-                        </a>
+                        {slide.secondaryCta && (
+                          <a
+                            href={slide.secondaryCtaLink || "#lookbook"}
+                            className="inline-flex items-center gap-2 border border-cream/40 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-cream transition hover:border-gold hover:text-gold"
+                          >
+                            {slide.secondaryCta}
+                          </a>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -171,14 +190,14 @@ export function HeroSlider() {
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+      <div className="absolute bottom-2 sm:bottom-3 md:bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 md:gap-2">
         {sliders.map((_, i) => (
           <button
             key={i}
             onClick={() => embla?.scrollTo(i)}
             aria-label={`Slide ${i + 1}`}
-            className={`h-[3px] transition-all ${
-              selected === i ? "w-10 bg-gold" : "w-5 bg-cream/40"
+            className={`h-[2px] md:h-[3px] transition-all rounded-full ${
+              selected === i ? "w-6 md:w-10 bg-gold" : "w-3 md:w-5 bg-cream/40"
             }`}
           />
         ))}
