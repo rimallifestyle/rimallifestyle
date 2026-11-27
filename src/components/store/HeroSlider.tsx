@@ -101,73 +101,28 @@ export function HeroSlider() {
 
   return (
     <section 
-      className="relative overflow-hidden bg-maroon-deep"
+      className="relative overflow-hidden bg-background"
       onClick={handleSliderClick}
     >
       <div ref={emblaRef} className="overflow-hidden">
         <div className="flex">
           {sliders.map((slide, i) => (
             <div key={i} className="relative min-w-0 flex-[0_0_100%]">
-              <div className="relative w-full md:h-[85vh]">
-                <a
-                  href={slide.ctaLink || "#"}
-                  className="block w-full h-full cursor-pointer select-none"
+              <a
+                href={slide.ctaLink || "#"}
+                className="block w-full cursor-pointer select-none"
+                draggable={false}
+              >
+                <img
+                  src={slide.image}
+                  alt={slide.title || "Banner"}
+                  width={1920}
+                  height={900}
+                  loading={i === 0 ? "eager" : "lazy"}
                   draggable={false}
-                >
-                  <img
-                    src={slide.image}
-                    alt={slide.title || "Banner"}
-                    width={1920}
-                    height={900}
-                    loading={i === 0 ? "eager" : "lazy"}
-                    draggable={false}
-                    className="w-full h-auto block select-none md:h-full md:w-full md:object-cover"
-                  />
-                </a>
-
-                {/* Dark gradient overlay - hidden on mobile, visible on desktop */}
-                <div className="hidden md:block absolute inset-0 gradient-hero pointer-events-none" />
-
-                {/* Text and buttons - hidden on mobile, visible on desktop */}
-                <div className="hidden md:flex absolute inset-0 items-center pointer-events-none">
-                  <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20 pointer-events-auto">
-                    <div className="max-w-xl">
-                      {slide.kicker && (
-                        <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.35em] text-gold">
-                          {slide.kicker}
-                        </p>
-                      )}
-                      {slide.title && (
-                        <h1 className="font-display text-4xl leading-[1.05] text-cream md:text-6xl lg:text-7xl">
-                          {slide.title}
-                        </h1>
-                      )}
-                      {slide.sub && (
-                        <p className="mt-5 max-w-md text-base text-cream/80 md:text-lg">
-                          {slide.sub}
-                        </p>
-                      )}
-                      <div className="mt-8 flex flex-wrap gap-3">
-                        <a
-                          href={slide.ctaLink || "#"}
-                          className="group inline-flex items-center gap-2 bg-accent px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-accent-foreground transition hover:bg-gold-soft"
-                        >
-                          {slide.cta || "Shop Now"}
-                          <ChevronRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                        </a>
-                        {slide.secondaryCta && (
-                          <a
-                            href={slide.secondaryCtaLink || "#lookbook"}
-                            className="inline-flex items-center gap-2 border border-cream/40 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-cream transition hover:border-gold hover:text-gold"
-                          >
-                            {slide.secondaryCta}
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                  className="w-full h-auto block select-none"
+                />
+              </a>
             </div>
           ))}
         </div>
@@ -177,27 +132,27 @@ export function HeroSlider() {
       <button
         onClick={() => embla?.scrollPrev()}
         aria-label="Previous"
-        className="absolute left-4 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-cream/30 bg-maroon-deep/40 p-3 text-cream backdrop-blur-sm transition hover:border-gold hover:text-gold md:inline-flex"
+        className="absolute left-4 sm:left-6 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-cream/30 bg-black/40 p-3 text-cream backdrop-blur-sm transition hover:border-gold hover:text-gold md:inline-flex cursor-pointer shadow-lg hover:scale-105 active:scale-95"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
       <button
         onClick={() => embla?.scrollNext()}
         aria-label="Next"
-        className="absolute right-4 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-cream/30 bg-maroon-deep/40 p-3 text-cream backdrop-blur-sm transition hover:border-gold hover:text-gold md:inline-flex"
+        className="absolute right-4 sm:right-6 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-cream/30 bg-black/40 p-3 text-cream backdrop-blur-sm transition hover:border-gold hover:text-gold md:inline-flex cursor-pointer shadow-lg hover:scale-105 active:scale-95"
       >
         <ChevronRight className="h-5 w-5" />
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-2 sm:bottom-3 md:bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 md:gap-2">
+      <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 md:gap-2">
         {sliders.map((_, i) => (
           <button
             key={i}
             onClick={() => embla?.scrollTo(i)}
             aria-label={`Slide ${i + 1}`}
-            className={`h-[2px] md:h-[3px] transition-all rounded-full ${
-              selected === i ? "w-6 md:w-10 bg-gold" : "w-3 md:w-5 bg-cream/40"
+            className={`h-[2px] md:h-[3px] transition-all rounded-full cursor-pointer shadow-sm ${
+              selected === i ? "w-6 md:w-10 bg-gold" : "w-3 md:w-5 bg-white/50 hover:bg-white/80"
             }`}
           />
         ))}
