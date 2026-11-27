@@ -290,33 +290,43 @@ export function CategoryShowcase() {
               <div
                 key={c.id || c.slug || idx}
                 onClick={(e) => handleCardClick(e, c.slug)}
-                className="group relative block overflow-hidden rounded-xl sm:rounded-2xl aspect-[3/4] shadow-luxe transition-transform duration-300 hover:-translate-y-1 min-w-0 flex-[0_0_46%] sm:flex-[0_0_45%] md:flex-[0_0_30%] lg:flex-[0_0_23%] xl:flex-[0_0_19%] snap-start shrink-0 cursor-pointer bg-card"
+                className="group relative block overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/5] shadow-luxe transition-transform duration-300 hover:-translate-y-1 min-w-0 flex-[0_0_46%] sm:flex-[0_0_45%] md:flex-[0_0_30%] lg:flex-[0_0_23%] xl:flex-[0_0_19%] snap-start shrink-0 cursor-pointer bg-card/60 border border-border/40"
               >
-                {/* Full Card Background Image - Zero Color Tint Overlay */}
+                {/* Ambient Background Blur: matches image colors without letterbox voids */}
                 <img
                   src={imgSrc}
-                  alt={c.name}
-                  loading="lazy"
-                  draggable={false}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 pointer-events-none select-none"
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 h-full w-full object-cover blur-xl scale-125 opacity-35 pointer-events-none select-none"
                 />
 
+                {/* Full Category Image: fully contained so no part of the image is cropped or cut */}
+                <div className="relative h-full w-full flex items-center justify-center p-1 sm:p-2 z-10">
+                  <img
+                    src={imgSrc}
+                    alt={c.name}
+                    loading="lazy"
+                    draggable={false}
+                    className="max-h-full max-w-full w-auto h-auto object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none select-none drop-shadow-md"
+                  />
+                </div>
+
                 {/* Card Bottom Details */}
-                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
+                <div className="absolute inset-x-0 bottom-0 p-2.5 sm:p-3.5 md:p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent z-20">
                   <span className="inline-block text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.2em] text-gold mb-0.5 drop-shadow-sm">
                     {tag}
                   </span>
                   <div className="mt-0.5 flex items-end justify-between gap-1.5 sm:gap-2">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-display text-sm sm:text-lg md:text-2xl text-cream tracking-tight truncate group-hover:text-gold transition-colors drop-shadow-md">
+                      <h3 className="font-display text-sm sm:text-base md:text-xl text-cream tracking-tight truncate group-hover:text-gold transition-colors drop-shadow-md">
                         {c.name}
                       </h3>
                       <p className="mt-0.5 text-[10px] sm:text-xs text-cream/80 font-sans truncate drop-shadow-sm">
                         {countText}
                       </p>
                     </div>
-                    <div className="flex h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-full border border-cream/30 text-cream transition-all duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-black group-hover:scale-105 shadow-sm">
-                      <ArrowUpRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                    <div className="flex h-6 w-6 sm:h-7 sm:w-7 md:h-9 md:w-9 shrink-0 items-center justify-center rounded-full border border-cream/30 text-cream transition-all duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-black group-hover:scale-105 shadow-sm">
+                      <ArrowUpRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
                     </div>
                   </div>
                 </div>
