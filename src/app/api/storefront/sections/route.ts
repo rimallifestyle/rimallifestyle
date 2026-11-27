@@ -77,14 +77,21 @@ export async function GET(req: Request) {
 
     await connectToDatabase();
 
+    // Get deleted sections set
+    const deletedSetting = await Setting.findOne({ key: 'deleted_sections' }).lean();
+    const deletedIds: string[] = Array.isArray(deletedSetting?.value?.ids) ? deletedSetting.value.ids : [];
+
     // If an ID is provided, return that specific section
     if (id) {
+      if (deletedIds.includes(id)) {
+        return NextResponse.json({ error: "Section not found or deleted" }, { status: 404 });
+      }
       const key = `section_${id}`;
       const setting = await Setting.findOne({ key });
 
       const defaults = DEFAULT_SECTIONS[id] || {
         eyebrow: "Category",
-        title: id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        title: id.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
         description: `Discover our collection of ${id.replace(/_/g, ' ')}.`,
         maxProducts: 8,
         category: "",
@@ -101,19 +108,29 @@ export async function GET(req: Request) {
     const settings = await Setting.find({ key: { $regex: '^section_' } }).lean();
     const result: Record<string, any> = {};
 
-    // Initialize with defaults
+    // Initialize with defaults (excluding deleted ones)
     Object.keys(DEFAULT_SECTIONS).forEach(secId => {
-      result[secId] = { id: secId, ...DEFAULT_SECTIONS[secId] };
+      if (!deletedIds.includes(secId)) {
+        result[secId] = { id: secId, ...DEFAULT_SECTIONS[secId] };
+      }
     });
 
-    // Merge saved settings from DB
+    // Merge saved settings from DB (excluding deleted ones)
     settings.forEach((s: any) => {
       const secId = s.key.replace(/^section_/, '');
-      result[secId] = {
-        ...(result[secId] || { id: secId, ...DEFAULT_SECTIONS[secId] }),
-        ...s.value,
-        id: secId,
-      };
+      if (!deletedIds.includes(secId)) {
+        result[secId] = {
+          ...(result[secId] || { id: secId, ...DEFAULT_SECTIONS[secId] || {
+            eyebrow: "",
+            title: secId.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+            description: "",
+            maxProducts: 8,
+            category: "",
+          } }),
+          ...s.value,
+          id: secId,
+        };
+      }
     });
 
     return NextResponse.json(result);
@@ -144,9 +161,77 @@ export async function PUT(req: Request) {
       { upsert: true, new: true }
     );
 
+    // If section was marked deleted, restore it
+    const deletedSetting = await Setting.findOne({ key: 'deleted_sections' });
+    if (deletedSetting && Array.isArray(deletedSetting.value?.ids) && deletedSetting.value.ids.includes(id)) {
+      const updatedIds = deletedSetting.value.ids.filter((x: string) => x !== id);
+      await Setting.findOneAndUpdate(
+        { key: 'deleted_sections' },
+        { key: 'deleted_sections', value: { ids: updatedIds } }
+      );
+    }
+
+    // Ensure section exists in homepage_layout so it can be viewed and reordered
+    const layoutSetting = await Setting.findOne({ key: 'homepage_layout' });
+    if (layoutSetting && Array.isArray(layoutSetting.value?.sections)) {
+      const layoutId = id === 'category_showcase' ? 'categories' : id;
+      const exists = layoutSetting.value.sections.some((s: any) => s.id === layoutId);
+      if (!exists) {
+        const updatedSections = [...layoutSetting.value.sections, { id: layoutId, enabled: value.enabled !== false }];
+        await Setting.findOneAndUpdate(
+          { key: 'homepage_layout' },
+          { key: 'homepage_layout', value: { sections: updatedSections } }
+        );
+      }
+    }
+
     return NextResponse.json({ success: true, value });
   } catch (error: any) {
     console.error("PUT Section Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing section id" }, { status: 400 });
+    }
+
+    await connectToDatabase();
+
+    // 1. Delete specific section setting
+    await Setting.deleteOne({ key: `section_${id}` });
+
+    // 2. Add id to deleted_sections list
+    const deletedSetting = await Setting.findOne({ key: 'deleted_sections' });
+    const currentDeleted: string[] = Array.isArray(deletedSetting?.value?.ids) ? deletedSetting.value.ids : [];
+    if (!currentDeleted.includes(id)) {
+      currentDeleted.push(id);
+      await Setting.findOneAndUpdate(
+        { key: 'deleted_sections' },
+        { key: 'deleted_sections', value: { ids: currentDeleted } },
+        { upsert: true }
+      );
+    }
+
+    // 3. Remove from homepage_layout
+    const layoutSetting = await Setting.findOne({ key: 'homepage_layout' });
+    if (layoutSetting && Array.isArray(layoutSetting.value?.sections)) {
+      const layoutId = id === 'category_showcase' ? 'categories' : id;
+      const updatedSections = layoutSetting.value.sections.filter((s: any) => s.id !== layoutId && s.id !== id);
+      await Setting.findOneAndUpdate(
+        { key: 'homepage_layout' },
+        { key: 'homepage_layout', value: { sections: updatedSections } }
+      );
+    }
+
+    return NextResponse.json({ success: true, id });
+  } catch (error: any) {
+    console.error("DELETE Section Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

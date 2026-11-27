@@ -26,27 +26,42 @@ const DEFAULT_LAYOUT = ALL_SECTIONS.map(s => ({ id: s.id, enabled: true }))
 
 export default function PageLayoutPage() {
   const [layout, setLayout] = useState(DEFAULT_LAYOUT)
+  const [customSections, setCustomSections] = useState<Record<string, any>>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const dragIndex = useRef<number | null>(null)
 
   useEffect(() => {
-    fetch(API)
-      .then(res => res.json())
-      .then(json => {
-        if (json && Array.isArray(json.sections) && json.sections.length > 0) {
-          const saved = json.sections
-          // merge in any new sections not yet in saved layout
-          ALL_SECTIONS.forEach(s => {
-            if (!saved.find((l: any) => l.id === s.id)) {
-              saved.push({ id: s.id, enabled: true })
+    Promise.all([
+      fetch(API).then(res => res.json()).catch(() => null),
+      fetch('/api/storefront/sections').then(res => res.json()).catch(() => ({}))
+    ]).then(([json, secData]) => {
+      if (secData && typeof secData === 'object') {
+        setCustomSections(secData)
+      }
+
+      if (json && Array.isArray(json.sections) && json.sections.length > 0) {
+        const saved = json.sections
+        // Merge in any default sections not yet in saved layout
+        ALL_SECTIONS.forEach(s => {
+          if (!saved.find((l: any) => l.id === s.id)) {
+            saved.push({ id: s.id, enabled: true })
+          }
+        })
+
+        // Merge in any custom sections from DB
+        if (secData && typeof secData === 'object') {
+          Object.keys(secData).forEach(secKey => {
+            const layoutKey = secKey === 'category_showcase' ? 'categories' : secKey
+            if (!saved.find((l: any) => l.id === layoutKey)) {
+              saved.push({ id: layoutKey, enabled: secData[secKey]?.enabled !== false })
             }
           })
-          setLayout(saved)
         }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+
+        setLayout(saved)
+      }
+    }).finally(() => setLoading(false))
   }, [])
 
   const save = async () => {
@@ -127,8 +142,13 @@ export default function PageLayoutPage() {
       {/* Section list */}
       <div className="space-y-2">
         {layout.map((item, i) => {
-          const meta = ALL_SECTIONS.find(s => s.id === item.id)
-          if (!meta) return null
+          const meta = ALL_SECTIONS.find(s => s.id === item.id) || {
+            id: item.id,
+            label: customSections[item.id]?.title || customSections[item.id]?.label || item.id.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+            emoji: '📦',
+            locked: false,
+            desc: `Product Section (${customSections[item.id]?.category || 'Auto'})`
+          }
           return (
             <div
               key={item.id}

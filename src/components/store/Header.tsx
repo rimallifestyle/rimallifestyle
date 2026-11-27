@@ -290,10 +290,10 @@ export function Header() {
           </Sheet>
         </div>
 
-        {/* Center: logo - slightly shifted right on mobile for optimal visual balance */}
+        {/* Center: logo - shifted further right on mobile for user preference */}
         <Link 
           href="/" 
-          className="group flex flex-col items-center justify-center h-full py-0.5 translate-x-3 sm:translate-x-4 md:translate-x-0 transition-transform"
+          className="group flex flex-col items-center justify-center h-full py-0.5 translate-x-7 sm:translate-x-8 md:translate-x-0 transition-transform"
         >
           {siteIdentity.logoUrl ? (
             <img 

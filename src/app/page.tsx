@@ -286,10 +286,27 @@ export default function Home() {
             }
 
             const component = SECTION_MAP[section.id];
-            if (!component) return null;
+            if (component) {
+              return (
+                <div key={section.id}>
+                  {component}
+                </div>
+              );
+            }
+
+            // Dynamic Custom Product Section added from Storefront Admin
+            const prods = getProductsForSection(section.id);
+            if (!isProductsLoading && prods.length === 0) return null;
+
             return (
               <div key={section.id}>
-                {component}
+                <ProductSlider
+                  id={section.id}
+                  products={prods}
+                  variant="default"
+                  isLoading={isProductsLoading}
+                  hideHeader
+                />
               </div>
             );
           })}

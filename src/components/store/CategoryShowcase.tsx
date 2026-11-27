@@ -75,19 +75,34 @@ export function CategoryShowcase() {
       })
       .catch(console.error);
 
-    // 2. Fetch live categories from backend
+    // 2. Fetch live categories from backend (including subcategories)
     fetch(`${API_ROOT}storefront/categories?t=` + Date.now())
       .then(res => res.ok ? res.json() : null)
       .then((cats) => {
         if (Array.isArray(cats) && cats.length > 0) {
-          const formatted: CategoryItem[] = cats.map((c: any) => ({
-            id: c.id || c._id || c.slug,
-            name: c.name || "Category",
-            slug: c.slug || c.name?.toLowerCase().replace(/\s+/g, '-') || "shop",
-            thumbnail: c.thumbnail || "",
-            count: typeof c.count === 'number' ? c.count : 0,
-            description: c.description || "",
-          }));
+          const formatted: CategoryItem[] = [];
+          cats.forEach((c: any) => {
+            formatted.push({
+              id: (c.id || c._id || c.slug).toString(),
+              name: c.name || "Category",
+              slug: c.slug || c.name?.toLowerCase().replace(/\s+/g, '-') || "shop",
+              thumbnail: c.thumbnail || "",
+              count: typeof c.count === 'number' ? c.count : 0,
+              description: c.description || "",
+            });
+            if (Array.isArray(c.subcategories)) {
+              c.subcategories.forEach((sub: any) => {
+                formatted.push({
+                  id: (sub.id || sub._id || sub.slug).toString(),
+                  name: sub.name || "Subcategory",
+                  slug: sub.slug || sub.name?.toLowerCase().replace(/\s+/g, '-') || "shop",
+                  thumbnail: sub.thumbnail || c.thumbnail || "",
+                  count: typeof sub.count === 'number' ? sub.count : 0,
+                  description: sub.description || "",
+                });
+              });
+            }
+          });
           setAllCategories(formatted);
         } else {
           setAllCategories(FALLBACK_CATEGORIES);
@@ -231,72 +246,51 @@ export function CategoryShowcase() {
   return (
     <section 
       id="categories"
-      className="border-t border-border/40 bg-background py-5 sm:py-6 md:py-8 relative overflow-hidden select-none"
+      className="border-t border-border/40 bg-background py-3 sm:py-4 md:py-6 relative overflow-hidden select-none"
     >
-      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-        {/* Header with Title and Slider Navigation Buttons */}
-        <div className="mb-4 sm:mb-6 md:mb-7 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="max-w-2xl">
-            {eyebrow && (
-              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.35em] text-gold">
-                {eyebrow}
-              </p>
-            )}
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-cream tracking-tight">
-              {title}
-            </h2>
-            {description && (
-              <p className="mt-2 text-sm text-muted-foreground max-w-xl">
-                {description}
-              </p>
-            )}
-          </div>
+      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 relative group/cat-slider">
+        {/* Desktop Navigation Floating Buttons */}
+        <button
+          type="button"
+          onClick={() => scroll('left')}
+          disabled={!canScrollLeft}
+          aria-label="Previous categories"
+          className="absolute -left-2 sm:left-1 md:left-2 top-1/2 -translate-y-1/2 z-20 hidden md:flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-card/90 text-cream backdrop-blur-md transition-all hover:border-gold hover:text-gold hover:scale-105 active:scale-95 disabled:opacity-0 disabled:pointer-events-none cursor-pointer shadow-lg"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => scroll('right')}
+          disabled={!canScrollRight}
+          aria-label="Next categories"
+          className="absolute -right-2 sm:right-1 md:right-2 top-1/2 -translate-y-1/2 z-20 hidden md:flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-card/90 text-cream backdrop-blur-md transition-all hover:border-gold hover:text-gold hover:scale-105 active:scale-95 disabled:opacity-0 disabled:pointer-events-none cursor-pointer shadow-lg"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
 
-          {/* Desktop & Mobile Navigation Buttons */}
-          <div className="flex items-center gap-2 self-start md:self-end shrink-0">
-            <button
-              type="button"
-              onClick={() => scroll('left')}
-              disabled={!canScrollLeft}
-              aria-label="Previous categories"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-card/60 text-cream backdrop-blur-sm transition-all hover:border-gold hover:text-gold active:scale-95 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-sm"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => scroll('right')}
-              disabled={!canScrollRight}
-              aria-label="Next categories"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-card/60 text-cream backdrop-blur-sm transition-all hover:border-gold hover:text-gold active:scale-95 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-sm"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Touch & Mouse Drag Slider Track */}
+        {/* Touch & Mouse Drag Slider Track (2 items per screen view on mobile) */}
         <div
           ref={sliderRef}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          className={`flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-4 pt-1 transition-colors ${
+          className={`flex gap-3 sm:gap-4 md:gap-5 lg:gap-6 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-2 pt-1 touch-pan-x transition-colors ${
             isDragging ? "cursor-grabbing select-none" : "cursor-grab"
           }`}
-          style={{ scrollBehavior: isDragging ? 'auto' : 'smooth' }}
+          style={{ scrollBehavior: isDragging ? 'auto' : 'smooth', WebkitOverflowScrolling: 'touch' }}
         >
           {displayCategories.map((c, idx) => {
             const imgSrc = getCategoryImage(c);
             const tag = getCategoryTag(c, idx);
-            const countText = c.count && c.count > 0 ? `${c.count} pieces` : "Explore Collection";
+            const countText = c.count && c.count > 0 ? `${c.count} pieces` : "Explore";
 
             return (
               <div
                 key={c.id || c.slug || idx}
                 onClick={(e) => handleCardClick(e, c.slug)}
-                className="group relative block overflow-hidden rounded-2xl bg-secondary shadow-luxe transition-transform duration-300 hover:-translate-y-1 min-w-0 flex-[0_0_80%] sm:flex-[0_0_46%] md:flex-[0_0_31%] lg:flex-[0_0_27%] xl:flex-[0_0_23%] snap-start shrink-0 cursor-pointer"
+                className="group relative block overflow-hidden rounded-xl sm:rounded-2xl bg-secondary shadow-luxe transition-transform duration-300 hover:-translate-y-1 min-w-0 flex-[0_0_46%] sm:flex-[0_0_45%] md:flex-[0_0_30%] lg:flex-[0_0_23%] xl:flex-[0_0_19%] snap-start shrink-0 cursor-pointer"
               >
                 {/* Image Container */}
                 <div className="aspect-[3/4] w-full overflow-hidden bg-muted">
@@ -314,21 +308,21 @@ export function CategoryShowcase() {
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors pointer-events-none" />
 
                 {/* Card Bottom Details */}
-                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 md:p-7">
-                  <span className="inline-block text-[10px] font-semibold uppercase tracking-[0.25em] text-gold mb-1">
+                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 md:p-6">
+                  <span className="inline-block text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.2em] text-gold mb-0.5">
                     {tag}
                   </span>
-                  <div className="mt-1 flex items-end justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="font-display text-2xl sm:text-3xl md:text-3xl text-cream tracking-tight truncate group-hover:text-gold transition-colors">
+                  <div className="mt-0.5 flex items-end justify-between gap-1.5 sm:gap-2">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-display text-sm sm:text-lg md:text-2xl text-cream tracking-tight truncate group-hover:text-gold transition-colors">
                         {c.name}
                       </h3>
-                      <p className="mt-1 text-xs text-cream/70 font-sans">
+                      <p className="mt-0.5 text-[10px] sm:text-xs text-cream/70 font-sans truncate">
                         {countText}
                       </p>
                     </div>
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-cream/30 text-cream transition-all duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-black group-hover:scale-105 shadow-sm">
-                      <ArrowUpRight className="h-5 w-5" />
+                    <div className="flex h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-full border border-cream/30 text-cream transition-all duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-black group-hover:scale-105 shadow-sm">
+                      <ArrowUpRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                     </div>
                   </div>
                 </div>
