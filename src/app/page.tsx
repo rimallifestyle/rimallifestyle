@@ -202,78 +202,64 @@ export default function Home() {
     shirts: (
       <ProductSlider
         id="shirts"
-        eyebrow={sectionsConfig['shirts']?.eyebrow || "Shirt category"}
-        title={sectionsConfig['shirts']?.title || "Shirts, tailored."}
-        description={sectionsConfig['shirts']?.description || "From crisp oxfords to weekend linens — shirts made for every occasion."}
         products={dynamicShirts}
         variant="default"
         isLoading={isProductsLoading}
+        hideHeader
       />
     ),
     tshirts: (
       <ProductSlider
         id="tshirts"
-        eyebrow={sectionsConfig['tshirts']?.eyebrow || "T-Shirt category"}
-        title={sectionsConfig['tshirts']?.title || "Essential tees."}
-        description={sectionsConfig['tshirts']?.description || "Elevated basics in heavyweight cotton and premium blends."}
         products={dynamicTshirts}
         variant="minimal"
         isLoading={isProductsLoading}
+        hideHeader
       />
     ),
     polos: (
       <ProductSlider
         id="polos"
-        eyebrow={sectionsConfig['polos']?.eyebrow || "Polo collection"}
-        title={sectionsConfig['polos']?.title || "The perfect polo."}
-        description={sectionsConfig['polos']?.description || "Refined piqué and merino polos — a smarter alternative to the t-shirt."}
         products={dynamicPolos}
         variant="default"
         isLoading={isProductsLoading}
+        hideHeader
       />
     ),
     pants: (
       <ProductSlider
         id="pants"
-        eyebrow={sectionsConfig['pants']?.eyebrow || "Trouser category"}
-        title={sectionsConfig['pants']?.title || "Trousers & chinos."}
-        description={sectionsConfig['pants']?.description || "Precise cuts and considered fabrics — from tailored wool to everyday chinos."}
         products={dynamicPants}
         variant="detailed"
         isLoading={isProductsLoading}
+        hideHeader
       />
     ),
     jackets: (
       <ProductSlider
         id="jackets"
-        eyebrow={sectionsConfig['jackets']?.eyebrow || "Outerwear"}
-        title={sectionsConfig['jackets']?.title || "Jackets & coats."}
-        description={sectionsConfig['jackets']?.description || "Statement outerwear designed for cold days and warm compliments."}
         products={dynamicJackets}
         variant="default"
         isLoading={isProductsLoading}
+        hideHeader
       />
     ),
     hats: (
       <ProductSlider
         id="hats"
-        eyebrow={sectionsConfig['hats']?.eyebrow || "Headwear"}
-        title={sectionsConfig['hats']?.title || "Hats & caps."}
-        description={sectionsConfig['hats']?.description || "Finish every look — from fedoras to flat caps, wool to leather."}
         products={dynamicHats}
         variant="minimal"
         isLoading={isProductsLoading}
+        hideHeader
       />
     ),
     panjabi: (
       <ProductSlider
         id="panjabi"
-        eyebrow={sectionsConfig['panjabi']?.eyebrow || "Traditional · Festive"}
-        title={sectionsConfig['panjabi']?.title || "The Panjabi edit."}
-        description={sectionsConfig['panjabi']?.description || "Traditional silhouettes reimagined with modern craft — for weddings, festivals, and every moment worth dressing for."}
         products={dynamicPanjabis}
         variant="default"
         isLoading={isProductsLoading}
+        hideHeader
       />
     ),
     feature_strip: <FeatureStrip />,

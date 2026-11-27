@@ -115,7 +115,7 @@ export function HeroSlider() {
                   height={900}
                   loading={i === 0 ? "eager" : "lazy"}
                   draggable={false}
-                  className="w-full h-auto block select-none"
+                  className="w-full h-auto max-h-[360px] sm:max-h-[420px] md:max-h-[450px] lg:max-h-[480px] xl:max-h-[500px] object-cover object-center block select-none"
                 />
               </a>
             </div>

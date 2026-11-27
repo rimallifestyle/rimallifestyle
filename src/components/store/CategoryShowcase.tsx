@@ -231,11 +231,11 @@ export function CategoryShowcase() {
   return (
     <section 
       id="categories"
-      className="border-t border-border/40 bg-background py-16 md:py-24 relative overflow-hidden select-none"
+      className="border-t border-border/40 bg-background py-5 sm:py-6 md:py-8 relative overflow-hidden select-none"
     >
       <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
         {/* Header with Title and Slider Navigation Buttons */}
-        <div className="mb-8 md:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="mb-4 sm:mb-6 md:mb-7 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="max-w-2xl">
             {eyebrow && (
               <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.35em] text-gold">

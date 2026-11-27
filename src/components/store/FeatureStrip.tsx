@@ -9,7 +9,7 @@ const items = [
 
 export function FeatureStrip() {
   return (
-    <section className="border-t border-border/40 bg-background py-16">
+    <section className="border-t border-border/40 bg-background py-6 sm:py-8">
       <div className="grid w-full grid-cols-2 gap-6 px-4 sm:px-6 md:grid-cols-4 md:px-8 lg:px-12 xl:px-16">
         {items.map((f) => (
           <div key={f.title} className="flex items-start gap-4">

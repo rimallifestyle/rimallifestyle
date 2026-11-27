@@ -93,12 +93,12 @@ export function DiscountSection() {
   return (
     <section
       id="discount"
-      className="relative overflow-hidden border-y border-gold/20 bg-gradient-to-br from-maroon-deep via-background to-maroon-deep py-20 md:py-28"
+      className="relative overflow-hidden border-y border-gold/20 bg-gradient-to-br from-maroon-deep via-background to-maroon-deep py-6 sm:py-8 md:py-10"
       onClick={handleDiscountClick}
     >
       <div className="pointer-events-none absolute -top-40 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-accent/10 blur-3xl" />
       <div className="relative w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-        <div className="mb-12 flex flex-col items-center gap-6 text-center">
+        <div className="mb-6 sm:mb-8 flex flex-col items-center gap-4 text-center">
           {eyebrow && (
             <p className="text-[11px] font-medium uppercase tracking-[0.35em] text-gold">
               {eyebrow}

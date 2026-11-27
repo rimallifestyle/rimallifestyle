@@ -22,20 +22,22 @@ function renderCard(product: Product, variant: Variant) {
 
 export function ProductSlider({
   eyebrow: initialEyebrow,
-  title: initialTitle,
+  title: initialTitle = "",
   description: initialDescription,
   products,
   id,
   variant = "default",
   isLoading = false,
+  hideHeader = false,
 }: {
   eyebrow?: string;
-  title: string;
+  title?: string;
   description?: string;
   products: Product[];
   id?: string;
   variant?: Variant;
   isLoading?: boolean;
+  hideHeader?: boolean;
 }) {
   const [emblaRef, embla] = useEmblaCarousel({ align: "start", loop: false });
   const [canPrev, setCanPrev] = useState(false);
@@ -93,54 +95,71 @@ export function ProductSlider({
   return (
     <section 
       id={id} 
-      className="border-t border-border/40 bg-background py-20 md:py-28 relative"
+      className="border-t border-border/40 bg-background py-3 sm:py-4 md:py-6 relative select-none"
     >
-      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
-          <div>
-            {eyebrow && (
-              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.35em] text-gold">
-                {eyebrow}
-              </p>
-            )}
-            <h2 className="font-display text-3xl md:text-5xl">{title}</h2>
-            {description && (
-              <p className="mt-3 max-w-lg text-sm text-muted-foreground md:text-base">
-                {description}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <a
-              href="#"
-              className="hidden text-[11px] font-semibold uppercase tracking-[0.25em] text-muted-foreground hover:text-gold md:inline relative z-10"
-              onClick={(e) => {}}
-            >
-              View all
-            </a>
-            <div className="flex gap-2 relative z-10">
-              <button
-                onClick={(e) => { e.stopPropagation(); embla?.scrollPrev(); }}
-                disabled={!canPrev}
-                aria-label="Previous"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border/60 text-foreground transition hover:border-gold hover:text-gold disabled:opacity-30"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); embla?.scrollNext(); }}
-                disabled={!canNext}
-                aria-label="Next"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-border/60 text-foreground transition hover:border-gold hover:text-gold disabled:opacity-30"
-              >
-                <ArrowRight className="h-4 w-4" />
-              </button>
+      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 relative group/slider">
+        {!hideHeader && (
+          <div className="mb-4 sm:mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              {eyebrow && (
+                <p className="mb-1.5 text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.35em] text-gold">
+                  {eyebrow}
+                </p>
+              )}
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl">{title}</h2>
+              {description && (
+                <p className="mt-1.5 max-w-lg text-xs sm:text-sm text-muted-foreground">
+                  {description}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex gap-2 relative z-10">
+                <button
+                  onClick={(e) => { e.stopPropagation(); embla?.scrollPrev(); }}
+                  disabled={!canPrev}
+                  aria-label="Previous"
+                  className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border/60 text-foreground transition hover:border-gold hover:text-gold disabled:opacity-30 cursor-pointer"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); embla?.scrollNext(); }}
+                  disabled={!canNext}
+                  aria-label="Next"
+                  className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border/60 text-foreground transition hover:border-gold hover:text-gold disabled:opacity-30 cursor-pointer"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        <div ref={emblaRef} className="-mx-3 overflow-hidden px-3 py-3">
-          <div className="flex gap-5">
+        {/* Floating Controls for desktop when header is hidden */}
+        {hideHeader && (
+          <>
+            <button
+              onClick={(e) => { e.stopPropagation(); embla?.scrollPrev(); }}
+              disabled={!canPrev}
+              aria-label="Previous"
+              className="absolute -left-2 sm:left-1 md:left-2 top-1/2 -translate-y-1/2 z-20 hidden md:flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-card/90 text-foreground backdrop-blur-md shadow-lg transition-all hover:border-gold hover:text-gold hover:scale-105 active:scale-95 disabled:opacity-0 disabled:pointer-events-none cursor-pointer"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); embla?.scrollNext(); }}
+              disabled={!canNext}
+              aria-label="Next"
+              className="absolute -right-2 sm:right-1 md:right-2 top-1/2 -translate-y-1/2 z-20 hidden md:flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-card/90 text-foreground backdrop-blur-md shadow-lg transition-all hover:border-gold hover:text-gold hover:scale-105 active:scale-95 disabled:opacity-0 disabled:pointer-events-none cursor-pointer"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </>
+        )}
+
+        <div ref={emblaRef} className="-mx-2 sm:-mx-3 overflow-hidden px-2 sm:px-3 py-1">
+          <div className="flex gap-3 sm:gap-4 md:gap-5">
             {isLoading
               ? Array.from({ length: 4 }).map((_, i) => (
                   <div
