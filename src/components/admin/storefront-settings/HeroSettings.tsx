@@ -42,6 +42,9 @@ export default function HeroSliderPage() {
         body: JSON.stringify(sliders)
       })
       if (!res.ok) throw new Error()
+      try {
+        localStorage.setItem("rimal_hero_sliders_cache", JSON.stringify(sliders));
+      } catch (e) {}
       toast.success('Hero slider saved!')
     } catch {
       toast.error('Failed to save')
