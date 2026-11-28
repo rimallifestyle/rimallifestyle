@@ -27,12 +27,14 @@ function ProductImage({ product, className = "" }: { product: Product; className
   const isCustomImage = Boolean(product.image && product.image !== productImage);
   return (
     <div
-      className={`transition-transform duration-[900ms] ease-out bg-center ${className}`}
+      className={`transition-transform duration-[700ms] ease-out bg-center transform-gpu will-change-transform ${className}`}
       style={{
         backgroundImage: `url(${product.image ?? productImage})`,
         backgroundSize: product.bgSize ?? (isCustomImage ? "cover" : "300% 200%"),
         backgroundPosition: product.bgPos || "center",
         backgroundRepeat: "no-repeat",
+        backfaceVisibility: "hidden",
+        WebkitBackfaceVisibility: "hidden",
       }}
       aria-label={product.name}
     />
@@ -99,7 +101,8 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <article 
       onClick={navigateToProduct}
-      className="group relative flex h-full flex-col rounded-xl border border-border/60 bg-card/40 p-3 transition-all duration-300 hover:border-gold/60 hover:bg-card/70 hover:shadow-luxe cursor-pointer"
+      data-product-card="true"
+      className="product-card transform-gpu group relative flex h-full flex-col rounded-xl border border-border/60 bg-card/40 p-3 transition-all duration-300 hover:border-gold/60 hover:bg-card/70 hover:shadow-luxe cursor-pointer"
     >
       <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-secondary to-maroon-deep/60">
         <Link  href={`/product/${product.slug || product.id}`} className="block">
@@ -233,7 +236,8 @@ export function ProductCardOverlay({ product }: { product: Product }) {
   return (
     <article 
       onClick={navigateToProduct}
-      className="group relative overflow-hidden rounded-xl border border-border/60 shadow-luxe cursor-pointer"
+      data-product-card="true"
+      className="product-card transform-gpu group relative overflow-hidden rounded-xl border border-border/60 shadow-luxe cursor-pointer"
     >
       <div className="relative">
         <Link  href={`/product/${product.slug || product.id}`} className="block">
@@ -331,7 +335,7 @@ export function ProductCardMinimal({ product }: { product: Product }) {
   };
 
   return (
-    <article onClick={navigateToProduct} className="group cursor-pointer">
+    <article onClick={navigateToProduct} data-product-card="true" className="product-card transform-gpu group cursor-pointer">
       <div className="relative overflow-hidden bg-secondary">
         <Link  href={`/product/${product.slug || product.id}`} className="block">
           <ProductImage
@@ -431,7 +435,8 @@ export function ProductCardDetailed({ product }: { product: Product }) {
   return (
     <article 
       onClick={navigateToProduct}
-      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/50 transition-all duration-300 hover:border-gold/60 hover:shadow-luxe cursor-pointer"
+      data-product-card="true"
+      className="product-card transform-gpu group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/50 transition-all duration-300 hover:border-gold/60 hover:shadow-luxe cursor-pointer"
     >
       <div className="relative overflow-hidden bg-gradient-to-br from-secondary to-maroon-deep/60">
         <Link  href={`/product/${product.slug || product.id}`} className="block">

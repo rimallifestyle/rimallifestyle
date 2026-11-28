@@ -112,8 +112,8 @@ export function HeroSlider() {
       )}
 
       {sliders.length > 0 && (
-        <div ref={emblaRef} className="overflow-hidden">
-          <div className="flex">
+        <div ref={emblaRef} className="overflow-hidden transform-gpu">
+          <div className="flex will-change-transform">
             {sliders.map((slide, i) => (
               <div key={slide.id || i} className="relative min-w-0 flex-[0_0_100%]">
                 <a

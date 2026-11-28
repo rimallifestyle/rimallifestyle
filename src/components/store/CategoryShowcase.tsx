@@ -276,10 +276,10 @@ export function CategoryShowcase() {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          className={`flex gap-3 sm:gap-4 md:gap-5 lg:gap-6 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-2 pt-1 touch-pan-x transition-colors ${
+          className={`flex gap-3 sm:gap-4 md:gap-5 lg:gap-6 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-2 pt-1 touch-pan-x transition-colors transform-gpu ${
             isDragging ? "cursor-grabbing select-none" : "cursor-grab"
           }`}
-          style={{ scrollBehavior: isDragging ? 'auto' : 'smooth', WebkitOverflowScrolling: 'touch' }}
+          style={{ scrollBehavior: isDragging ? 'auto' : 'smooth', WebkitOverflowScrolling: 'touch', willChange: 'scroll-position' }}
         >
           {displayCategories.map((c, idx) => {
             const imgSrc = getCategoryImage(c);
@@ -290,14 +290,16 @@ export function CategoryShowcase() {
               <div
                 key={c.id || c.slug || idx}
                 onClick={(e) => handleCardClick(e, c.slug)}
-                className="group relative block overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/5] shadow-luxe transition-transform duration-300 hover:-translate-y-1 min-w-0 flex-[0_0_46%] sm:flex-[0_0_45%] md:flex-[0_0_30%] lg:flex-[0_0_23%] xl:flex-[0_0_19%] snap-start shrink-0 cursor-pointer bg-card/60 border border-border/40"
+                className="group relative block overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/5] shadow-luxe transition-transform duration-300 hover:-translate-y-1 min-w-0 flex-[0_0_46%] sm:flex-[0_0_45%] md:flex-[0_0_30%] lg:flex-[0_0_23%] xl:flex-[0_0_19%] snap-start shrink-0 cursor-pointer bg-card/60 border border-border/40 transform-gpu"
               >
                 {/* Ambient Background Blur: matches image colors without letterbox voids */}
                 <img
                   src={imgSrc}
                   alt=""
                   aria-hidden="true"
-                  className="absolute inset-0 h-full w-full object-cover blur-xl scale-125 opacity-35 pointer-events-none select-none"
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover blur-lg scale-110 opacity-30 pointer-events-none select-none transform-gpu"
                 />
 
                 {/* Full Category Image: fully contained so no part of the image is cropped or cut */}
@@ -306,8 +308,9 @@ export function CategoryShowcase() {
                     src={imgSrc}
                     alt={c.name}
                     loading="lazy"
+                    decoding="async"
                     draggable={false}
-                    className="max-h-full max-w-full w-auto h-auto object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none select-none drop-shadow-md"
+                    className="max-h-full max-w-full w-auto h-auto object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none select-none drop-shadow-md transform-gpu"
                   />
                 </div>
 

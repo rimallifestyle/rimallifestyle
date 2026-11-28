@@ -63,8 +63,8 @@ export function MobileNav() {
   const initial = (userProfile?.name || userProfile?.email || "U").charAt(0).toUpperCase();
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-[60] md:hidden">
-      <div className="flex items-center justify-between bg-card/90 backdrop-blur-xl border border-border shadow-[0_10px_30px_rgba(0,0,0,0.5)] rounded-full px-2 py-2 h-16 w-full">
+    <div className="fixed bottom-4 left-4 right-4 z-[60] md:hidden transform-gpu will-change-transform">
+      <div className="flex items-center justify-between bg-card/95 backdrop-blur-lg border border-border shadow-[0_10px_30px_rgba(0,0,0,0.5)] rounded-full px-2 py-2 h-16 w-full">
         {NAV_ITEMS.map((item, index) => {
           const isActive = activeIndex === index;
 

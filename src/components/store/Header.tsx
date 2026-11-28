@@ -158,7 +158,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-maroon-deep/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-maroon-deep/90 backdrop-blur-md transform-gpu will-change-transform">
       <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6 md:h-20 md:px-8 lg:px-12 xl:px-16">
         {/* Left: menu trigger */}
         <div className="flex items-center gap-3">

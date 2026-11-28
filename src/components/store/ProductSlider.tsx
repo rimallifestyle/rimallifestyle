@@ -158,8 +158,8 @@ export function ProductSlider({
           </>
         )}
 
-        <div ref={emblaRef} className="-mx-2 sm:-mx-3 overflow-hidden px-2 sm:px-3 py-1">
-          <div className="flex gap-3 sm:gap-4 md:gap-5">
+        <div ref={emblaRef} className="-mx-2 sm:-mx-3 overflow-hidden px-2 sm:px-3 py-1 transform-gpu">
+          <div className="flex gap-3 sm:gap-4 md:gap-5 will-change-transform">
             {isLoading
               ? Array.from({ length: 4 }).map((_, i) => (
                   <div

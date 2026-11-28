@@ -109,12 +109,13 @@ export function Marquee() {
 
   return (
     <div 
-      className="overflow-hidden border-y border-gold/20 bg-maroon-deep py-2.5 sm:py-3 relative select-none"
+      className="overflow-hidden border-y border-gold/20 bg-maroon-deep py-2.5 sm:py-3 relative select-none transform-gpu"
     >
       <div 
         className="flex whitespace-nowrap text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.25em] sm:tracking-[0.3em] text-gold will-change-transform hover:[animation-play-state:paused]"
         style={{
           animation: `marquee ${duration}s linear infinite`,
+          transform: "translate3d(0, 0, 0)",
         }}
       >
         {line.map((text, i) => (
@@ -126,8 +127,8 @@ export function Marquee() {
       </div>
       <style>{`
         @keyframes marquee {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); }
+          0% { transform: translate3d(0%, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
         }
       `}</style>
     </div>
