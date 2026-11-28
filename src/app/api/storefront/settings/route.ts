@@ -91,7 +91,21 @@ export async function GET(req: Request) {
         });
       }
 
+      if (key === "onesignal_settings") {
+        return NextResponse.json({ enabled: false, appId: "" });
+      }
+
       return NextResponse.json({});
+    }
+
+    if (key === "onesignal_settings") {
+      const val = setting.value || {};
+      return NextResponse.json({
+        enabled: Boolean(val.enabled),
+        appId: val.appId || "",
+        safariWebId: val.safariWebId || "",
+        autoPrompt: val.autoPrompt !== false
+      });
     }
 
     return NextResponse.json(setting.value);

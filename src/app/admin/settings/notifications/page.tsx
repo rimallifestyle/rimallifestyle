@@ -264,6 +264,29 @@ export default function NotificationsSettingsPage() {
                 </ul>
               </div>
             </ScrollReveal>
+
+            <ScrollReveal delay={0.4}>
+              <div className="glass-card rounded-3xl p-6 border border-[#E54B4D]/20 bg-gradient-to-br from-[#E54B4D]/5 to-transparent">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-[#E54B4D] flex items-center justify-center text-white shadow-md">
+                    <Bell className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white">OneSignal Web Push</h3>
+                    <p className="text-xs text-white/50">Real-time push notifications &amp; broadcasts</p>
+                  </div>
+                </div>
+                <p className="text-xs text-white/60 mb-4 leading-relaxed">
+                  Send real-time alerts for promotions, abandoned carts, and new arrivals directly to visitors&apos; phones and browsers.
+                </p>
+                <Link
+                  href="/admin/integrations"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#E54B4D] hover:bg-[#d43f41] text-white text-xs font-semibold flex items-center justify-center gap-2 transition shadow-[0_0_15px_rgba(229,75,77,0.3)] cursor-pointer"
+                >
+                  Manage OneSignal Integration
+                </Link>
+              </div>
+            </ScrollReveal>
           </div>
         </form>
       )}

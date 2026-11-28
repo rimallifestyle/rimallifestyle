@@ -4,6 +4,7 @@ import "../styles.css";
 import { Providers } from "./Providers";
 import { GlobalModals } from "./GlobalModals";
 import { Toaster } from "sonner";
+import { OneSignalInit } from "@/components/store/OneSignalInit";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const cormorant = Cormorant_Garamond({
@@ -206,6 +207,7 @@ export default async function RootLayout({
       <body className={`${inter.variable} ${cormorant.variable} antialiased`} suppressHydrationWarning>
         <Providers>
           {children}
+          <OneSignalInit />
           <GlobalModals />
           <Toaster theme="dark" richColors position="top-right" />
         </Providers>
