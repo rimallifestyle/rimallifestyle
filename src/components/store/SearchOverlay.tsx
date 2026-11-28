@@ -29,7 +29,7 @@ export function SearchOverlay() {
         inputRef.current?.focus();
       }, 50);
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
       setQuery("");
       setResults([]);
       setTotalMatches(0);

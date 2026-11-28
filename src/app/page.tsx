@@ -13,27 +13,47 @@ import { useEffect, useState } from "react";
 import { API_ROOT } from "@/lib/api";
 import type { Product } from "@/components/store/products";
 
-// Default section order (shown if no layout saved yet)
+// Cache keys for instant load on reload without content flash
+const LAYOUT_CACHE_KEY = "rimal_homepage_layout_cache";
+const SECTIONS_CACHE_KEY = "rimal_sections_config_cache";
+
+// Default section order (clean active defaults matching actual catalog)
 const DEFAULT_LAYOUT = [
   { id: "hero_slider",   enabled: true },
   { id: "marquee",       enabled: true },
-  { id: "new_arrivals",  enabled: true },
-  { id: "discount",      enabled: true },
   { id: "categories",    enabled: true },
   { id: "shirts",        enabled: true },
   { id: "tshirts",       enabled: true },
-  { id: "polos",         enabled: true },
   { id: "pants",         enabled: true },
-  { id: "jackets",       enabled: true },
-  { id: "hats",          enabled: true },
-  { id: "panjabi",       enabled: true },
-  { id: "feature_strip", enabled: true },
 ];
 
 export default function Home() {
   const { data: dynamicProducts, isLoading: isProductsLoading } = useProducts();
-  const [layout, setLayout] = useState(DEFAULT_LAYOUT);
-  const [sectionsConfig, setSectionsConfig] = useState<Record<string, any>>({});
+  
+  // Instant load from cached settings to eliminate reload flash
+  const [layout, setLayout] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(LAYOUT_CACHE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (parsed && Array.isArray(parsed.sections) && parsed.sections.length > 0) return parsed.sections;
+        }
+      } catch (e) {}
+    }
+    return DEFAULT_LAYOUT;
+  });
+
+  const [sectionsConfig, setSectionsConfig] = useState<Record<string, any>>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(SECTIONS_CACHE_KEY);
+        if (cached) return JSON.parse(cached);
+      } catch (e) {}
+    }
+    return {};
+  });
 
   // Load homepage layout config from backend
   useEffect(() => {
@@ -42,9 +62,12 @@ export default function Home() {
       .then(json => {
         if (json && Array.isArray(json.sections) && json.sections.length > 0) {
           setLayout(json.sections);
+          try {
+            localStorage.setItem(LAYOUT_CACHE_KEY, JSON.stringify(json.sections));
+          } catch (e) {}
         }
       })
-      .catch(() => {}); // fallback to DEFAULT_LAYOUT
+      .catch(() => {});
   }, []);
 
   // Load section configs (titles, descriptions, categories) from backend
@@ -54,6 +77,9 @@ export default function Home() {
       .then(data => {
         if (data && typeof data === 'object') {
           setSectionsConfig(data);
+          try {
+            localStorage.setItem(SECTIONS_CACHE_KEY, JSON.stringify(data));
+          } catch (e) {}
         }
       })
       .catch(() => {});
@@ -355,13 +381,11 @@ export default function Home() {
             return section.enabled;
           })
           .map(section => {
-            // For category product sliders, if loading has finished and there are no products, omit the empty section
-            if (!isProductsLoading && dynamicProducts && dynamicProducts.length > 0) {
-              const categorySectionKeys = ['shirts', 'tshirts', 'polos', 'pants', 'jackets', 'hats', 'panjabi'];
-              if (categorySectionKeys.includes(section.id)) {
-                const prods = getProductsForSection(section.id);
-                if (prods.length === 0) return null;
-              }
+            // For category product sliders, omit empty sections to avoid flashing on reload
+            const categorySectionKeys = ['shirts', 'tshirts', 'polos', 'pants', 'jackets', 'hats', 'panjabi'];
+            if (categorySectionKeys.includes(section.id)) {
+              const prods = getProductsForSection(section.id);
+              if (prods.length === 0) return null;
             }
 
             const component = SECTION_MAP[section.id];
@@ -375,7 +399,7 @@ export default function Home() {
 
             // Dynamic Custom Product Section added from Storefront Admin
             const prods = getProductsForSection(section.id);
-            if (!isProductsLoading && prods.length === 0) return null;
+            if (prods.length === 0) return null;
 
             return (
               <div key={section.id}>

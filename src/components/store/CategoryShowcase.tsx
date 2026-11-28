@@ -19,24 +19,64 @@ interface CategoryItem {
   sales?: number;
 }
 
-const FALLBACK_CATEGORIES: CategoryItem[] = [
-  { id: "shirt", name: "Shirts", slug: "shirt", count: 24, tag: "Refined", thumbnail: (shirtImg as any).src || shirtImg },
-  { id: "panjabi", name: "Panjabis", slug: "panjabi", count: 18, tag: "Traditional", thumbnail: (shirtImg as any).src || shirtImg },
-  { id: "tshirt", name: "T-Shirts", slug: "t-shirt", count: 20, tag: "Everyday", thumbnail: (tshirtImg as any).src || tshirtImg },
-  { id: "pant", name: "Trousers", slug: "trouser", count: 16, tag: "Tailored", thumbnail: (pantsImg as any).src || pantsImg },
-  { id: "polo", name: "Polo Shirts", slug: "polo", count: 12, tag: "Casual", thumbnail: (tshirtImg as any).src || tshirtImg },
-  { id: "jacket", name: "Jackets", slug: "jacket", count: 8, tag: "Outerwear", thumbnail: (pantsImg as any).src || pantsImg },
-  { id: "hat", name: "Hats & Caps", slug: "hat", count: 6, tag: "Accessories", thumbnail: (shirtImg as any).src || shirtImg },
-];
+const CAT_CACHE_KEY = "rimal_categories_showcase_cache";
+const SETTINGS_CACHE_KEY = "rimal_category_showcase_settings";
 
 export function CategoryShowcase() {
   const router = useRouter();
-  const [eyebrow, setEyebrow] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [eyebrow, setEyebrow] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(SETTINGS_CACHE_KEY);
+        if (cached) return JSON.parse(cached).eyebrow || "";
+      } catch (e) {}
+    }
+    return "";
+  });
+  const [title, setTitle] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(SETTINGS_CACHE_KEY);
+        if (cached) return JSON.parse(cached).title || "";
+      } catch (e) {}
+    }
+    return "";
+  });
+  const [description, setDescription] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(SETTINGS_CACHE_KEY);
+        if (cached) return JSON.parse(cached).description || "";
+      } catch (e) {}
+    }
+    return "";
+  });
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(SETTINGS_CACHE_KEY);
+        if (cached) {
+          const list = JSON.parse(cached).selectedCategories;
+          if (Array.isArray(list)) return list;
+          if (typeof list === "string") return list.split(",").map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
   const [maxProducts, setMaxProducts] = useState(8);
-  const [allCategories, setAllCategories] = useState<CategoryItem[]>([]);
+  const [allCategories, setAllCategories] = useState<CategoryItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(CAT_CACHE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
   const [loading, setLoading] = useState(true);
 
   // Carousel & mouse drag state
@@ -71,6 +111,9 @@ export function CategoryShowcase() {
             setSelectedCategoryIds([]);
           }
           if (data.maxProducts) setMaxProducts(Number(data.maxProducts));
+          try {
+            localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(data));
+          } catch (e) {}
         }
       })
       .catch(console.error);
@@ -104,13 +147,12 @@ export function CategoryShowcase() {
             }
           });
           setAllCategories(formatted);
-        } else {
-          setAllCategories(FALLBACK_CATEGORIES);
+          try {
+            localStorage.setItem(CAT_CACHE_KEY, JSON.stringify(formatted));
+          } catch (e) {}
         }
       })
-      .catch(() => {
-        setAllCategories(FALLBACK_CATEGORIES);
-      })
+      .catch(console.error)
       .finally(() => {
         setLoading(false);
       });
@@ -175,7 +217,7 @@ export function CategoryShowcase() {
   };
 
   // Filter categories based on admin selection or dynamic mode
-  const baseList = allCategories.length > 0 ? allCategories : FALLBACK_CATEGORIES;
+  const baseList = allCategories;
   let displayCategories: CategoryItem[] = [];
 
   if (selectedCategoryIds.length > 0) {
@@ -238,6 +280,26 @@ export function CategoryShowcase() {
       behavior: 'smooth'
     });
   };
+
+  if (loading && allCategories.length === 0) {
+    return (
+      <section 
+        id="categories"
+        className="border-t border-border/40 bg-background py-3 sm:py-4 md:py-6 relative overflow-hidden select-none"
+      >
+        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+          <div className="flex gap-3 sm:gap-4 md:gap-5 overflow-hidden">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div 
+                key={i} 
+                className="aspect-[4/5] min-w-0 flex-[0_0_46%] sm:flex-[0_0_45%] md:flex-[0_0_30%] lg:flex-[0_0_23%] xl:flex-[0_0_19%] rounded-xl sm:rounded-2xl bg-card/40 border border-border/30 animate-pulse" 
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (!loading && displayCategories.length === 0) {
     return null;
