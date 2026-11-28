@@ -85,6 +85,30 @@ export async function POST(req: Request) {
     });
     
     await newOrder.save();
+
+    // Trigger OneSignal push notification for new order alert
+    try {
+      const Setting = (await import("@/models/Setting")).default;
+      const osSetting = await Setting.findOne({ key: "onesignal_settings" }).lean();
+      if (osSetting?.value?.enabled && osSetting?.value?.appId && osSetting?.value?.apiKey) {
+        fetch("https://onesignal.com/api/v1/notifications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Basic ${String(osSetting.value.apiKey).trim()}`
+          },
+          body: JSON.stringify({
+            app_id: String(osSetting.value.appId).trim(),
+            included_segments: ["Subscribed Users"],
+            headings: { en: `🛍️ New Order #${orderId} Received!` },
+            contents: { en: `${formData.name || 'A customer'} placed an order for ৳${total.toLocaleString()}` },
+            url: `https://rimallifestyle.com/admin/orders`
+          })
+        }).catch(err => console.error("OneSignal order push failed:", err));
+      }
+    } catch (pushErr) {
+      console.error("Error triggering order push notification:", pushErr);
+    }
     
     return NextResponse.json({ 
       success: true, 

@@ -175,6 +175,12 @@ export default async function RootLayout({
         <link rel="icon" type="image/png" sizes="96x96" href="/icon-96x96.png" />
         <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Rimal Store" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#550000" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react";
+import { PushNotificationModal } from "./PushNotificationModal";
 
 declare global {
   interface Window {
@@ -46,18 +47,6 @@ export function OneSignalInit() {
                 enable: false,
               },
             });
-
-            if (data.autoPrompt) {
-              setTimeout(() => {
-                try {
-                  if (OneSignal?.Slidedown?.promptPush) {
-                    OneSignal.Slidedown.promptPush();
-                  }
-                } catch (err) {
-                  // Ignore slidedown errors if already opted in or dismissed
-                }
-              }, 4000);
-            }
           } catch (err) {
             console.error("OneSignal initialization error:", err);
           }
@@ -74,5 +63,5 @@ export function OneSignalInit() {
     };
   }, []);
 
-  return null;
+  return <PushNotificationModal />;
 }

@@ -140,6 +140,15 @@ export function Sidebar({ onClose, onSwitchStorefront }: { onClose?: () => void,
         if (res.ok) {
           const data = await res.json();
           setUnseenCount(data.count);
+          if (typeof navigator !== "undefined" && "setAppBadge" in navigator) {
+            try {
+              if (data.count > 0) {
+                (navigator as any).setAppBadge(data.count).catch(() => {});
+              } else {
+                (navigator as any).clearAppBadge().catch(() => {});
+              }
+            } catch (e) {}
+          }
         }
       } catch (err) {
         console.error('Failed to fetch unseen orders count:', err);

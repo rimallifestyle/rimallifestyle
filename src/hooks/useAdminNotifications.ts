@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -42,6 +43,28 @@ export function useAdminNotifications() {
     refetchInterval: 30000, // Poll every 30 seconds
     staleTime: 10000,
   });
+
+  // Dynamically update installed PWA App Badge (red bubble with count) & tab title
+  useEffect(() => {
+    const unread = data?.unreadCount || 0;
+    
+    // 1. Native W3C Web Badging API (Android PWA, iOS PWA, macOS, Windows)
+    if (typeof navigator !== "undefined" && "setAppBadge" in navigator) {
+      try {
+        if (unread > 0) {
+          (navigator as any).setAppBadge(unread).catch(() => {});
+        } else {
+          (navigator as any).clearAppBadge().catch(() => {});
+        }
+      } catch (err) {}
+    }
+
+    // 2. Dynamic document title
+    if (typeof document !== "undefined" && typeof window !== "undefined" && window.location.pathname.startsWith("/admin")) {
+      const baseTitle = "Rimal Admin";
+      document.title = unread > 0 ? `(${unread}) ${baseTitle}` : baseTitle;
+    }
+  }, [data?.unreadCount]);
 
   // Mark single notification as read
   const markReadMutation = useMutation({
