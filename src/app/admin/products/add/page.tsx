@@ -279,8 +279,16 @@ export default function AddProductPage() {
 
   const handleSubmit = async (e?: React.FormEvent, status: 'published' | 'draft' = 'published') => {
     if (e) e.preventDefault()
-    if (!name || !regularPrice) {
-      toast.error('Product Name and Regular Price are required.')
+    if (!name || !name.trim()) {
+      toast.error('Product Name is required.')
+      return
+    }
+    if (!regularPrice || isNaN(Number(regularPrice)) || Number(regularPrice) < 0) {
+      toast.error('A valid Regular Price is required.')
+      return
+    }
+    if (salePrice && Number(salePrice) > Number(regularPrice)) {
+      toast.error('Discounted Sale Price cannot be higher than Regular Price.')
       return
     }
 
@@ -288,6 +296,9 @@ export default function AddProductPage() {
 
     try {
       const uploadImageToCloudinary = async (file: File) => {
+        if (file.size > 10 * 1024 * 1024) {
+          throw new Error(`File "${file.name}" is too large (max 10MB).`);
+        }
         const data = new FormData();
         data.append("file", file);
         data.append("folder", "rimal_store/products");
@@ -296,7 +307,7 @@ export default function AddProductPage() {
           body: data
         });
         const uploadData = await res.json();
-        if (!res.ok) throw new Error(uploadData.error || "Upload failed");
+        if (!res.ok) throw new Error(uploadData.error || uploadData.message || "Image upload failed");
         return uploadData.url;
       }
 
@@ -317,18 +328,18 @@ export default function AddProductPage() {
       // 2. Prepare Product Data (MongoDB Format)
       const finalCategory = subCategory || parentCategory || category
       const productData = {
-        name,
-        shortDescription,
-        description,
+        name: name.trim(),
+        shortDescription: shortDescription || '',
+        description: description || '',
         customTabs: customTabs.filter(t => t.title && t.title.trim()),
-        regularPrice,
-        salePrice: salePrice || undefined,
+        regularPrice: Number(regularPrice),
+        salePrice: salePrice && Number(salePrice) > 0 ? Number(salePrice) : undefined,
         sku,
         stockQuantity: stockQuantity ? parseInt(stockQuantity, 10) : 0,
-        category: finalCategory,
+        category: finalCategory || "Uncategorized",
         parentCategory: parentCategory || undefined,
         subCategory: subCategory || undefined,
-        image: imageUrl,
+        image: imageUrl || undefined,
         gallery: galleryUrls.length > 0 ? galleryUrls : undefined,
         productAttributes,
         globalAttributes,
@@ -345,7 +356,7 @@ export default function AddProductPage() {
       })
       
       const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Failed to save product')
+      if (!res.ok) throw new Error(data.message || data.error || 'Failed to save product')
 
       toast.success(status === 'draft' ? 'Product saved as draft (unpublished)!' : `Product ${editId ? 'updated' : 'published'} successfully!`)
       
@@ -1167,6 +1178,61 @@ export default function AddProductPage() {
           </div>
 
         </div>
+
+        {/* Sticky Bottom Actions Bar */}
+        <div className="sticky bottom-6 z-40 mt-8 p-4 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/10 shadow-2xl flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-sm text-white/60">
+            <span>Status:</span>
+            <span className={cn(
+              "px-2.5 py-0.5 rounded-full text-xs font-medium border",
+              productStatus === 'draft' 
+                ? "bg-amber-400/10 text-amber-400 border-amber-400/20" 
+                : "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
+            )}>
+              {productStatus === 'draft' ? 'Draft (Unpublished)' : 'Ready to Publish'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link href="/admin/products">
+              <button
+                type="button"
+                className="h-10 px-5 rounded-full glass-button text-sm font-medium text-white/70 hover:text-white transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+            </Link>
+            <button 
+              type="button" 
+              onClick={(e) => handleSubmit(e, 'draft')}
+              disabled={submittingAction !== null}
+              className="flex items-center gap-2 h-10 px-6 rounded-full glass-button text-sm font-medium text-white hover:bg-white/10 transition-all disabled:opacity-50 cursor-pointer"
+            >
+              {submittingAction === 'draft' && (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              )}
+              <span>{submittingAction === 'draft' ? 'Saving Draft...' : 'Save as Draft'}</span>
+            </button>
+            <button 
+              type="button" 
+              onClick={(e) => handleSubmit(e, 'published')}
+              disabled={submittingAction !== null}
+              className="flex items-center gap-2 h-10 px-6 rounded-full bg-[#550000] text-sm font-medium text-white hover:bg-[#7A1111] transition-all shadow-[0_0_15px_rgba(85,0,0,0.5)] disabled:opacity-50 cursor-pointer"
+            >
+              {submittingAction === 'published' ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              <span>
+                {submittingAction === 'published' 
+                  ? (editId ? 'Updating...' : 'Publishing...') 
+                  : (editId ? (productStatus === 'draft' ? 'Publish Product' : 'Update Product') : 'Publish Product')}
+              </span>
+            </button>
+          </div>
+        </div>
+
       </div>
     </form>
   )

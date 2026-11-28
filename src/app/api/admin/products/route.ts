@@ -12,7 +12,10 @@ async function checkAdmin() {
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.email) return false;
   await connectToDatabase();
-  const user = await User.findOne({ email: session.user.email });
+  const cleanEmail = session.user.email.trim();
+  const user = await User.findOne({
+    email: { $regex: new RegExp(`^${cleanEmail.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`, "i") }
+  });
   return user?.role?.toLowerCase() === "admin";
 }
 
@@ -44,11 +47,18 @@ export async function POST(req: Request) {
       category, parentCategory, subCategory, image, gallery, globalAttributes, productAttributes, variantStocks, status 
     } = body;
 
-    if (!name || regularPrice === undefined) {
-      return NextResponse.json({ message: "Name and regular price are required." }, { status: 400 });
+    if (!name || regularPrice === undefined || regularPrice === null || String(regularPrice).trim() === '') {
+      return NextResponse.json({ message: "Product Name and Regular Price are required." }, { status: 400 });
     }
 
-    let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    let slug = (name || '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\u0980-\u09FF]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+    if (!slug || slug.trim() === '') {
+      slug = `product-${Date.now()}`;
+    }
     let slugExists = await Product.findOne({ slug });
     if (slugExists) {
       slug = `${slug}-${Date.now()}`;
@@ -65,24 +75,24 @@ export async function POST(req: Request) {
     }
 
     const newProduct = new Product({
-      name,
+      name: String(name).trim(),
       slug,
-      shortDescription,
-      description,
+      shortDescription: shortDescription || '',
+      description: description || '',
       customTabs: Array.isArray(customTabs) ? customTabs : [],
       regularPrice: Number(regularPrice),
-      salePrice: salePrice ? Number(salePrice) : undefined,
+      salePrice: salePrice && Number(salePrice) > 0 ? Number(salePrice) : undefined,
       sku: productSku,
-      stockQuantity: stockQuantity ? Number(stockQuantity) : 0,
-      category: category || subCategory || parentCategory,
-      parentCategory,
-      subCategory,
-      image,
-      gallery,
-      globalAttributes,
-      productAttributes,
+      stockQuantity: stockQuantity !== undefined && stockQuantity !== null && stockQuantity !== '' ? Number(stockQuantity) : 0,
+      category: category || subCategory || parentCategory || "Uncategorized",
+      parentCategory: parentCategory || undefined,
+      subCategory: subCategory || undefined,
+      image: image || undefined,
+      gallery: Array.isArray(gallery) ? gallery : [],
+      globalAttributes: Array.isArray(globalAttributes) ? globalAttributes : [],
+      productAttributes: Array.isArray(productAttributes) ? productAttributes : [],
       variantStocks: variantStocks || {},
-      status: status || 'published'
+      status: status === 'draft' ? 'draft' : 'published'
     });
 
     await newProduct.save();

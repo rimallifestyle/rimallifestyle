@@ -11,7 +11,10 @@ async function checkAdmin() {
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.email) return false;
   await connectToDatabase();
-  const user = await User.findOne({ email: session.user.email });
+  const cleanEmail = session.user.email.trim();
+  const user = await User.findOne({
+    email: { $regex: new RegExp(`^${cleanEmail.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`, "i") }
+  });
   return user?.role?.toLowerCase() === "admin";
 }
 
@@ -44,37 +47,49 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     let slug;
     if (name) {
-      slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      slug = name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\u0980-\u09FF]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+      if (!slug || slug.trim() === '') {
+        slug = `product-${Date.now()}`;
+      }
       let slugExists = await Product.findOne({ slug, _id: { $ne: id } });
       if (slugExists) {
         slug = `${slug}-${Date.now()}`;
       }
     }
 
-    const updated = await Product.findByIdAndUpdate(
-      id,
-      {
-        ...(name && { name }),
-        ...(slug && { slug }),
-        shortDescription,
-        description,
-        ...(customTabs !== undefined && { customTabs }),
-        regularPrice: regularPrice !== undefined ? Number(regularPrice) : undefined,
-        salePrice: salePrice !== undefined ? Number(salePrice) : undefined,
-        sku,
-        stockQuantity: stockQuantity !== undefined ? Number(stockQuantity) : undefined,
-        category: category || subCategory || parentCategory,
-        parentCategory,
-        subCategory,
-        image,
-        gallery,
-        globalAttributes,
-        productAttributes,
-        ...(variantStocks !== undefined && { variantStocks }),
-        status
-      },
-      { new: true }
-    );
+    const updateFields: any = {};
+    if (name) updateFields.name = String(name).trim();
+    if (slug) updateFields.slug = slug;
+    if (shortDescription !== undefined) updateFields.shortDescription = shortDescription;
+    if (description !== undefined) updateFields.description = description;
+    if (customTabs !== undefined) updateFields.customTabs = Array.isArray(customTabs) ? customTabs : [];
+    if (regularPrice !== undefined && regularPrice !== null && String(regularPrice).trim() !== '') {
+      updateFields.regularPrice = Number(regularPrice);
+    }
+    if (salePrice !== undefined) {
+      updateFields.salePrice = Number(salePrice) > 0 ? Number(salePrice) : undefined;
+    }
+    if (sku !== undefined) updateFields.sku = sku;
+    if (stockQuantity !== undefined && stockQuantity !== null && String(stockQuantity).trim() !== '') {
+      updateFields.stockQuantity = Number(stockQuantity);
+    }
+    if (category || subCategory || parentCategory) {
+      updateFields.category = category || subCategory || parentCategory;
+    }
+    if (parentCategory !== undefined) updateFields.parentCategory = parentCategory || undefined;
+    if (subCategory !== undefined) updateFields.subCategory = subCategory || undefined;
+    if (image !== undefined) updateFields.image = image;
+    if (gallery !== undefined) updateFields.gallery = Array.isArray(gallery) ? gallery : [];
+    if (globalAttributes !== undefined) updateFields.globalAttributes = globalAttributes;
+    if (productAttributes !== undefined) updateFields.productAttributes = productAttributes;
+    if (variantStocks !== undefined) updateFields.variantStocks = variantStocks;
+    if (status !== undefined) updateFields.status = status === 'draft' ? 'draft' : 'published';
+
+    const updated = await Product.findByIdAndUpdate(id, updateFields, { new: true });
 
     if (!updated) return NextResponse.json({ message: "Not found" }, { status: 404 });
     return NextResponse.json(updated);

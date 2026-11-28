@@ -77,6 +77,28 @@ export default function ProductsPage() {
     setTimeout(() => setCopiedId(null), 2000);
   }
 
+  const handleToggleStatus = async (product: any) => {
+    const newStatus = product.status === 'draft' ? 'published' : 'draft';
+    try {
+      const res = await fetch(`/api/admin/products/${product._id || product.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setProducts(prev => prev.map(p => 
+          (p._id === product._id || p.id === product.id) ? { ...p, status: newStatus } : p
+        ));
+        toast.success(`Product ${newStatus === 'published' ? 'published' : 'moved to draft'}!`);
+      } else {
+        const err = await res.json();
+        toast.error(err.message || 'Failed to update status');
+      }
+    } catch {
+      toast.error('Network error updating product status');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col gap-6 pt-4 pb-6">
@@ -264,17 +286,25 @@ export default function ProductsPage() {
                     </div>
                   </td>
                   <td className="py-3 bg-transparent group-hover:bg-white/5 transition-colors border-b border-white/5 group-hover:border-transparent">
-                    <span className={cn(
-                      "px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 w-fit border",
-                      product.status === 'draft' 
-                        ? "text-amber-400 bg-amber-400/10 border-amber-400/20" 
-                        : "text-emerald-400 bg-emerald-400/10 border-emerald-400/20"
-                    )}>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleStatus(product);
+                      }}
+                      title="Click to toggle status (Published / Draft)"
+                      className={cn(
+                        "px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 w-fit border cursor-pointer transition-all hover:scale-105 active:scale-95",
+                        product.status === 'draft' 
+                          ? "text-amber-400 bg-amber-400/10 border-amber-400/20 hover:bg-amber-400/20" 
+                          : "text-emerald-400 bg-emerald-400/10 border-emerald-400/20 hover:bg-emerald-400/20"
+                      )}
+                    >
                       <span className={cn("w-1.5 h-1.5 rounded-full", 
                         product.status === 'draft' ? "bg-amber-400" : "bg-emerald-400"
                       )} />
                       {product.status === 'draft' ? 'Draft' : 'Published'}
-                    </span>
+                    </button>
                   </td>
                   <td className="py-3 pr-4 rounded-r-2xl bg-transparent group-hover:bg-white/5 transition-colors border-b border-white/5 group-hover:border-transparent">
                     <div className="flex items-center justify-end gap-2 relative">
