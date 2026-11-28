@@ -99,13 +99,13 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <article 
+    <article
       onClick={navigateToProduct}
       data-product-card="true"
       className="product-card transform-gpu group relative flex h-full flex-col rounded-xl border border-border/60 bg-card/40 p-3 transition-all duration-300 hover:border-gold/60 hover:bg-card/70 hover:shadow-luxe cursor-pointer"
     >
       <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-secondary to-maroon-deep/60">
-        <Link  href={`/product/${product.slug || product.id}`} className="block">
+        <Link href={`/product/${product.slug || product.id}`} className="block">
           <ProductImage
             product={product}
             className="aspect-[4/5] w-full group-hover:scale-[1.06]"
@@ -141,7 +141,7 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="flex flex-1 items-start justify-between gap-3 pt-4">
         <div className="min-w-0">
-          <Link  href={`/product/${product.slug || product.id}`}>
+          <Link href={`/product/${product.slug || product.id}`}>
             <h3 className="font-display text-lg leading-snug transition group-hover:text-gold">
               {product.name}
             </h3>
@@ -190,9 +190,8 @@ export function ProductCard({ product }: { product: Product }) {
         )}
         <div className="flex items-center gap-1 text-[11px] ml-auto">
           <span className="text-muted-foreground text-[10px] uppercase tracking-wider">Total Stock:</span>
-          <span className={`font-semibold font-mono ${
-            isOutOfStock ? 'text-red-400' : isLowStock ? 'text-amber-400' : 'text-emerald-400'
-          }`}>
+          <span className={`font-semibold font-mono ${isOutOfStock ? 'text-red-400' : isLowStock ? 'text-amber-400' : 'text-emerald-400'
+            }`}>
             {stockQty}
           </span>
         </div>
@@ -234,13 +233,13 @@ export function ProductCardOverlay({ product }: { product: Product }) {
   };
 
   return (
-    <article 
+    <article
       onClick={navigateToProduct}
       data-product-card="true"
       className="product-card transform-gpu group relative overflow-hidden rounded-xl border border-border/60 shadow-luxe cursor-pointer"
     >
       <div className="relative">
-        <Link  href={`/product/${product.slug || product.id}`} className="block">
+        <Link href={`/product/${product.slug || product.id}`} className="block">
           <ProductImage
             product={product}
             className="aspect-[3/4] w-full group-hover:scale-[1.08]"
@@ -280,7 +279,7 @@ export function ProductCardOverlay({ product }: { product: Product }) {
               Total Stock: <strong className={isOutOfStock ? "text-red-400" : isLowStock ? "text-amber-400" : "text-emerald-400"}>{stockQty}</strong>
             </span>
           </div>
-          <Link  href={`/product/${product.slug || product.id}`}>
+          <Link href={`/product/${product.slug || product.id}`}>
             <h3 className="mt-1 font-display text-xl leading-tight text-cream md:text-2xl hover:text-gold transition">
               {product.name}
             </h3>
@@ -337,7 +336,7 @@ export function ProductCardMinimal({ product }: { product: Product }) {
   return (
     <article onClick={navigateToProduct} data-product-card="true" className="product-card transform-gpu group cursor-pointer">
       <div className="relative overflow-hidden bg-secondary">
-        <Link  href={`/product/${product.slug || product.id}`} className="block">
+        <Link href={`/product/${product.slug || product.id}`} className="block">
           <ProductImage
             product={product}
             className="aspect-[3/4] w-full group-hover:scale-[1.04]"
@@ -348,13 +347,12 @@ export function ProductCardMinimal({ product }: { product: Product }) {
             Out of Stock
           </span>
         ) : (
-          <span className={`absolute left-0 top-4 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white ${
-            isLowStock ? 'bg-amber-600/95' : 'bg-emerald-600/90'
-          }`}>
+          <span className={`absolute left-0 top-4 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white ${isLowStock ? 'bg-amber-600/95' : 'bg-emerald-600/90'
+            }`}>
             Stock: {stockQty}
           </span>
         )}
-        
+
         {product.tag && !isOutOfStock && (
           <span className="absolute left-0 top-12 bg-maroon-deep px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">
             {product.tag}
@@ -382,7 +380,7 @@ export function ProductCardMinimal({ product }: { product: Product }) {
             Stock: <span className={`font-semibold font-mono ${isOutOfStock ? "text-red-400" : isLowStock ? "text-amber-400" : "text-emerald-400"}`}>{stockQty}</span>
           </span>
         </div>
-        <Link  href={`/product/${product.slug || product.id}`}>
+        <Link href={`/product/${product.slug || product.id}`}>
           <h3 className="mt-2 font-display text-base leading-snug transition group-hover:text-gold">
             {product.name}
           </h3>
@@ -433,13 +431,13 @@ export function ProductCardDetailed({ product }: { product: Product }) {
   };
 
   return (
-    <article 
+    <article
       onClick={navigateToProduct}
       data-product-card="true"
       className="product-card transform-gpu group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/50 transition-all duration-300 hover:border-gold/60 hover:shadow-luxe cursor-pointer"
     >
       <div className="relative overflow-hidden bg-gradient-to-br from-secondary to-maroon-deep/60">
-        <Link  href={`/product/${product.slug || product.id}`} className="block">
+        <Link href={`/product/${product.slug || product.id}`} className="block">
           <ProductImage
             product={product}
             className="aspect-[4/5] w-full group-hover:scale-[1.05]"
@@ -470,7 +468,7 @@ export function ProductCardDetailed({ product }: { product: Product }) {
             <p className="mb-1 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
               {formatCategoryBadge(product)}
             </p>
-            <Link  href={`/product/${product.slug || product.id}`}>
+            <Link href={`/product/${product.slug || product.id}`}>
               <h3 className="font-display text-lg leading-snug transition group-hover:text-gold">
                 {product.name}
               </h3>
@@ -488,9 +486,8 @@ export function ProductCardDetailed({ product }: { product: Product }) {
 
         <div className="mt-2.5 flex items-center justify-between text-xs py-1.5 px-3 rounded-xl bg-secondary/50 border border-border/40">
           <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Stock</span>
-          <span className={`font-semibold font-mono text-xs ${
-            isOutOfStock ? 'text-red-400' : isLowStock ? 'text-amber-400' : 'text-emerald-400'
-          }`}>
+          <span className={`font-semibold font-mono text-xs ${isOutOfStock ? 'text-red-400' : isLowStock ? 'text-amber-400' : 'text-emerald-400'
+            }`}>
             {isOutOfStock ? "0" : stockQty}
           </span>
         </div>
@@ -505,7 +502,7 @@ export function ProductCardDetailed({ product }: { product: Product }) {
         </div>
 
         <div className="mt-auto flex flex-col gap-2 pt-4">
-          <button 
+          <button
             onClick={navigateToProduct}
             disabled={isOutOfStock}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-accent-foreground shadow-sm transition hover:bg-cream disabled:opacity-50"
@@ -542,7 +539,7 @@ export function ProductCardSkeleton({ variant = "default" }: { variant?: "defaul
       </article>
     );
   }
-  
+
   if (variant === "minimal") {
     return (
       <article className="group cursor-pointer animate-pulse">

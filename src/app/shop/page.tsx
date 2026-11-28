@@ -143,19 +143,33 @@ function ShopContent() {
         const pSub = p.subCategory?.toLowerCase() || "";
 
         return selectedCategories.some((selected) => {
-          const s = selected.toLowerCase();
+          const s = selected.toLowerCase().trim();
+
+          const isSelectedTShirt = s === 't-shirt' || s === 't-shirts' || s === 'tshirt' || s === 'tshirts';
+          const isSelectedShirt = s === 'shirt' || s === 'shirts';
+          const isProductTShirt = pSub.includes('t-shirt') || pCat.includes('t-shirt') || (p.name || '').toLowerCase().includes('t-shirt') || (p.name || '').toLowerCase().includes('tshirt');
+
+          // Strict separation: never mix shirts and t-shirts
+          if (isSelectedTShirt && !isProductTShirt) return false;
+          if (isSelectedShirt && isProductTShirt) return false;
+
+          // Normalized match (handling plural/singular like shirts -> shirt)
+          const normS = s.replace(/s$/, '');
+          const normSub = pSub.replace(/s$/, '');
+          const normCat = pCat.replace(/s$/, '');
+          const normParent = pParent.replace(/s$/, '');
 
           // Direct match with product's subCategory, parentCategory, or category
-          if (pSub === s || pParent === s || pCat === s) return true;
+          if (pSub === s || pParent === s || pCat === s || normSub === normS || normCat === normS) return true;
 
           // Check if selected is a parent category and product belongs to it
           const matchedParent = categoryTree.find(
-            (c) => c.name.toLowerCase() === s || c.slug.toLowerCase() === s
+            (c) => c.name.toLowerCase() === s || c.slug.toLowerCase() === s || c.name.toLowerCase().replace(/s$/, '') === normS || c.slug.toLowerCase().replace(/s$/, '') === normS
           );
           if (matchedParent) {
-            if (pParent === matchedParent.name.toLowerCase()) return true;
+            if (pParent === matchedParent.name.toLowerCase() || normParent === matchedParent.name.toLowerCase().replace(/s$/, '')) return true;
             if (matchedParent.subcategories?.some(
-              (sub) => sub.name.toLowerCase() === pSub || sub.name.toLowerCase() === pCat
+              (sub) => sub.name.toLowerCase() === pSub || sub.name.toLowerCase() === pCat || sub.slug.toLowerCase() === pSub || sub.slug.toLowerCase() === pCat
             )) {
               return true;
             }
@@ -164,10 +178,10 @@ function ShopContent() {
           // Check if selected is a subcategory and matches product
           for (const parent of categoryTree) {
             const matchedSub = parent.subcategories?.find(
-              (sub) => sub.name.toLowerCase() === s || sub.slug.toLowerCase() === s
+              (sub) => sub.name.toLowerCase() === s || sub.slug.toLowerCase() === s || sub.name.toLowerCase().replace(/s$/, '') === normS || sub.slug.toLowerCase().replace(/s$/, '') === normS
             );
             if (matchedSub) {
-              if (pSub === matchedSub.name.toLowerCase() || pCat === matchedSub.name.toLowerCase()) {
+              if (pSub === matchedSub.name.toLowerCase() || pCat === matchedSub.name.toLowerCase() || pSub === matchedSub.slug.toLowerCase() || pCat === matchedSub.slug.toLowerCase()) {
                 return true;
               }
             }

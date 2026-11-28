@@ -59,9 +59,91 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
+  // Strict helpers to separate T-Shirts, regular Shirts, and Polos
+  const isTShirt = (p: Product): boolean => {
+    const name = (p.name || '').toLowerCase();
+    const cat = (p.category || '').toLowerCase().trim();
+    const slug = (p.categorySlug || '').toLowerCase().trim();
+    const sub = (p.subCategory || '').toLowerCase().trim();
+    const id = (p.categoryId || '').toString().trim();
+
+    if (id === '6b08013b8e40cffba6385778') return true;
+    if (['t-shirt', 't-shirts', 'tshirt', 'tshirts', 'tee', 'tees'].includes(slug)) return true;
+    if (['t-shirt', 't-shirts', 'tshirt', 'tshirts', 'tee', 'tees'].includes(cat)) return true;
+    if (['t-shirt', 't-shirts', 'tshirt', 'tshirts', 'tee', 'tees'].includes(sub)) return true;
+    if (/\b(t-shirt|t-shirts|tshirt|tshirts|tee|tees)\b/i.test(name)) return true;
+    if (/\b(t-shirt|t-shirts|tshirt|tshirts)\b/i.test(`${cat} ${slug} ${sub}`)) return true;
+
+    return false;
+  };
+
+  const isPolo = (p: Product): boolean => {
+    const name = (p.name || '').toLowerCase();
+    const cat = (p.category || '').toLowerCase().trim();
+    const slug = (p.categorySlug || '').toLowerCase().trim();
+    const sub = (p.subCategory || '').toLowerCase().trim();
+
+    if (slug.includes('polo') || cat.includes('polo') || sub.includes('polo')) return true;
+    if (/\bpolo\b/i.test(name)) return true;
+    return false;
+  };
+
+  const isShirt = (p: Product): boolean => {
+    if (isTShirt(p) || isPolo(p)) return false;
+
+    const name = (p.name || '').toLowerCase();
+    const cat = (p.category || '').toLowerCase().trim();
+    const slug = (p.categorySlug || '').toLowerCase().trim();
+    const sub = (p.subCategory || '').toLowerCase().trim();
+    const id = (p.categoryId || '').toString().trim();
+
+    if (id === '6ad4f6136c1a1b58e4bcdc82') return true;
+    if (['shirt', 'shirts'].includes(slug)) return true;
+    if (['shirt', 'shirts'].includes(cat)) return true;
+    if (['shirt', 'shirts'].includes(sub)) return true;
+    if (/\b(shirt|shirts)\b/i.test(name)) return true;
+    if (/\b(shirt|shirts)\b/i.test(`${cat} ${slug} ${sub}`)) return true;
+
+    return false;
+  };
+
   // Intelligent category matcher: handles custom storefront assignments & smart built-in detection
   const matchCategory = (p: Product, sectionKey: string): boolean => {
-    // 1. If storefront section config has an explicit category assigned:
+    // 1. Strict handling for standard apparel sections:
+    if (sectionKey === 'shirts') {
+      if (isTShirt(p) || isPolo(p)) return false;
+      const customCat = sectionsConfig[sectionKey]?.category;
+      if (customCat && customCat !== '' && customCat !== 'all') {
+        const target = customCat.toLowerCase().trim();
+        const pCat = (p.category || '').toLowerCase().trim();
+        const pSlug = (p.categorySlug || '').toLowerCase().trim();
+        const pId = (p.categoryId || '').toString().trim();
+        const pSub = (p.subCategory || '').toLowerCase().trim();
+        if (pCat === target || pSlug === target || pId === target || pSub === target) return true;
+      }
+      return isShirt(p);
+    }
+
+    if (sectionKey === 'tshirts') {
+      if (isShirt(p) || isPolo(p)) return false;
+      const customCat = sectionsConfig[sectionKey]?.category;
+      if (customCat && customCat !== '' && customCat !== 'all') {
+        const target = customCat.toLowerCase().trim();
+        const pCat = (p.category || '').toLowerCase().trim();
+        const pSlug = (p.categorySlug || '').toLowerCase().trim();
+        const pId = (p.categoryId || '').toString().trim();
+        const pSub = (p.subCategory || '').toLowerCase().trim();
+        if (pCat === target || pSlug === target || pId === target || pSub === target) return true;
+      }
+      return isTShirt(p);
+    }
+
+    if (sectionKey === 'polos') {
+      if (isShirt(p) || isTShirt(p)) return false;
+      return isPolo(p);
+    }
+
+    // 2. Custom category assignment from Storefront Admin for other sections:
     const customCat = sectionsConfig[sectionKey]?.category;
     if (customCat && customCat !== '') {
       if (customCat === 'all') return true;
@@ -71,20 +153,38 @@ export default function Home() {
       const pId = (p.categoryId || '').toString().trim();
       const pSub = (p.subCategory || '').toLowerCase().trim();
       const pParent = (p.parentCategory || '').toLowerCase().trim();
+
+      // Enforce strict separation if target is shirt or t-shirt
+      if (['shirt', 'shirts'].includes(target)) {
+        if (isTShirt(p) || isPolo(p)) return false;
+        return isShirt(p);
+      }
+      if (['t-shirt', 't-shirts', 'tshirt', 'tshirts', 'tee'].includes(target)) {
+        if (isShirt(p) || isPolo(p)) return false;
+        return isTShirt(p);
+      }
+
       if (
         pCat === target || 
         pSlug === target || 
         pId === target || 
         pSub === target || 
-        pParent === target ||
-        (pCat && target && (pCat.includes(target) || target.includes(pCat))) ||
-        (pSlug && target && (pSlug.includes(target) || target.includes(pSlug)))
+        pParent === target
+      ) {
+        return true;
+      }
+
+      // Partial match for non-shirt categories (e.g. trousers, denim, etc.)
+      if (
+        !target.includes('shirt') &&
+        ((pCat && (pCat.includes(target) || target.includes(pCat))) ||
+         (pSlug && (pSlug.includes(target) || target.includes(pSlug))))
       ) {
         return true;
       }
     }
 
-    // 2. Built-in smart matching for standard section keys:
+    // 3. Built-in smart matching for standard section keys:
     const nameLower = (p.name || '').toLowerCase();
     const catLower = (p.category || '').toLowerCase().trim();
     const slugLower = (p.categorySlug || '').toLowerCase().trim();
@@ -93,34 +193,13 @@ export default function Home() {
 
     switch (sectionKey) {
       case 'shirts':
-        // Must match shirt/shirts but exclude t-shirt / tshirt
-        if (
-          nameLower.includes('t-shirt') || 
-          nameLower.includes('tshirt') || 
-          allCatTexts.includes('t-shirt') || 
-          allCatTexts.includes('tshirt')
-        ) {
-          return false;
-        }
-        return (
-          allCatTexts.includes('shirt') ||
-          nameLower.includes('shirt')
-        );
+        return isShirt(p);
 
       case 'tshirts':
-        return (
-          allCatTexts.includes('t-shirt') ||
-          allCatTexts.includes('tshirt') ||
-          allCatTexts.includes('tee') ||
-          nameLower.includes('t-shirt') ||
-          nameLower.includes('tshirt')
-        );
+        return isTShirt(p);
 
       case 'polos':
-        return (
-          allCatTexts.includes('polo') ||
-          nameLower.includes('polo')
-        );
+        return isPolo(p);
 
       case 'pants':
         return (
